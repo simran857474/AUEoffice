@@ -2625,6 +2625,7 @@
     <Content Include="Uploads\CCMS Guideline 2.1.pdf" />
     <Content Include="Uploads\eOffice_Live_backup_2026_08_01_100030_5548288.rar" />
     <Content Include="Uploads\eoffice_data.xlsx" />
+    <Content Include="Uploads\testing pointeoffice %2813082026%29.docx" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="css\" />
