@@ -1793,7 +1793,7 @@ namespace Eoffice.BAL
         public DataTable GetDepSecNames(string fileCode)
         {
             fileCode = DeterministicEncryptionHelper.Encrypt(fileCode);
-            string str = "select d.Dep_Name,s.Sec_Name from M_File f inner join M_Department d  on d.Dep_Code = f.File_Dept inner join M_Section s on s.Sec_Code = f.File_Section  where file_code='" + fileCode + "'";
+            string str = "select d.Dep_Name,s.Sec_Name from M_File f inner join M_Department d  on d.Dep_Code = f.File_Dept inner join M_Section s on s.Sec_Code = f.File_Section  where file_code='" + DeterministicEncryptionHelper.Encrypt(fileCode) + "'";
             DataTable dt = dal.EQ(str);
             return dt;
 
