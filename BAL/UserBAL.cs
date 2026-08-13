@@ -1694,7 +1694,7 @@ namespace Eoffice.BAL
 
         public DataTable SearchByFileNo(string userName, string fileNo)
         {
-            DataTable dt = dal.SearchByFileNo(userName, fileNo);
+            DataTable dt = dal.SearchByFileNo(userName, DeterministicEncryptionHelper.Encrypt(fileNo));
 
             return DataSetEncryptionHelper.DecryptDataTable(dt);
         }
@@ -1891,7 +1891,7 @@ namespace Eoffice.BAL
         {
             fileCode = DeterministicEncryptionHelper.Encrypt(fileCode);
             dal.ExecuteForwardSP(fileCode, forwardedFrom, forwardedTo, remark, remarkType, selectedRemarkType, dept, sec,
-                ipAddress ,flag, appFlag, EDRowID, esttype);
+                flag, appFlag, ipAddress, EDRowID, esttype);
         }
 
 

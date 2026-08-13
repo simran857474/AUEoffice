@@ -1923,7 +1923,7 @@
             type: "GET",
             data: { fileCode: fileCode },
             success: function (res) {
-                console.log("Draft check response:", res);
+                //console.log("Draft check response:", res);
 
                 // Check multiple response formats
                 let hasDraft = false;
@@ -1937,14 +1937,14 @@
                 }
 
                 if (hasDraft) {
-                    console.log("Draft found! Showing indicator...");
+                    //console.log("Draft found! Showing indicator...");
                     $("#draftIndicator").fadeIn(500);
                 } else {
-                    console.log("No draft found");
+                    //console.log("No draft found");
                 }
             },
             error: function (xhr, status, error) {
-                console.log("Could not check for draft:", error);
+                //console.log("Could not check for draft:", error);
             }
         });
     }

@@ -2184,6 +2184,7 @@
     <Content Include="Uploads\onlyschemascript_eofficelive_Au.sql" />
     <Content Include="Uploads\RFIDLibrary_MSSQL_Schema.sql" />
     <Content Include="Uploads\rfid_library_er_diagram_red_yellow.html" />
+    <Content Include="Uploads\scriptandalterrproc.txt" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>

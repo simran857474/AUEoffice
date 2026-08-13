@@ -716,10 +716,23 @@ namespace Eoffice.Controllers
 
             try
             {
-                DataSet ds = bal.FN_ExecuteQuerySingle($"USP_AttachedDocument '{fileCode}'");
+                DataSet ds = bal.FN_ExecuteQuerySingle($"USP_AttachedDocument '{DeterministicEncryptionHelper.Encrypt(fileCode)}'");
 
                 if (ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+                        if (row["url"] != DBNull.Value)
+                        {
+                            string currentUrl = row["url"].ToString();
+
+                            if (!string.IsNullOrEmpty(currentUrl))
+                            {
+                                row["url"] = "CreatedFile/" + currentUrl;
+                            }
+                        }
+                    }
+
                     string url = ds.Tables[0].Rows[0]["url"]?.ToString().Trim();
                     string fileName = ds.Tables[0].Rows[0]["Doc_Upload_rest"]?.ToString().Trim();
 
@@ -1721,7 +1734,7 @@ namespace Eoffice.Controllers
 
                 if (empId != "ADM28" || empId == "ADM28")
                 {
-                    string str2 = "select * from m_document where file_code='" + fileCode + "'";
+                    string str2 = "select * from m_document where file_code='" + DeterministicEncryptionHelper.Encrypt(fileCode) + "'";
                     int count = 0;
                     DataTable dt2 = bal.EQ(str2);
 
@@ -1732,7 +1745,7 @@ namespace Eoffice.Controllers
 
                     if (!string.IsNullOrEmpty(docCode))
                     {
-                        string str22 = "SELECT * FROM T_Noting WHERE File_Code ='" + fileCode + "' AND Doc_Code='" + docCode + "' AND Emp_Code='" + empId + "'";
+                        string str22 = "SELECT * FROM T_Noting WHERE File_Code ='" + DeterministicEncryptionHelper.Encrypt(fileCode) + "' AND Doc_Code='" + DeterministicEncryptionHelper.Encrypt(docCode) + "' AND Emp_Code='" + empId + "'";
                         DataTable dt33 = bal.EQ(str22);
                         if (dt33.Rows.Count > 0)
                         {
@@ -1741,7 +1754,7 @@ namespace Eoffice.Controllers
                     }
                     else
                     {
-                        string str22 = "SELECT * FROM T_Noting WHERE File_Code ='" + fileCode + "' AND Emp_Code='" + empId + "'";
+                        string str22 = "SELECT * FROM T_Noting WHERE File_Code ='" + DeterministicEncryptionHelper.Encrypt(fileCode) + "' AND Emp_Code='" + empId + "'";
                         DataTable dt33 = bal.EQ(str22);
                         if (dt33.Rows.Count > 0)
                         {
@@ -1759,7 +1772,7 @@ namespace Eoffice.Controllers
                 }
 
 
-                string str3 = "select * from T_File where forwarded_To = '" + uname + "' and Action_Date is null  and  file_code='" + fileCode + "'";
+                string str3 = "select * from T_File where forwarded_To = '" + uname + "' and Action_Date is null  and  file_code='" + DeterministicEncryptionHelper.Encrypt(fileCode) + "'";
                 DataTable dt3 = bal.EQ(str3);
                 if (dt3.Rows.Count > 0)
                 {
@@ -1773,7 +1786,7 @@ namespace Eoffice.Controllers
                 else
                 {
                     //if its called back 
-                    string strr = "select * from T_File where forwarded_From = '" + uname + "' and Action_Date is null  and  file_code='" + fileCode + "'";   //and app_flag ='A'
+                    string strr = "select * from T_File where forwarded_From = '" + uname + "' and Action_Date is null  and  file_code='" + DeterministicEncryptionHelper.Encrypt(fileCode) + "'";   //and app_flag ='A'
                     DataTable dtt = bal.EQ(strr);
                     {
                         if (dtt.Rows.Count > 0)
@@ -1787,7 +1800,7 @@ namespace Eoffice.Controllers
                     }
                 }
                 DataSet dsInternal = new DataSet();
-                dsInternal = bal.FN_ExecuteQuerySingle("Proc_InternalMovement '" + fileCode + "','" + uname + "','" + forwardTo + "','" + null + "','" + null + "','" + Session["Ip_Address"].ToString() + "','" + flag + "','" + null + "','" + appFlag + "','" + Session["ED_Row_ID"].ToString() + "' ");
+                dsInternal = bal.FN_ExecuteQuerySingle("Proc_InternalMovement '" + DeterministicEncryptionHelper.Encrypt(fileCode) + "','" + uname + "','" + forwardTo + "','" + null + "','" + null + "','" + Session["Ip_Address"].ToString() + "','" + flag + "','" + null + "','" + appFlag + "','" + Session["ED_Row_ID"].ToString() + "' ");
                 if (dsInternal.Tables[0].Rows.Count > 0)
                 {
                     Session["forwarded"] = "ok";

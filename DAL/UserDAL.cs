@@ -2520,7 +2520,7 @@ namespace Eoffice.DAL
 
         public void ExecuteForwardSP(string fileCode, string forwardedFrom, string forwardedTo,
                                       string remark, string remarkType, string selectedRemarkType, string dept, string sec,
-                                      string ipAddress, string flag, string appflag, string EDRowID, string esttype)
+                                      string flag, string appflag, string ipAddress, string EDRowID, string esttype)
         {
 
             using (SqlCommand cmd = new SqlCommand("USP_T_File_21062024", con))
