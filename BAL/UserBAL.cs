@@ -1793,7 +1793,7 @@ namespace Eoffice.BAL
         public DataTable GetDepSecNames(string fileCode)
         {
             fileCode = DeterministicEncryptionHelper.Encrypt(fileCode);
-            string str = "select d.Dep_Name,s.Sec_Name from M_File f inner join M_Department d  on d.Dep_Code = f.File_Dept inner join M_Section s on s.Sec_Code = f.File_Section  where file_code='" + fileCode + "'";
+            string str = "select d.Dep_Name,s.Sec_Name from M_File f inner join M_Department d  on d.Dep_Code = f.File_Dept inner join M_Section s on s.Sec_Code = f.File_Section  where file_code='" + DeterministicEncryptionHelper.Encrypt(fileCode) + "'";
             DataTable dt = dal.EQ(str);
             return dt;
 
@@ -1810,20 +1810,23 @@ namespace Eoffice.BAL
         public DataSet GetDraftNoting(string fileCode, string userName)
         {
             fileCode = DeterministicEncryptionHelper.Encrypt(fileCode);
-            return dal.GetDraftNoting(fileCode, userName);
+            DataSet ds = dal.GetDraftNoting(fileCode, userName);
+            return DataSetEncryptionHelper.DecryptDataSet(ds);
         }
 
         public DataSet GetDraftNotingAlt(string fileCode, string userName)
         {
             fileCode = DeterministicEncryptionHelper.Encrypt(fileCode);
-            return dal.GetDraftNotingAlt(fileCode, userName);
+            DataSet ds = dal.GetDraftNotingAlt(fileCode, userName);
+            return DataSetEncryptionHelper.DecryptDataSet(ds);
         }
 
 
         public DataTable GetLatestNoting(string fileCode)
         {
             fileCode = DeterministicEncryptionHelper.Encrypt(fileCode);
-            return dal.GetLatestNoting(fileCode);
+            DataTable dt = dal.GetLatestNoting(fileCode);
+            return DataSetEncryptionHelper.DecryptDataTable(dt);
         }
 
         #endregion
