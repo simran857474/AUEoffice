@@ -1259,7 +1259,7 @@ namespace Eoffice.Controllers
                 //  call db to check maindoc for this filecode
 
                 string docnameNew = "";
-                string str2 = "select Doc_Upload,Doc_Code,DisplayFile from M_Document where Main_doc='Y'  and  File_Code='" + fileCode + "'";
+                string str2 = "select Doc_Upload,Doc_Code,DisplayFile from M_Document where Main_doc='Y'  and  File_Code='" + DeterministicEncryptionHelper.Encrypt(fileCode) + "'";
                 DataTable dt3 = bal.EQ(str2);
 
                 string mainFilePath = "";
@@ -2175,7 +2175,7 @@ namespace Eoffice.Controllers
                     Session["DisableNotingButtons"] = "";
                 }
 
-                    string getNote = "select top 1 *  from t_noting where File_Code='" + fileCode + "'  order by Row_ID desc ";
+                    string getNote = "select top 1 *  from t_noting where File_Code='" + DeterministicEncryptionHelper.Encrypt(fileCode) + "'  order by Row_ID desc ";
                 DataTable Notedata = bal.EQ(getNote);
                 if (Notedata.Rows.Count > 0)
                 {
@@ -2375,7 +2375,7 @@ namespace Eoffice.Controllers
 
                     
 
-                    string str2 = "select * from m_document where file_code='" + fileCode + "'";
+                    string str2 = "select * from m_document where file_code='" + DeterministicEncryptionHelper.Encrypt(fileCode) + "'";
                     int count = 0;
                     DataTable dt2 = bal.EQ(str2);
                     if (dt2.Rows.Count > 0)
@@ -2388,7 +2388,7 @@ namespace Eoffice.Controllers
 
                     if (docs != null && docs.Rows.Count > 0)
                     {
-                        string str22 = "SELECT * FROM T_Noting WHERE File_Code ='" + fileCode + "' AND Doc_Code='" + docs.Rows[0]["Doc_Code"].ToString() + "' AND Emp_Code='" + empId + "'";
+                        string str22 = "SELECT * FROM T_Noting WHERE File_Code ='" + DeterministicEncryptionHelper.Encrypt(fileCode) + "' AND Doc_Code='" + DeterministicEncryptionHelper.Encrypt(docs.Rows[0]["Doc_Code"].ToString()) + "' AND Emp_Code='" + empId + "'";
                         DataTable dt333 = bal.EQ(str22);
                         if (dt333.Rows.Count > 0)
                         {
@@ -2397,7 +2397,7 @@ namespace Eoffice.Controllers
                     }
                     else
                     {
-                        string str22 = "SELECT * FROM T_Noting WHERE File_Code ='" + fileCode + "' AND Emp_Code='" + empId + "'";
+                        string str22 = "SELECT * FROM T_Noting WHERE File_Code ='" + DeterministicEncryptionHelper.Encrypt(fileCode) + "' AND Emp_Code='" + empId + "'";
                         DataTable dt3333 = bal.EQ(str22);
                         if (dt3333.Rows.Count > 0)
                         {
@@ -2405,7 +2405,7 @@ namespace Eoffice.Controllers
                         }
                     }
 
-                    string str3 = "select * from T_File where forwarded_To = '" + uname + "' and Action_Date is null  and  file_code='" + fileCode + "'";   //and app_flag ='A'
+                    string str3 = "select * from T_File where forwarded_To = '" + uname + "' and Action_Date is null  and  file_code='" + DeterministicEncryptionHelper.Encrypt(fileCode) + "'";   //and app_flag ='A'
                     DataTable dt3 = bal.EQ(str3);
                     if (dt3.Rows.Count > 0)
                     {
@@ -2427,7 +2427,7 @@ namespace Eoffice.Controllers
                     else
                     {
                         //if its called back 
-                        string strr = "select * from T_File where forwarded_From = '" + uname + "' and Action_Date is null  and  file_code='" + fileCode + "'";   //and app_flag ='A'
+                        string strr = "select * from T_File where forwarded_From = '" + uname + "' and Action_Date is null  and  file_code='" + DeterministicEncryptionHelper.Encrypt(fileCode) + "'";   //and app_flag ='A'
                         DataTable dtt = bal.EQ(strr);
                         {
                             if (dtt.Rows.Count > 0)
@@ -2442,7 +2442,7 @@ namespace Eoffice.Controllers
                     }
 
                     // get file category
-                    string str32 = "select File_Cat from M_File where File_Code = '" + fileCode + "' and Created_By = '" + uname + "'";
+                    string str32 = "select File_Cat from M_File where File_Code = '" + DeterministicEncryptionHelper.Encrypt(fileCode) + "' and Created_By = '" + uname + "'";
                     DataTable dt33 = bal.EQ(str32);
                     if (dt33.Rows.Count > 0)
                     {
@@ -2491,7 +2491,7 @@ namespace Eoffice.Controllers
                         // if file is attached then only check
                         if (docs.Rows.Count > 0)
                         {
-                            string strCheckNote = "SELECT * FROM T_NOTING where Doc_Code='" + docs.Rows[0]["Doc_Code"].ToString() + "' and file_code='" + fileCode + "' and Created_By='" + uname + "' ";
+                            string strCheckNote = "SELECT * FROM T_NOTING where Doc_Code='" + DeterministicEncryptionHelper.Encrypt(docs.Rows[0]["Doc_Code"].ToString()) + "' and file_code='" + DeterministicEncryptionHelper.Encrypt(fileCode) + "' and Created_By='" + uname + "' ";
                             DataTable dtcheck = bal.EQ(strCheckNote);
                             if (dtcheck.Rows.Count <= 0)
                             {
@@ -2508,7 +2508,7 @@ namespace Eoffice.Controllers
 
 
 
-                        string str2 = "select * from m_document where file_code='" + fileCode + "'";
+                        string str2 = "select * from m_document where file_code='" + DeterministicEncryptionHelper.Encrypt(fileCode) + "'";
                         int count = 0;
                         DataTable dt2 = bal.EQ(str2);
                         if (dt2.Rows.Count > 0)
@@ -2519,7 +2519,7 @@ namespace Eoffice.Controllers
 
                         if (docs != null && docs.Rows.Count > 0)
                         {
-                            string str22 = "SELECT * FROM T_Noting WHERE File_Code ='" + fileCode + "' AND Doc_Code='" + docs.Rows[0]["Doc_Code"].ToString() + "' AND Emp_Code='" + empId + "'";
+                            string str22 = "SELECT * FROM T_Noting WHERE File_Code ='" + DeterministicEncryptionHelper.Encrypt(fileCode) + "' AND Doc_Code='" + DeterministicEncryptionHelper.Encrypt(docs.Rows[0]["Doc_Code"].ToString()) + "' AND Emp_Code='" + empId + "'";
                             DataTable dt333 = bal.EQ(str22);
                             if (dt333.Rows.Count > 0)
                             {
@@ -2528,7 +2528,7 @@ namespace Eoffice.Controllers
                         }
                         else
                         {
-                            string str22 = "SELECT * FROM T_Noting WHERE File_Code ='" + fileCode + "' AND Emp_Code='" + empId + "'";
+                            string str22 = "SELECT * FROM T_Noting WHERE File_Code ='" + DeterministicEncryptionHelper.Encrypt(fileCode) + "' AND Emp_Code='" + empId + "'";
                             DataTable dt3333 = bal.EQ(str22);
                             if (dt3333.Rows.Count > 0)
                             {
@@ -2541,7 +2541,7 @@ namespace Eoffice.Controllers
                             return Json(new { success = false, message = "File can not be forward without noting. Please, Enter Noting." });
                         }
 
-                        string str3 = "select * from T_File where forwarded_To = '" + uname + "' and Action_Date is null  and  file_code='" + fileCode + "'";   //and app_flag ='A'
+                        string str3 = "select * from T_File where forwarded_To = '" + uname + "' and Action_Date is null  and  file_code='" + DeterministicEncryptionHelper.Encrypt(fileCode) + "'";   //and app_flag ='A'
                         DataTable dt3 = bal.EQ(str3);
                         if (dt3.Rows.Count > 0)
                         {
@@ -2563,7 +2563,7 @@ namespace Eoffice.Controllers
                         else
                         {
                             //if its called back 
-                            string strr = "select * from T_File where forwarded_From = '" + uname + "' and Action_Date is null  and  file_code='" + fileCode + "'";   //and app_flag ='A'
+                            string strr = "select * from T_File where forwarded_From = '" + uname + "' and Action_Date is null  and  file_code='" + DeterministicEncryptionHelper.Encrypt(fileCode) + "'";   //and app_flag ='A'
                             DataTable dtt = bal.EQ(strr);
                             {
                                 if (dtt.Rows.Count > 0)
@@ -2578,7 +2578,7 @@ namespace Eoffice.Controllers
                         }
 
                         // get file category
-                        string str32 = "select File_Cat from M_File where File_Code = '" + fileCode + "' and Created_By = '" + uname + "'";
+                        string str32 = "select File_Cat from M_File where File_Code = '" + DeterministicEncryptionHelper.Encrypt(fileCode) + "' and Created_By = '" + uname + "'";
                         DataTable dt33 = bal.EQ(str32);
                         if (dt33.Rows.Count > 0)
                         {
@@ -2654,7 +2654,7 @@ namespace Eoffice.Controllers
                     ipAddress = Request.ServerVariables["REMOTE_ADDR"];
                 }
 
-                string str2 = "select File_Code,forwarded_From,forwarded_To from T_File where file_code='" + fileCode + "'";
+                string str2 = "select File_Code,forwarded_From,forwarded_To from T_File where file_code='" + DeterministicEncryptionHelper.Encrypt(fileCode) + "'";
                 DataTable dt3 = bal.EQ(str2);
 
                 if (dt3.Rows.Count > 0)
@@ -2765,7 +2765,7 @@ namespace Eoffice.Controllers
                 else
                 {
                     bool success = false;
-                    string str2 = "select File_Code,forwarded_From,forwarded_To from T_File where file_code='" + fileCode + "' and Action_Date is null";
+                    string str2 = "select File_Code,forwarded_From,forwarded_To from T_File where file_code='" + DeterministicEncryptionHelper.Encrypt(fileCode) + "' and Action_Date is null";
                     DataTable dt3 = bal.EQ(str2);
 
                     if (dt3.Rows.Count > 0)
@@ -2848,7 +2848,7 @@ namespace Eoffice.Controllers
             try
             {
                 // Check flag in DB
-                string query = "SELECT ISNULL(cb_flag, '0') FROM T_File WHERE Row_ID = '" + rowid.ToString() + "' and File_Code='" + fileCode.ToString() + "'";
+                string query = "SELECT ISNULL(cb_flag, '0') FROM T_File WHERE Row_ID = '" + rowid.ToString() + "' and File_Code='" + DeterministicEncryptionHelper.Encrypt(fileCode.ToString())  + "'";
 
                 DataTable dt = bal.EQ(query);
 

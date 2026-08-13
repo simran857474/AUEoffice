@@ -1810,20 +1810,23 @@ namespace Eoffice.BAL
         public DataSet GetDraftNoting(string fileCode, string userName)
         {
             fileCode = DeterministicEncryptionHelper.Encrypt(fileCode);
-            return dal.GetDraftNoting(fileCode, userName);
+            DataSet ds = dal.GetDraftNoting(fileCode, userName);
+            return DataSetEncryptionHelper.DecryptDataSet(ds);
         }
 
         public DataSet GetDraftNotingAlt(string fileCode, string userName)
         {
             fileCode = DeterministicEncryptionHelper.Encrypt(fileCode);
-            return dal.GetDraftNotingAlt(fileCode, userName);
+            DataSet ds = dal.GetDraftNotingAlt(fileCode, userName);
+            return DataSetEncryptionHelper.DecryptDataSet(ds);
         }
 
 
         public DataTable GetLatestNoting(string fileCode)
         {
             fileCode = DeterministicEncryptionHelper.Encrypt(fileCode);
-            return dal.GetLatestNoting(fileCode);
+            DataTable dt = dal.GetLatestNoting(fileCode);
+            return DataSetEncryptionHelper.DecryptDataTable(dt);
         }
 
         #endregion
