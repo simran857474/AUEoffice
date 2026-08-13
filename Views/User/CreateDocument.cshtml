@@ -1,0 +1,796 @@
+﻿@model List<Eoffice.Models.ModelAddDocument>
+
+@{
+    ViewBag.Title = "CreateDocument";
+    Layout = "~/Views/Shared/_LayoutNew.cshtml";
+}
+
+@{
+    var editdoc = ViewBag.EditDocument as Eoffice.Models.ModelAddDocument;
+    bool isEdit = editdoc != null;
+}
+
+<style>
+    .row.g-0 {
+        display: flex;
+        align-items: stretch; /* Both columns same height */
+    }
+
+    #editor {
+        height: 100%;
+        min-height: 600px; /* Adjust as needed */
+    }
+
+    .field-validation-error {
+        color: #dc3545; /* Bootstrap danger color */
+        font-size: 0.875em;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    .text-danger {
+        display: block;
+    }
+
+    input.error, select.error, textarea.error {
+        border-color: #dc3545;
+    }
+
+    #editorContainer {
+        height: 80%;
+        max-height: 80%;
+        overflow: hidden;
+    }
+
+    .note-editor.note-frame {
+        border: 1px solid #ddd;
+    }
+
+    .note-editable {
+        min-height: 500px;
+        max-height: 500px;
+        overflow-y: auto !important;
+    }
+
+    .custom-card-bg {
+        background-image: url('/Content/Images/bg-img.jpg'); /* ✅ Replace with your image path */
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-attachment: fixed;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+</style>
+
+
+
+
+<section class="content">
+    <div class="container-fluid">
+
+        <div id="accordion3" class="accordion-wrapper mb-3">
+            <div class="main-card mb-3 card">
+                <div id="headingthree" class="card-header">
+                    <button type="button" data-toggle="collapse" data-target="#collapseOne3" aria-expanded="true" aria-controls="collapseOne3" class="text-left m-0 p-0 btn btn-link btn-block">
+                        <h5 class="m-0 p-0 card-title">Add Document<i class="float-right pe-7s-angle-down"></i></h5>
+
+                    </button>
+                </div>
+                <div data-parent="#accordion3" id="collapseOne3" aria-labelledby="headingthree" class="collapse @(isEdit ? "show" : "")">
+
+
+                    <div class="card-body">
+                        <div class="row g-0">
+
+                            <!-- Left Side: CKEditor + Generate PDF -->
+                            <div class="col-md-6 p-4 border-end d-flex flex-column">
+                                <label for="editor" class="form-label fw-bold">Document Editor</label>
+                                <div id="editorContainer" class="flex-grow-1">
+                                    <textarea id="editor" name="editor" class="form-control" rows="15"></textarea>
+                                </div>
+                                <div id="pdfPreviewContainer" class="flex-grow-1" style="display:none;">
+                                    <iframe id="pdfPreview" style="width:100%; height:100%;" frameborder="0"></iframe>
+                                </div>
+
+                                <button id="btnGeneratePdf" class="btn btn-success mt-3 align-self-start">Generate PDF</button>
+                            </div>
+
+
+
+
+                            <!-- Right Side: Aligned Form -->
+                            <div class="col-md-6 p-4">
+                                @using (Html.BeginForm(isEdit ? "EditDocument" : "CreateDocument", "User", FormMethod.Post, new { enctype = "multipart/form-data", id = "DocumentForm" }))
+                                {
+                                    <input type="hidden" name="Doc_TypeName" id="Doc_TypeName" value="@(isEdit?editdoc.Doc_TypeName:"")" />
+                                    <input type="hidden" name="doc_code" id="doc_code" value="@(isEdit?editdoc.doc_code:"")" />
+                                    <input type="hidden" name="Doc_Upload" id="Doc_Upload" value="@(isEdit?editdoc.Doc_Upload:"")" />
+
+                                    <div class="form-group row mb-3 align-items-center">
+                                        <label for="UploadedFile" class="col-sm-4 col-form-label ">Upload Document<span style="color:red">* (Only PDF up to 100 MB)</span> </label>
+                                        <div class="col-sm-8">
+                                            <input type="file" id="Doc_File" name="Doc_File" accept="application/pdf" class="form-control-file" />
+
+                                            @if (isEdit && !string.IsNullOrEmpty(editdoc.Doc_Upload))
+                                            {
+                                                <small class="text-success">
+                                                    Existing File: @editdoc.Doc_Upload
+                                                </small>
+                                                <small class="text-danger d-block">
+                                                    Upload new file to replace existing document
+                                                </small>
+                                            }
+
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row mb-3 align-items-center">
+                                        <label for="DeliveryMode" class="col-sm-4 col-form-label ">Delivery Mode <span style="color:red">*</span></label>
+                                        <div class="col-sm-8">
+                                            @{
+                                                var deliveryModeList = ViewBag.DeliveryMode as List<SelectListItem> ?? new List<SelectListItem>();
+                                                if (isEdit && editdoc != null && !string.IsNullOrEmpty(editdoc.delevery_mode))
+                                                {
+                                                    var selectedDelivery = deliveryModeList.FirstOrDefault(x => x.Value == editdoc.delevery_mode);
+                                                    if (selectedDelivery != null)
+                                                    {
+                                                        selectedDelivery.Selected = true;
+                                                    }
+                                                }
+                                            }
+                                            @Html.DropDownList("delevery_mode", deliveryModeList, "--Select--", new { @class = "form-control", id = "delevery_mode" })
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row mb-3 align-items-center">
+                                        <label for="DocumentType" class="col-sm-4 col-form-label ">Document Type <span style="color:red">*</span></label>
+                                        <div class="col-sm-8">
+                                            @{
+                                                var docTypeList = ViewBag.DocType as List<SelectListItem> ?? new List<SelectListItem>();
+                                                if (isEdit && editdoc != null && !string.IsNullOrEmpty(editdoc.Doc_Type))
+                                                {
+                                                    var selectedItem = docTypeList.FirstOrDefault(x => x.Value == editdoc.Doc_Type);
+                                                    if (selectedItem != null)
+                                                    {
+                                                        selectedItem.Selected = true;
+                                                    }
+                                                }
+                                            }
+                                            @Html.DropDownList("Doc_Type", docTypeList, "--Select--", new { @class = "form-control", id = "Doc_Type" })
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row mb-3 align-items-center" id="doctypeother" style="display:none;">
+                                        <label class="col-sm-4 col-form-label ">Other</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" id="Doc_Type_Others" name="Doc_Type_Others" class="form-control" placeholder="Enter Other Document Type..." value="@(isEdit?editdoc.Doc_Type_Others:"")" />
+
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row mb-3 align-items-center">
+                                        <label for="DocumentSubject" class="col-sm-4 col-form-label ">Document Subject <span style="color:red">*</span></label>
+                                        <div class="col-sm-8">
+                                            <input type="text" id="Doc_Desc" name="Doc_Desc" class="form-control" placeholder="Enter Document Subject..." value="@(isEdit?editdoc.Doc_Desc:"")" />
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row mb-3 align-items-center">
+                                        <label for="DocumentReferenceNo" class="col-sm-4 col-form-label ">Document Reference No.</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" id="Doc_Ref" name="Doc_Ref" class="form-control" placeholder="Enter Document Reference No..." value="@(isEdit?editdoc.Doc_Ref:"")" />
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row mb-3 align-items-center">
+                                        <label for="DocumentReceivedFrom" class="col-sm-4 col-form-label ">Document Received From</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" id="Doc_Auth" name="Doc_Auth" class="form-control" placeholder="Enter Document Received From..." value="@(isEdit?editdoc.Doc_Auth:"")" />
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row mb-3 align-items-center">
+                                        <label for="DocumentDate" class="col-sm-4 col-form-label ">Document Date</label>
+                                        <div class="col-sm-8">
+                                            @{
+                                                string letterDateValue = "";
+                                                if (isEdit && editdoc != null && !string.IsNullOrEmpty(editdoc.letter_dt))
+                                                {
+                                                    DateTime tempDate;
+                                                    if (DateTime.TryParse(editdoc.letter_dt, out tempDate))
+                                                    {
+                                                        letterDateValue = tempDate.ToString("yyyy-MM-dd");
+                                                    }
+                                                }
+                                            }
+                                            <input type="date" id="letter_dt" name="letter_dt" class="form-control" value="@letterDateValue" />
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row mb-3 align-items-center">
+                                        <label for="ReceivedDate" class="col-sm-4 col-form-label ">Received Date</label>
+                                        <div class="col-sm-8">
+                                            @{
+                                                string receivedDateValue = "";
+                                                if (isEdit && editdoc != null && !string.IsNullOrEmpty(editdoc.recieved_dt))
+                                                {
+                                                    DateTime tempDate2;
+                                                    if (DateTime.TryParse(editdoc.recieved_dt, out tempDate2))
+                                                    {
+                                                        receivedDateValue = tempDate2.ToString("yyyy-MM-dd");
+                                                    }
+                                                }
+                                            }
+                                            <input type="date" id="recieved_dt" name="recieved_dt" class="form-control" value="@receivedDateValue" />
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row mb-3 align-items-center">
+                                        <label for="PurposeType" class="col-sm-4 col-form-label ">Purpose Type<span style="color:red">*</span></label>
+                                        <div class="col-sm-8">
+                                            @{
+                                                var purposeTypeList = ViewBag.PurposeType as List<SelectListItem> ?? new List<SelectListItem>();
+                                                if (isEdit && editdoc != null && !string.IsNullOrEmpty(editdoc.Purpose_Type))
+                                                {
+                                                    var selectedPurpose = purposeTypeList.FirstOrDefault(x => x.Value == editdoc.Purpose_Type);
+                                                    if (selectedPurpose != null)
+                                                    {
+                                                        selectedPurpose.Selected = true;
+                                                    }
+                                                }
+                                            }
+                                            @Html.DropDownList("Purpose_Type", purposeTypeList, "--Select--", new { @class = "form-control", id = "Purpose_Type" })
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row mb-3 align-items-center" id="purposetypeother" style="display:none;">
+                                        <label class="col-sm-4 col-form-label ">Other</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" id="Purpose_Type_Others" name="Purpose_Type_Others" class="form-control" placeholder="Enter Other Purpose..." value="@(isEdit?editdoc.Purpose_Type_Others:"")" />
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row mt-4">
+                                        <div class="col-sm-8 offset-sm-4">
+                                            <input type="submit" id="btnSubmitForm" class="btn btn-primary" value="@(isEdit ? "Update" : "Submit")" />
+                                            <input type="button" onclick="window.location.reload()" value="Reset" class="btn btn-secondary px-4" />
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                </div>
+            </div>
+        </div>
+
+
+
+
+        <div id="accordion4" class="accordion-wrapper mb-3">
+            <div class="main-card mb-3 card">
+                <div id="headingfour" class="card-header">
+                    <button type="button" data-toggle="collapse" data-target="#collapseOne4" aria-expanded="true" aria-controls="collapseOne4" class="text-left m-0 p-0 btn btn-link btn-block">
+                        <h5 class="m-0 p-0 card-title"> List<i class="float-right pe-7s-angle-down"></i></h5>
+                    </button>
+                </div>
+                <div data-parent="#accordion4" id="collapseOne4" aria-labelledby="headingfour" class="collapse show">
+
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12" id="divDetails">
+                                <div class="">
+
+                                    <table style="width: 100%; " id="scr-vtr-dynamic" class="example1 table table-striped table-bordered nowrap table-hover text-left">
+                                        <thead>
+                                            <tr>
+                                                <th>S.No</th>
+                                                <th>Doc Code</th>
+                                                <th>Delivery Mode</th>
+                                                <th class="">Document Type</th>
+                                                <th class="">Document Subject</th>
+                                                <th class="">Document Ref</th>
+                                                <th class="">Document Date</th>
+                                                <th class="">Received Date</th>
+                                                <th class="">Purpose Type</th>
+                                                <th class="">Document Uploaded</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model != null && Model.Count > 0)
+                                            {
+                                                int i = 1;
+                                                foreach (var item in Model)
+                                                {
+                                                    <tr>
+                                                        <td>@i</td>
+                                                        <td>@item.doc_code</td>
+                                                        <td>@item.delevery_modename</td>
+                                                        <td>@item.Doc_TypeName</td>
+                                                        <td>@item.Doc_Desc</td>
+                                                        <td>@item.Doc_Ref</td>
+                                                        <td>@item.letter_dt.Split(' ')[0]</td>
+                                                        <td>@item.recieved_dt.Split(' ')[0]</td>
+                                                        <td>@item.Purpose_TypeName</td>
+                                                        <td>
+                                                            @if (!string.IsNullOrEmpty(item.Doc_Upload))
+                                                            {
+                                                                <a href="@Url.Content("~/Uploads/CreatedFile/" + item.Doc_Upload)" target="_blank">View Document</a>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span>N/A</span>
+                                                            }
+                                                        </td>
+                                                        <td>
+                                                            @Html.ActionLink("Edit", "CreateDocument", "User", new { doc_code = item.doc_code }, new { @class = "btn btn-sm btn-warning" })
+                                                            @*@Html.ActionLink("Delete", "DeleteDepartment", "Admin", new { DocCode = item.doc_code }, new { @class = "btn btn-sm btn-danger", onclick = "return confirm('Are you sure you want to delete this Document?');" })*@
+                                                        </td>
+                                                    </tr>
+                                                    i++;
+                                                }
+                                            }
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+
+    <script src="~/Scripts/jquery-3.7.1.min.js"></script>
+    @*<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>*@
+    @*<script src="~/Scripts/ckeditorr.js"></script>*@
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    @*<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js"></script>*@
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+
+    <script>
+    $(document).ready(function () {
+
+
+        var message = '@TempData["msg"]';
+
+        if (message) {
+            switch (message) {
+                case "Document inserted successfully.":
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    break;
+                case "Please upload file.":
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed!',
+                        text: message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    break;
+                case "Document not inserted.":
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed!',
+                        text: message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    break;
+                case "File already exists.":
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed!',
+                        text: message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    break;
+                case "Document updated successfully.":
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Updated!',
+                        text: message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    break;
+                case "deletefail":
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed!',
+                        text: message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    break;
+                default:
+                    // Optional: handle other messages
+                    break;
+            }
+        }
+
+        // Initial check on page load
+        toggleOtherFields();
+
+        // On change of dropdowns
+        $('#Doc_Type').change(function () {
+            toggleOtherFields();
+        });
+
+        $('#Purpose_Type').change(function () {
+            toggleOtherFields();
+        });
+
+        function toggleOtherFields() {
+            // For Document Type
+            if ($('#Doc_Type option:selected').text().toLowerCase() === 'others') {
+                $('#doctypeother').show();
+            } else {
+                $('#doctypeother').hide();
+                $('#Doc_Type_Others').val('');
+            }
+
+            // For Purpose Type
+            if ($('#Purpose_Type option:selected').text().toLowerCase() === 'others') {
+                $('#purposetypeother').show();
+            } else {
+                $('#purposetypeother').hide();
+                $('#Purpose_Type_Others').val('');
+            }
+        }
+
+        //$('#DocumentForm').submit(function (e) {
+        //    // Get selected text from each dropdown
+        //    const doctypename = $('#Doc_Type option:selected').text();
+
+        //    // Set values to hidden fields
+        //    $('#Doc_TypeName').val(doctypename);
+        //});
+
+
+        //$('#DocumentForm').on('submit', function (e) {
+
+        //    const form = $(this);
+
+        //    // Trigger validation manually
+        //    if (!form.valid()) {
+        //        e.preventDefault(); // 🚨 STOP form submission
+        //        return false;
+        //    }
+
+        //    // Set dropdown text
+        //    const doctypename = $('#Doc_Type option:selected').text();
+        //    $('#Doc_TypeName').val(doctypename);
+
+        //    return true;
+        //});
+
+
+        // If editing and a PDF is already uploaded, show it in preview
+        @if (isEdit && !string.IsNullOrEmpty(editdoc.Doc_Upload))
+        {
+            <text>
+                $('#editorContainer').hide();
+                $('#pdfPreviewContainer').show();
+        $('#pdfPreview').attr('src', '@Url.Content("~/Uploads/CreatedFile/" + editdoc.Doc_Upload)');
+        $('#btnGeneratePdf').hide();
+            </text>
+        }
+
+
+
+        const today = new Date().toISOString().split('T')[0];
+        $('#letter_dt').attr('max', today);
+        $('#recieved_dt').attr('max', today);
+
+        // ✅ Custom validation method for max date
+        $.validator.addMethod("maxDate", function (value, element) {
+            if (!value) return true; // Allow empty values
+            const now = new Date().toISOString().split("T")[0];
+            return value <= now;
+        }, "Date cannot be in the future.");
+
+        // ✅ Custom validation method for file extension
+        $.validator.addMethod("pdfOnly", function (value, element) {
+            if (element.files.length === 0) return true; // If no file, let required handle it
+            var extension = value.split('.').pop().toLowerCase();
+            return extension === 'pdf';
+        }, "Only PDF files are allowed.");
+
+        $.validator.addMethod("fileSize", function (value, element, param) {
+            if (element.files.length === 0) return true;
+
+            var fileSize = element.files[0].size; // bytes
+            return fileSize <= param;
+        }, "File size must be less than 100 MB.");
+
+        // ✅ Initialize jQuery Validation
+        var validator = $("#DocumentForm").validate({
+            ignore: [],
+            onsubmit: false, // Disable automatic validation on submit
+            rules: {
+                delevery_mode: { 
+                    required: true 
+                },
+                Doc_Type: { 
+                    required: true 
+                },
+                Doc_Desc: { 
+                    required: true 
+                },
+                Purpose_Type: { 
+                    required: true 
+                },
+                Doc_File: {
+                    required: function () {
+                        return $('#Doc_Upload').val() === "";
+                    },
+                    pdfOnly: true,
+                    fileSize: 104857600 // 100 MB in bytes
+                },
+                letter_dt: {
+                    maxDate: true
+                },
+                recieved_dt: {
+                    maxDate: true
+                }
+            },
+            messages: {
+                delevery_mode: "Please select a delivery mode.",
+                Doc_Type: "Please select a document type.",
+                Doc_Desc: "Please enter document subject.",
+                Purpose_Type: "Please select a purpose type.",
+                Doc_File: {
+                    required: "Please upload a document.",
+                    pdfOnly: "Only PDF files are allowed."
+                },
+                letter_dt: "Document Date cannot be in the future.",
+                recieved_dt: "Received Date cannot be in the future."
+            },
+            errorClass: "text-danger",
+            errorElement: "span",
+            errorPlacement: function(error, element) {
+                // Remove any existing error for this element first
+                var existingError = element.next('span.text-danger');
+                if (existingError.length) {
+                    existingError.remove();
+                }
+                error.insertAfter(element);
+            },
+            highlight: function(element) {
+                $(element).addClass('error');
+            },
+            unhighlight: function(element) {
+                $(element).removeClass('error');
+            }
+        });
+
+        // ✅ Handle submit button click manually
+        $('#btnSubmitForm').on('click', function (e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            
+            console.log('Submit button clicked');
+            
+            // Manually trigger validation
+            var isValid = $("#DocumentForm").valid();
+            console.log('Form valid:', isValid);
+            
+            if (isValid) {
+                console.log('Form is valid, submitting...');
+                
+                // Set dropdown text BEFORE submit
+                const doctypename = $('#Doc_Type option:selected').text();
+                $('#Doc_TypeName').val(doctypename);
+                
+                // Unbind this handler to prevent loop
+                $('#btnSubmitForm').off('click');
+                
+                // Submit the form
+                $("#DocumentForm")[0].submit();
+            } else {
+                console.log('Form has validation errors');
+            }
+            
+            return false;
+        });
+
+        // ✅ File change handler INSIDE document.ready
+        $('#Doc_File').on('change', function (e) {
+            // Only validate this field, don't submit
+            $(this).valid();
+            
+            const file = e.target.files[0];
+            if (file && file.type === "application/pdf") {
+                // ✅ Check file size (100 MB)
+                if (file.size > 104857600) {
+                    alert("File size must be less than 100 MB.");
+                    $(this).val('');
+                    return;
+                }
+                const fileURL = URL.createObjectURL(file);
+
+                // Hide editor, show PDF preview
+                $('#editorContainer').hide();
+                $('#pdfPreviewContainer').show();
+                $('#pdfPreview').attr('src', fileURL);
+                
+                // Hide Generate PDF button when file is uploaded
+                $('#btnGeneratePdf').hide();
+            } else {
+                // If no file or not PDF, show editor
+                $('#pdfPreviewContainer').hide();
+                $('#pdfPreview').attr('src', '');
+                $('#editorContainer').show();
+                
+                // Show Generate PDF button when no file
+                $('#btnGeneratePdf').show();
+
+                alert("Only PDF files are allowed.");
+                $(this).val('');
+            }
+        });
+
+        // Handle Reset button click
+        $('#btnReset').on('click', function () {
+            // Clear file input
+            $('#Doc_File').val('');
+
+            // Hide PDF preview
+            $('#pdfPreviewContainer').hide();
+            $('#pdfPreview').attr('src', '');
+
+            // Show editor
+            $('#editorContainer').show();
+            
+            // Show Generate PDF button when reset
+            $('#btnGeneratePdf').show();
+        });
+
+    });
+
+
+    </script>
+
+
+    <script>
+        // Initialize Summernote
+        $(document).ready(function() {
+            $('#editor').summernote({
+                height: 500,
+                minHeight: 500,
+                maxHeight: 500,
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'underline', 'clear']],
+                    ['fontname', ['fontname']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ]
+            });
+        });
+
+        document.getElementById('btnGeneratePdf').addEventListener('click', async () => {
+            const editorData = $('#editor').summernote('code'); // Get HTML from Summernote
+
+            if (!editorData || editorData.trim() === '') {
+                alert('Editor is empty!');
+                return;
+            }
+
+            // Create a temporary container to render HTML
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = editorData;
+            tempDiv.style.width = '800px'; // control PDF page width
+            tempDiv.style.background = 'white';
+            tempDiv.style.padding = '20px';
+            document.body.appendChild(tempDiv);
+
+            // Render HTML to canvas
+            const canvas = await html2canvas(tempDiv, { scale: 2 });
+            const imgData = canvas.toDataURL('image/png');
+
+            // Generate PDF
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            pdf.save('document.pdf');
+
+            // Remove tempDiv
+            document.body.removeChild(tempDiv);
+        });
+    </script>
+
+
+
+
+
+    @*<script>
+        $(document).ready(function () {
+            const today = new Date().toISOString().split('T')[0];
+            $('#letter_dt').attr('max', today);
+            $('#recieved_dt').attr('max', today);
+
+            $("#DocumentForm").validate({
+                ignore: [],
+                rules: {
+                    delevery_mode: {
+                        required: true
+                    },
+                    Doc_Type: {
+                        required: true
+                    },
+                    Doc_Desc: {
+                        required: true
+                    },
+                    Purpose_Type: {
+                        required: true
+                    },
+                    Doc_File: {
+                        requiredFile: true,
+                        extension: "pdf"
+                    },
+                    letter_dt: {
+                        date: true,
+                        maxDate: true
+                    },
+                    recieved_dt: {
+                        date: true,
+                        maxDate: true
+                    }
+                },
+                messages: {
+                    delevery_mode: "Please select a delivery mode.",
+                    Doc_Type: "Please select a document type.",
+                    Doc_Desc: "Please enter document subject.",
+                    Purpose_Type: "Please select a purpose type.",
+                    Doc_File: {
+                        requiredFile: "Please upload a document.",
+                        extension: "Only PDF files are allowed."
+                    },
+                    letter_dt: "Document Date cannot be in the future.",
+                    recieved_dt: "Received Date cannot be in the future."
+                },
+                errorClass: "text-danger",
+                errorElement: "span"
+            });
+
+            // Custom method to prevent future dates
+            $.validator.addMethod("maxDate", function (value, element) {
+                const now = new Date().toISOString().split("T")[0];
+                return value <= now;
+            }, "Date cannot be in the future.");
+
+            // custom method to valdiate input field
+            $.validator.addMethod("requiredFile", function (value, element) {
+                return element.files.length > 0;
+            }, "Please upload a document.");
+        });
+    </script>*@
+
+}

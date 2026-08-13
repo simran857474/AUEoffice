@@ -1,0 +1,595 @@
+﻿@model System.Data.DataTable
+
+@{
+    ViewBag.Title = "Files_History";
+    Layout = "~/Views/Shared/_LayoutNew.cshtml";
+}
+
+<section class="content">
+    <div class="container-fluid">
+
+        @*@if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <strong>Notice:</strong> @ViewBag.ErrorMessage
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }*@
+
+        <!--  Search Section -->
+        <div id="accordionSearch" class="accordion-wrapper mb-3">
+            <div class="main-card mb-3 card">
+                <div class="card-header">
+                    <h5 class="m-0 p-0">Search Files</h5>
+                </div>
+                <div class="card-body">
+                    <div class="btn-group mb-3">
+                        <button type="button" class="btn btn-outline-primary" id="btnSearchFinYear">Search by Financial Year</button>
+                        <button type="button" class="btn btn-outline-success" id="btnSearchDate">Search by Date</button>
+                        <button type="button" class="btn btn-outline-info" id="btnSearchFileNo">Search by File No</button>
+                    </div>
+
+                    <!--  Financial Year Search -->
+                    <div id="searchFinYear" class="search-box" style="display:none;">
+                        <label>Select Financial Year</label>
+                        @Html.DropDownList("FinYear", new SelectList(ViewBag.FinancialYear as List<SelectListItem>, "Value", "Text"),
+                         new { @class = "form-control", id = "Fin_Year" })
+                        <button type="button" class="btn btn-primary mt-2" id="btnFinYearSearch">Search</button>
+                    </div>
+
+                    <!--  Date Range Search -->
+                    <div id="searchDate" class="search-box" style="display:none;">
+                        <label>From Date</label>
+                        <input type="date" id="FromDate" class="form-control" />
+                        <label class="mt-2">To Date</label>
+                        <input type="date" id="ToDate" class="form-control" />
+                        <button type="button" class="btn btn-success mt-2" id="btnDateSearch">Search</button>
+                    </div>
+
+                    <!--  File No Search -->
+                    <div id="searchFileNo" class="search-box" style="display:none;">
+                        <label>File No</label>
+                        <input type="text" id="txtFileNo" class="form-control" placeholder="Enter File Number" />
+                        <button type="button" class="btn btn-info mt-2" id="btnFileNoSearch">Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @*<div id="accordiontwenty7" class="accordion-wrapper mb-3">
+                <div class="main-card mb-3 card">
+                    <div id="headingtwenty7" class="card-header">
+                        <button type="button" data-toggle="collapse" data-target="#collapsetwenty7" aria-expanded="true" aria-controls="collapsetwenty7" class="text-left m-0 p-0 btn btn-link btn-block">
+                            <h5 class="m-0 p-0 card-title"> File History<i class="float-right pe-7s-angle-down"></i></h5>
+
+                        </button>
+                    </div>
+                    <div data-parent="#accordiontwenty7" id="collapsetwenty7" aria-labelledby="headingtwenty7" class="collapse show">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label>Select Financial Year</label>
+                                    @Html.DropDownList("FinYear", new SelectList(ViewBag.FinancialYear as List<SelectListItem>, "Value", "Text"), new { @class = "form-control", id = "Fin_Year" })
+                                </div>
+                                <div class="col-md-6">
+                                    <button type="submit" class="btn btn-primary" style="margin-top:50px">Search</button>
+
+                                </div>
+                                <br />
+                                <br />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>*@
+
+        <div id="accordiontwenty6" class="accordion-wrapper mb-3">
+            <div class="main-card mb-3 card">
+                <div id="headingtwenty6" class="card-header">
+                    <button type="button" data-toggle="collapse" data-target="#collapsetwenty6" aria-expanded="true" aria-controls="collapsetwenty6" class="text-left m-0 p-0 btn btn-link btn-block">
+                        <h5 class="m-0 p-0 card-title">  Files History<i class="float-right pe-7s-angle-down"></i></h5>
+                    </button>
+                </div>
+                <div data-parent="#accordiontwenty6" id="collapsetwenty6" aria-labelledby="headingtwenty6" class="collapse show">
+                    <div class="card-body">
+                        <!-- Loader -->
+                        <div id="searchLoader" class="text-center my-5" style="display:none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000;">
+                            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <p class="mt-3 text-muted">Searching files...</p>
+                        </div>
+                        
+                        <div class="row" id="tableContainer">
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12" id="divDetails">
+                                <div class="">
+
+                                    <img src="~/theme/dist/img/logo-inverse.png" alt="Department Logo" class="department-logo" style="display:none;"/>
+
+                                    <table style="width: 100%;" id="scr-vtr-dynamic" class="example1 table table-striped table-bordered nowrap table-hover text-left">
+                                        <thead>
+                                            <tr>
+                                                <th>S.No</th>
+                                                <th class="text-left">File Number</th>
+                                                <th class="text-left">Description</th>
+                                                <th class="text-left">Category</th>
+                                                <th class="text-left">Sub Category</th>
+                                                <th class="text-left">Created By Section</th>
+                                                <th class="text-left">Priority</th>
+                                                <th class="text-left">Created Date/Time</th>
+                                                <th class="text-left">Movement Details</th>
+                                                <th class="text-left">Noting Details</th>
+                                                <th class="text-left">Attached Documents</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model != null && Model.Rows.Count > 0)
+                                            {
+                                                int i = 1;
+                                                foreach (System.Data.DataRow row in Model.Rows)
+                                                {
+                                                    <tr>
+                                                        <td>@i</td>
+                                                        <td> @*<a href="@Url.Action("Noting_Page", "User", new { fileCode = row["File_Code"] })">*@ @row["File_Code"] @*</a>*@ </td>
+                                                        <td style="white-space: normal !important; word-wrap: break-word; min-width: 300px;">@row["File_Desc"]</td>
+                                                        <td>@row["FileCat_Name"]</td>
+                                                        <td>@row["FileSubCat_Name"]</td>
+                                                        <td>@row["Sec_Name"]</td>
+                                                        <td>@row["DocPrior_Name"]</td>
+                                                        <td>@row["Created_DT"]</td>
+                                                        <td>
+                                                            <i class="fa fa-eye text-primary history-icon" data-filecode="@row["File_Code"]" style="cursor:pointer"></i>
+                                                        </td>
+                                                        @*<td>Noting Details</td>*@
+                                                        <td>
+                                                            <i class="fa fa-print text-success print-icon"
+                                                               title="Print File"
+                                                               data-filecode="@row["File_Code"]"
+                                                               style="cursor:pointer"></i>
+                                                        </td>
+                                                        <td>
+                                                            <i class="fa fa-file text-danger"
+                                                               style="cursor:pointer"
+                                                               title="View Attached Document"
+                                                               onclick="viewAttachedDocument('@row["File_Code"]')"></i>
+                                                        </td>
+                                                    </tr>
+                                                    i++;
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<div class="modal fade" id="modal-lg" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">File Movement Details</h4>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div id="fileDetails" class="mb-3"></div>
+                <div class="table-responsive" style="max-height: 50vh; overflow-y: auto; display: block;">
+                    <table class="table table-bordered table-striped" id="historyTable">
+                        <thead style="position: sticky; top: 0; background-color: #fff; z-index: 10;">
+                            <tr>
+                                <th>S.No</th>
+                                <th>Forwarded From</th>
+                                <th>Forwarded To</th>
+                                <th>Forwarded/Called Back Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="5" style="text-align:center; color: gray; padding: 40px;">
+                                    <i class="fa fa-inbox" style="font-size: 48px; color: #ccc; display: block; margin-bottom: 10px;"></i>
+                                    No records found
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="~/Scripts/jquery-3.7.1.min.js"></script>
+
+<script>
+$(document).on("click", ".history-icon", function () {
+    var fileCode = $(this).data("filecode");
+
+    $.ajax({
+        url: '@Url.Action("GetOutBoxFileHistory", "User")',
+        type: 'GET',
+        data: { fileCode: fileCode },
+        success: function (data) {
+            if (data.length > 0) {
+                // Show file name & section name
+                var fileDetails = `<strong>File No:</strong> ${data[0].FileName} <br/>
+                                   <strong>File Created Section:</strong> ${data[0].SectionName}`;
+                $("#fileDetails").html(fileDetails);
+
+                // Populate table
+                var rows = '';
+                $.each(data, function (i, item) {
+                    rows += `<tr>
+                        <td>${item.SNo}</td>
+                        <td>${item.ForwardedFrom}</td>
+                        <td>${item.ForwardedTo}</td>
+                        <td>${item.Date}</td>
+                        <td>${item.Action}</td>
+                    </tr>`;
+                });
+                $("#historyTable tbody").html(rows);
+
+                // Show modal
+                $("#modal-lg").modal("show");
+            } else {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'No History',
+                    text: 'No history found for this file.',
+                    confirmButtonColor: '#3085d6'
+                });
+                
+                // Show empty state in table
+                var emptyRow = `<tr>
+                    <td colspan="5" style="text-align:center; color: gray; padding: 40px;">
+                        <i class="fa fa-inbox" style="font-size: 48px; color: #ccc; display: block; margin-bottom: 10px;"></i>
+                        No history found for this file.
+                    </td>
+                </tr>`;
+                $("#historyTable tbody").html(emptyRow);
+            }
+        },
+        error: function () {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error fetching data.',
+                confirmButtonColor: '#d33'
+            });
+        }
+    });
+});
+
+    // Toggle search sections
+    $("#btnSearchFinYear").click(function () {
+        $(".search-box").hide();
+        $("#searchFinYear").show();
+    });
+
+    $("#btnSearchDate").click(function () {
+        $(".search-box").hide();
+        $("#searchDate").show();
+    });
+
+    $("#btnSearchFileNo").click(function () {
+        $(".search-box").hide();
+        $("#searchFileNo").show();
+    });
+
+    // Different Search Button Clicks
+    $("#btnFinYearSearch").click(function () {
+        var finYear = $("#Fin_Year option:selected").text();
+
+        // Show loader and dim table
+        $('#searchLoader').show();
+        $('#tableContainer').css('opacity', '0.3');
+        $('#btnFinYearSearch').prop('disabled', true);
+
+         $.ajax({
+             url: '@Url.Action("FileHistorySearchByFinYear", "User")',
+             type: 'POST',
+             data: { finYear: finYear },
+             success: function (res) {
+                 // Hide loader and restore table
+                 $('#searchLoader').hide();
+                 $('#tableContainer').css('opacity', '1');
+                 $('#btnFinYearSearch').prop('disabled', false);
+
+                 table.clear().draw();
+                 $.each(res.data, function (i, item) {
+                     table.row.add([
+                         item.SNo,
+                         `<a href="@Url.Action("Noting_Page", "User")?fileCode=${item.File_Code}">${item.File_Code}</a>`,
+                         item.File_Desc,
+                         item.FileCat_Name,
+                         item.FileSubCat_Name,
+                         item.Sec_Name,
+                         item.DocPrior_Name,
+                         item.Created_DT,
+                         `<i class="fa fa-eye text-primary history-icon" data-filecode="${item.File_Code}" style="cursor:pointer"></i>`,
+                         `<i class="fa fa-print text-success print-icon"
+    title="Print File"
+    data-filecode="${item.File_Code}"
+    style="cursor:pointer"></i>`,
+                         `<i class="fa fa-file text-danger" style="cursor:pointer" title="View Attached Document" onclick="viewAttachedDocument('${item.File_Code}')"></i>`
+                     ]).draw(false);
+                 });
+             },
+             error: function () {
+                 // Hide loader on error
+                 $('#searchLoader').hide();
+                 $('#tableContainer').css('opacity', '1');
+                 $('#btnFinYearSearch').prop('disabled', false);
+                 alert('Error loading files.');
+             }
+         });
+    });
+
+    // Example for searching by Date
+    $("#btnDateSearch").click(function () {
+
+        //e.preventDefault();
+
+
+    var secCode = $("#Sec_Code").val();
+    var fromDate = $("#FromDate").val();
+    var toDate = $("#ToDate").val();
+
+    // Show loader and dim table
+    $('#searchLoader').show();
+    $('#tableContainer').css('opacity', '0.3');
+    $('#btnDateSearch').prop('disabled', true);
+
+        $.ajax({
+        url: '@Url.Action("SearchByDate", "User")',
+        type: 'POST',
+        data: { secCode: secCode, fromDate: fromDate, toDate: toDate },
+        success: function (res) {
+            // Hide loader and restore table
+            $('#searchLoader').hide();
+            $('#tableContainer').css('opacity', '1');
+            $('#btnDateSearch').prop('disabled', false);
+
+            console.log(res);
+            table.clear().draw();
+            $.each(res.data, function (i, item) {
+                table.row.add([
+                    item.SNo,
+                    `<a href="@Url.Action("Noting_Page", "User")?fileCode=${item.File_Code}">${item.File_Code}</a>`,
+                    item.File_Desc,
+                    item.FileCat_Name,
+                    item.FileSubCat_Name,
+                    item.Sec_Name,
+                    item.DocPrior_Name,
+                    item.Created_DT,
+                    `<i class="fa fa-eye text-primary history-icon" data-filecode="${item.File_Code}" style="cursor:pointer"></i>`,
+                    "Noting Details",
+                    `<i class="fa fa-file text-danger" style="cursor:pointer" title="View Attached Document" onclick="viewAttachedDocument('${item.File_Code}')"></i>`
+                ]).draw(false);
+            });
+        },
+        error: function () {
+            // Hide loader on error
+            $('#searchLoader').hide();
+            $('#tableContainer').css('opacity', '1');
+            $('#btnDateSearch').prop('disabled', false);
+            alert('Error loading files.');
+        }
+        
+    });
+});
+
+// Example for searching by File No
+    $("#btnFileNoSearch").click(function () {
+
+       // e.preventDefault();
+
+
+    var fileNo = $("#txtFileNo").val();
+
+    // Show loader and dim table
+    $('#searchLoader').show();
+    $('#tableContainer').css('opacity', '0.3');
+    $('#btnFileNoSearch').prop('disabled', true);
+
+    $.ajax({
+        url: '@Url.Action("SearchByFileNo", "User")',
+        type: 'POST',
+        data: { fileNo: fileNo },
+        success: function (res) {
+            // Hide loader and restore table
+            $('#searchLoader').hide();
+            $('#tableContainer').css('opacity', '1');
+            $('#btnFileNoSearch').prop('disabled', false);
+            table.clear().draw();
+            $.each(res.data, function (i, item) {
+                table.row.add([
+                    item.SNo,
+                    `<a href="@Url.Action("Noting_Page", "User")?fileCode=${item.File_Code}">${item.File_Code}</a>`,
+                    item.File_Desc,
+                    item.FileCat_Name,
+                    item.FileSubCat_Name,
+                    item.Sec_Name,
+                    item.DocPrior_Name,
+                    item.Created_DT,
+                    `<i class="fa fa-eye text-primary history-icon" data-filecode="${item.File_Code}" style="cursor:pointer"></i>`,
+                    "Noting Details",
+                    `<i class="fa fa-file text-danger" style="cursor:pointer" title="View Attached Document" onclick="viewAttachedDocument('${item.File_Code}')"></i>`
+                ]).draw(false);
+            });
+        },
+        error: function () {
+            // Hide loader on error
+            $('#searchLoader').hide();
+            $('#tableContainer').css('opacity', '1');
+            $('#btnFileNoSearch').prop('disabled', false);
+            alert('Error loading files.');
+        }
+    });
+});
+
+function viewAttachedDocument(fileCode) {
+    $.ajax({
+        url: '@Url.Action("GetAttachedDocument", "User")',
+        type: 'GET',
+        data: { fileCode: fileCode },
+        success: function (data) {
+            if (data && data.url) {
+
+                // Build virtual path and open in a new tab
+                var fileUrl = '@Url.Content("~/Uploads/")' + data.url;
+                window.open(fileUrl, '_blank');
+
+            } else {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'No Document Found',
+                    text: 'No attached document exists for this file.'
+                });
+            }
+        },
+        error: function () {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Could not fetch document.'
+            });
+        }
+    });
+    }
+
+
+    $(document).on("click", ".print-icon", function () {
+    let printContent = "";
+        let logoUrl = $(".department-logo").attr("src");
+        @*let fileCode = '@ViewBag.FileCode';*@
+
+        var fileCode = $(this).data("filecode");
+
+        // 1. First get file details
+        $.ajax({
+            url: '@Url.Action("GetFileDetails", "User")',
+            type: 'GET',
+            data: { fileCode: fileCode },
+            success: function (filedt) {
+                if (filedt && filedt.length > 0) {
+                    let row = filedt[0];
+                    //let logoUrl = $("#flipbook-cover img").attr("src");
+
+                    let coverHtml = `
+                    <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100vh; font-family:Arial, sans-serif; padding:40px; box-sizing:border-box;">
+                        <img src="${logoUrl}" alt="Logo" style="max-width:120px; margin-bottom:20px;">
+                        <h2>${row.Dep_Name}</h2>
+                        <h3>${row.Section}</h3>
+                        <h3><b>File Code: </b>${fileCode}</h3>
+                        <table style="width:100%; margin-top:30px; border-collapse:collapse; font-size:16px;">
+                            <tr><td><strong>File Category:</strong> ${row.FileCat_Name}</td>
+                                <td><strong>Sub Category:</strong> ${row.FileSubCat_Name}</td></tr>
+                            <tr><td><strong>Description:</strong> ${row.File_Desc}</td>
+                                <td><strong>Priority:</strong> ${row.DocPrior_Name}</td></tr>
+                            <tr><td><strong>Created By:</strong> ${row.Name}</td>
+                                <td><strong>Date:</strong> ${row.date} / ${row.time}</td></tr>
+                        </table>
+                    </div>`;
+                    printContent += `<div style="page-break-after:always;">${coverHtml}</div>`;
+                }
+
+                // 2. Then get noting details
+                $.ajax({
+                    url: '@Url.Action("GetNotingDetails", "User")',
+                    type: 'GET',
+                    data: { fileCode: fileCode },
+                    success: function (notings) {
+                        if (notings && notings.length > 0) {
+                            $.each(notings, function (i, note) {
+                                printContent += `
+                                <div style="page-break-after:always; padding:40px; font-family:Arial, sans-serif;">
+                                    <h2 style="text-align:center; margin-bottom:20px;">Notings</h2>
+                                    <div style="background-color:#D4DD7A; padding:10px;">${note.Note_Desc}</div>
+                                </div>`;
+                            });
+                        }
+
+                        // 3. Finally get file history
+                        $.ajax({
+                            url: '@Url.Action("GetFileHistory", "User")',
+                            type: 'GET',
+                            data: { fileCode: fileCode },
+                            success: function (history) {
+                                if (history && history.length > 0) {
+                                    let rows = "";
+                                    $.each(history, function (i, item) {
+                                        rows += `<tr>
+                                        <td>${item.SNo}</td>
+                                        <td>${fileCode}</td>
+                                        <td>${item.FileDescription}</td>
+                                        <td>${item.SentFrom}</td>
+                                        <td>${item.SentTo}</td>
+                                        <td>${item.ForwardedDT}</td>
+                                        <td>${item.Status}</td>
+                                        <td>${item.Remark}</td>
+                                    </tr>`;
+                                    });
+
+                                    let historyHtml = `
+                                    <div style="padding:40px; font-family:Arial, sans-serif;">
+                                        <h2 style="text-align:center; margin-bottom:20px;">Movement History</h2>
+                                        <table style="width:100%; border-collapse:collapse;">
+                                            <thead>
+                                                <tr>
+                                                    <th>SNo</th><th>File Code</th><th>Description</th>
+                                                    <th>Sent From</th><th>Sent To</th>
+                                                    <th>Date</th><th>Status</th><th>Remark</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>${rows}</tbody>
+                                        </table>
+                                    </div>`;
+                                    printContent += historyHtml;
+                                }
+
+                                // 4. Open print window
+                                let printWindow = window.open("", "_blank");
+                                printWindow.document.write(`
+                                <html><head><title>Note Sheet Print</title>
+                                <style>
+                                    body { font-family: Arial, sans-serif; margin:0; padding:0; }
+                                    table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+                                    th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+                                    h2 { font-size: 22px; }
+                                </style></head>
+                                <body>${printContent}</body></html>
+                            `);
+                                printWindow.document.close();
+                                printWindow.onload = function () {
+                                    setTimeout(() => { printWindow.print(); }, 200);
+                                };
+                                printWindow.onafterprint = function () {
+                                    printWindow.close();
+                                };
+                            }
+                        });
+                    }
+                });
+            }
+        });
+});
+
+
+</script>

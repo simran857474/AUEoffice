@@ -1,0 +1,807 @@
+﻿@model System.Data.DataSet
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_LayoutNew.cshtml";
+}
+
+<style>
+    #piechart, #barchart, #donutchart {
+        width: 100%;
+        height: 500px;
+    }
+    
+    /* Enhanced chart card styling */
+    .chart-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .chart-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    }
+
+    .chart-header {
+        /*background: linear-gradient(135deg, #BB1E3D 0%, #8B1530 100%);*/
+        background: linear-gradient(135deg, #1ebbae 0%, #154f8b 100% 100% );
+        color: white;
+        padding: 20px;
+        border-radius: 15px 15px 0 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .chart-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: pulse 3s ease-in-out infinite;
+    }
+    
+    @@keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 0.5; }
+        50% { transform: scale(1.1); opacity: 0.8; }
+    }
+    
+    .chart-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .chart-title i {
+        margin-right: 10px;
+        font-size: 24px;
+    }
+    
+    .chart-body {
+        padding: 30px 20px;
+        background: white;
+    }
+    
+    /* Chart container styling */
+    .chart-container {
+        position: relative;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        margin-top: 10px;
+    }
+    
+    /* Accordion improvements */
+    .accordion-wrapper .card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        margin-bottom: 20px;
+    }
+
+    .accordion-wrapper .card-header {
+        /*background: linear-gradient(135deg, #BB1E3D 0%, #8B1530 100%);*/
+        background: linear-gradient(135deg, #1ebbae 0%, #154f8b 100% 100% );
+        border-radius: 12px 12px 0 0;
+        border: none;
+    }
+    
+    .accordion-wrapper .card-header button {
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 18px;
+    }
+    
+    .accordion-wrapper .card-header button:hover {
+        text-decoration: none;
+        color: white;
+    }
+    
+    .accordion-wrapper .card-header i {
+        transition: transform 0.3s ease;
+    }
+    
+    .accordion-wrapper .card-header button[aria-expanded="true"] i {
+        transform: rotate(180deg);
+    }
+</style>
+<section class="content">
+    <div class="container-fluid">
+        <div class="tabs-animation">
+
+            <div id="accordion1" class="accordion-wrapper mb-3">
+                <div class="card">
+                    <div id="headingOne" class="card-header">
+                        <button type="button" data-toggle="collapse" data-target="#collapseOne2" aria-expanded="true" aria-controls="collapseOne2" class="text-left m-0 p-0 btn btn-link btn-block">
+                            <h5 class="m-0 p-0 card-title">Files Information<i class="float-right pe-7s-angle-down"></i></h5>
+
+                        </button>
+                    </div>
+                    <div data-parent="#accordion1" id="collapseOne2" aria-labelledby="headingOne" class="collapse show">
+                        <div class="card-body">
+                            <div class="media">
+                                <div class="media-body">
+                                    <div class="mt-2">
+                                        <div class="row">
+                                            <div class="col-lg-3">
+                                                <a href="@Url.Action("Frm_InBoxList", "User")" class="text-decoration-none">
+                                                    <div class="small-box bg-info" style="background: linear-gradient(to bottom right, #f75892, #693059) !important; ">
+                                                        <div class="inner">
+                                                            <h3>@Model.Tables[0].Rows[0]["inbox"]</h3>
+                                                            <p>InBox</p>
+                                                        </div>
+                                                        <div class="icon">
+                                                            <i class="fa fa-download"></i>
+                                                        </div>
+                                                        <div class="nav-link small-box-footer" style="position: relative; z-index: 2;">
+                                                            More info <i class="fas fa-arrow-circle-right"></i>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </div>
+
+                                            <div class="col-lg-3">
+                                                <a href="@Url.Action("Frm_OutBoxList", "User")" class="text-decoration-none">
+                                                    <div class="small-box bg-success" style="background: linear-gradient(45deg, #FF8C00, #ef4100) !important;">
+                                                        <div class="inner">
+                                                            <h3>@Model.Tables[0].Rows[0]["outbox"]</h3>
+                                                            <p>OutBox</p>
+                                                        </div>
+                                                        <div class="icon">
+                                                            <i class="fa fa-upload"></i>
+                                                        </div>
+                                                        <div class="nav-link small-box-footer" style="position: relative; z-index: 2;">
+                                                            More info <i class="fas fa-arrow-circle-right"></i>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </div>
+
+                                            <div class="col-lg-3" >
+                                                <a href="@Url.Action("Frm_OpenedFiles", "User")" class="text-decoration-none">
+                                                    <div class="small-box bg-warning" style="background: linear-gradient(to top, #0ba360 0%, #3cba92 100%) !important;">
+                                                        <div class="inner" style="color:white">
+                                                            <h3>@Model.Tables[0].Rows[0]["opened_files"]</h3>
+                                                            <p>Opened Files</p>
+                                                        </div>
+                                                        <div class="icon">
+                                                            <i class="fa fa-folder-open"></i>
+                                                        </div>
+                                                        <div class="nav-link small-box-footer" style="position: relative; z-index: 2;">
+                                                            More info <i class="fas fa-arrow-circle-right"></i>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                            <div class="col-lg-3">
+                                                <a href="@Url.Action("Frm_ReturnFiles", "User")" class="text-decoration-none">
+                                                    @*<div class="small-box bg-warning" style="background: linear-gradient(to top, #0ba360 0%, #3cba92 100%) !important;">*@
+                                                    <div class="small-box bg-warning" style="background: linear-gradient(to top, #5361B5, #8E9BEB) !important;">
+
+                                                        <div class="inner" style="color:white">
+                                                            <h3>@Model.Tables[0].Rows[0]["returned_files"]</h3>
+                                                            <p>Return Files</p>
+                                                        </div>
+                                                        <div class="icon">
+                                                            <i class="fas fa-reply"></i>
+                                                        </div>
+                                                        <div class="nav-link small-box-footer" style="position: relative; z-index: 2;">
+                                                            More info <i class="fas fa-arrow-circle-right"></i>
+                                                        </div>
+                                                    </div>
+</a>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+
+                                            <div class="col-lg-3">
+                                                <a href="@Url.Action("Frm_ApprovedFiles", "User")" class="text-decoration-none">
+                                                    <div class="small-box bg-danger" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;">
+                                                        <div class="inner">
+                                                            <h3>@Model.Tables[0].Rows[0]["approved_files"]</h3>
+                                                            <p>Approved Files</p>
+                                                        </div>
+                                                        <div class="icon">
+                                                            <i class="fa fa-check-circle"></i>
+                                                        </div>
+                                                        <div class="nav-link small-box-footer" style="position: relative; z-index: 2;">
+                                                            More info <i class="fas fa-arrow-circle-right"></i>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                            <div class="col-lg-3">
+                                                <a href="@Url.Action("Frm_CallBackFiles", "User")" class="text-decoration-none">
+                                                    <div class="small-box bg-info">
+                                                        <div class="inner">
+                                                            <h3>@Model.Tables[0].Rows[0]["callbacked_files"]</h3>
+                                                            <p>Call Backed Files</p>
+                                                        </div>
+                                                        <div class="icon">
+                                                            <i class="fa fa-file-import"></i>
+                                                        </div>
+                                                        <div class="nav-link small-box-footer" style="position: relative; z-index: 2;">
+                                                            More info <i class="fas fa-arrow-circle-right"></i>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                            <div class="col-lg-3">
+                                                <a href="@Url.Action("HandOver_Files", "User")" class="text-decoration-none">
+                                                    <div class="small-box bg-info" style="background: linear-gradient(to top, #1e3c72 0%, #1e3c72 1%, #2a5298 100%) !important;">
+                                                        <div class="inner">
+                                                            <h3>@Model.Tables[0].Rows[0]["handover_files"]</h3>
+                                                            <p>HandOver Files</p>
+                                                        </div>
+                                                        <div class="icon">
+                                                            <i class="fa fa-share-square"></i>
+                                                        </div>
+                                                        <div class="nav-link small-box-footer" style="position: relative; z-index: 2;">
+                                                            More info <i class="fas fa-arrow-circle-right"></i>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                            @if (Session["UserId"] != null && Session["UserName"].ToString().ToLower() == "vcsec_vco")
+                                            {
+                                                
+                                                    <div class="col-lg-3">
+                                                        <a href="@Url.Action("SignedFiles", "User")" class="text-decoration-none">
+                                                            <div class="small-box bg-success" style="background: linear-gradient(343deg, #d89401 36%, #e5b534 100%) !important">
+                                                                <div class="inner">
+                                                                    <h3>@Model.Tables[0].Rows[0]["vc_signed_files"]</h3>
+                                                                    <p>Signed Files of HON'BLE' VC'</p>
+                                                                </div>
+                                                                <div class="icon">
+                                                                    <i class="fas fa-file-contract"></i>
+                                                                </div>
+                                                                <div class="nav-link small-box-footer" style="position: relative; z-index: 2;">
+                                                                    More info <i class="fas fa-arrow-circle-right"></i>
+                                                                </div>
+                                                            </div>
+                                                        </a>
+                                                    </div>
+                                                }
+                                            </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="accordion2" class="accordion-wrapper mb-3">
+
+            <div class="card">
+                <div id="headingtwo" class="card-header">
+                    <button type="button" data-toggle="collapse" data-target="#collapsetwo" aria-expanded="true" aria-controls="collapsetwo" class="text-left m-0 p-0 btn btn-link btn-block">
+                        <h5 class="m-0 p-0 card-title">Files Information<i class="float-right pe-7s-angle-down"></i></h5>
+                    </button>
+                </div>
+                <div data-parent="#accordion2" id="collapsetwo" aria-labelledby="headingtwo" class="collapse show">
+                    <div class="card-body">
+                        <div class="media">
+                            <div class="media-body">
+                                <div class="mt-2">
+                                    <div class="row">
+                                        <div class="col-lg-3">
+                                            <a href="@Url.Action("Created_Document", "User")" class="text-decoration-none">
+                                                <div class="small-box bg-danger" style="background: linear-gradient(163deg, #4175e3 36%, #023a9c 100%) !important">
+                                                    <div class="inner">
+                                                        <h3>@Model.Tables[0].Rows[0]["document_count"]</h3>
+                                                        <p>Created Document</p>
+                                                    </div>
+                                                    <div class="icon">
+                                                        <i class="fa fa-edit"></i>
+                                                    </div>
+                                                    <div class="nav-link small-box-footer" style="position: relative; z-index: 2;">
+                                                        More info <i class="fas fa-arrow-circle-right"></i>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <a href="@Url.Action("Created_Files", "User")" class="text-decoration-none">
+                                                <div class="small-box bg-warning" style="background:linear-gradient(to bottom right, #088c53, #26b97a) !important">
+                                                    <div class="inner" style="color:white">
+                                                        <h3>@Model.Tables[0].Rows[0]["created_files"]</h3>
+                                                        <p>Created Files</p>
+                                                    </div>
+                                                    <div class="icon">
+                                                        <i class="fa fa-edit"></i>
+                                                    </div>
+                                                    <div class="nav-link small-box-footer" style="position: relative; z-index: 2;">
+                                                        More info <i class="fas fa-arrow-circle-right"></i>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <a href="@Url.Action("Files_History", "User")" class="text-decoration-none">
+                                                <div class="small-box bg-danger" style="background: linear-gradient(343deg, #9c023a 36%, #e34141 100%) !important">
+                                                    <div class="inner">
+                                                        <h3>@Model.Tables[0].Rows[0]["file_history"]</h3>
+                                                        <p>Files History</p>
+                                                    </div>
+                                                    <div class="icon">
+                                                        <i class="fa fa-history"></i>
+                                                    </div>
+                                                    <div class="nav-link small-box-footer" style="position: relative; z-index: 2;">
+                                                        More info <i class="fas fa-arrow-circle-right"></i>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+
+                                        @if (Session["UserId"] != null && Session["UserName"].ToString().ToLower() == "vcsec_vco")
+                                        {
+
+                                            <div class="col-lg-3">
+                                                <a href="@Url.Action("Internal_Movement", "User")" class="text-decoration-none">
+                                                    <div class="small-box bg-danger" style="background: linear-gradient(163deg, #02a69c 36%, #41e3c5 100%) !important">
+                                                        <div class="inner">
+                                                            <h3>@Model.Tables[0].Rows[0]["internal_movement"]</h3>
+                                                            <p>Internal Movement</p>
+                                                        </div>
+                                                        <div class="icon">
+                                                            <i class="fa fa-sync"></i>
+                                                        </div>
+                                                        <div class="nav-link small-box-footer" style="position: relative; z-index: 2;">
+                                                            More info <i class="fas fa-arrow-circle-right"></i>
+                                                        </div>
+                                                    </div>
+                                                </a>
+
+                                            </div>
+                                        }
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <br />
+        <div class="tab-content">
+            <div class="tab-pane tabs-animation fade show active" id="tab-content-0" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="main-card mb-3 card chart-card">
+                            <div class="chart-header">
+                                <h4 class="chart-title">
+                                    <i class="fas fa-chart-pie"></i>
+                                    Files Information
+                                </h4>
+                            </div>
+                            <div class="chart-body">
+                                <div class="chart-container">
+                                    <div id="piechart"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="main-card mb-3 card chart-card">
+                            <div class="chart-header">
+                                <h4 class="chart-title">
+                                    <i class="fas fa-chart-pie"></i>
+                                    Files Information
+                                </h4>
+                            </div>
+                            <div class="chart-body">
+                                <div class="chart-container">
+                                    <div id="donutchart"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @*<div class="col-md-12">
+                        <div class="main-card mb-3 card">
+                            <div class="card-body">
+                                <h4 class="text-center menu-header-title pt-2 text-primary">
+                                    Bar Chart
+                                </h4>
+                                <div id="barchart"></div>
+                            </div>
+                        </div>
+                    </div>*@
+
+                </div>
+            </div>
+        </div>
+
+        <div class="app-drawer-overlay d-none animated fadeIn"></div>
+</section>
+
+    <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/percent.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/themes/Responsive.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/xy.js"></script>
+
+    <script>
+        //am5.ready(function () {
+
+        //    // Create root element
+        //    // https://www.amcharts.com/docs/v5/getting-started/#Root_element
+        //    var root = am5.Root.new("barchart");
+
+        //    // Set themes
+        //    // https://www.amcharts.com/docs/v5/concepts/themes/
+        //    root.setThemes([
+        //        am5themes_Animated.new(root)
+        //    ]);
+
+        //    // hide amcharts logo
+        //    root._logo.dispose();
+
+        //    // Create chart
+        //    // https://www.amcharts.com/docs/v5/charts/xy-chart/
+        //    var chart = root.container.children.push(am5xy.XYChart.new(root, {
+        //        panX: true,
+        //        panY: true,
+        //        wheelX: "panX",
+        //        wheelY: "zoomX",
+        //        pinchZoomX: true,
+        //        paddingLeft: 0,
+        //        paddingRight: 1
+        //    }));
+
+        //    // Add cursor
+        //    // https://www.amcharts.com/docs/v5/charts/xy-chart/cursor/
+        //    var cursor = chart.set("cursor", am5xy.XYCursor.new(root, {}));
+        //    cursor.lineY.set("visible", false);
+
+
+        //    // Create axes
+        //    // https://www.amcharts.com/docs/v5/charts/xy-chart/axes/
+        //    var xRenderer = am5xy.AxisRendererX.new(root, {
+        //        minGridDistance: 30,
+        //        minorGridEnabled: true
+        //    });
+
+        //    xRenderer.labels.template.setAll({
+        //        rotation: -90,
+        //        centerY: am5.p50,
+        //        centerX: am5.p100,
+        //        paddingRight: 15
+        //    });
+
+        //    xRenderer.grid.template.setAll({
+        //        location: 1
+        //    })
+
+        //    var xAxis = chart.xAxes.push(am5xy.CategoryAxis.new(root, {
+        //        maxDeviation: 0.3,
+        //        categoryField: "country",
+        //        renderer: xRenderer,
+        //        tooltip: am5.Tooltip.new(root, {})
+        //    }));
+
+        //    var yRenderer = am5xy.AxisRendererY.new(root, {
+        //        strokeOpacity: 0.1
+        //    })
+
+        //    var yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
+        //        maxDeviation: 0.3,
+        //        renderer: yRenderer
+        //    }));
+
+        //    // Add legend
+        //    var legend = chart.children.push(am5.Legend.new(root, {
+        //        centerX: am5.p50,
+        //        x: am5.p50,
+
+        //    }));
+
+        //    // Make legend markers circular
+        //    legend.markerRectangles.template.setAll({
+        //        cornerRadiusTL: 10,
+        //        cornerRadiusTR: 10,
+        //        cornerRadiusBL: 10,
+        //        cornerRadiusBR: 10
+        //    });
+
+        //    // Create series
+        //    // https://www.amcharts.com/docs/v5/charts/xy-chart/series/
+        //    var series = chart.series.push(am5xy.ColumnSeries.new(root, {
+        //        name: "Series 1",
+        //        xAxis: xAxis,
+        //        yAxis: yAxis,
+        //        valueYField: "value",
+        //        sequencedInterpolation: true,
+        //        categoryXField: "country",
+        //        tooltip: am5.Tooltip.new(root, {
+        //            labelText: "{valueY}"
+        //        })
+        //    }));
+
+        //    series.columns.template.setAll({ cornerRadiusTL: 5, cornerRadiusTR: 5, strokeOpacity: 0 });
+        //    series.columns.template.adapters.add("fill", function (fill, target) {
+        //        return chart.get("colors").getIndex(series.columns.indexOf(target));
+        //    });
+
+        //    series.columns.template.adapters.add("stroke", function (stroke, target) {
+        //        return chart.get("colors").getIndex(series.columns.indexOf(target));
+        //    });
+
+
+        //    // Set data
+        //    var data = [{
+        //        country: "USA",
+        //        value: 2025
+        //    }, {
+        //        country: "China",
+        //        value: 1882
+        //    }, {
+        //        country: "Japan",
+        //        value: 1809
+        //    }, {
+        //        country: "Germany",
+        //        value: 1322
+        //    }, {
+        //        country: "UK",
+        //        value: 1122
+        //    }, {
+        //        country: "France",
+        //        value: 1114
+        //    }, {
+        //        country: "India",
+        //        value: 984
+        //    }, {
+        //        country: "Spain",
+        //        value: 711
+        //    }, {
+        //        country: "Netherlands",
+        //        value: 665
+        //    }, {
+        //        country: "South Korea",
+        //        value: 443
+        //    }, {
+        //        country: "Canada",
+        //        value: 441
+        //    }];
+
+        //    xAxis.data.setAll(data);
+        //    series.data.setAll(data);
+
+
+        //    // Make stuff animate on load
+        //    // https://www.amcharts.com/docs/v5/concepts/animations/
+        //    series.appear(1000);
+        //    chart.appear(1000, 100);
+
+        //}); // end am5.ready()
+
+
+        am5.ready(function () {
+
+            // Create root element
+            // https://www.amcharts.com/docs/v5/getting-started/#Root_element
+            var root = am5.Root.new("piechart");
+
+            // Set themes
+            // https://www.amcharts.com/docs/v5/concepts/themes/
+            root.setThemes([
+                am5themes_Animated.new(root)
+            ]);
+
+            // hide amcharts logo
+            root._logo.dispose();
+
+            // Create chart
+            // https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/
+            var chart = root.container.children.push(
+                am5percent.PieChart.new(root, {
+                    endAngle: 270,
+                    radius: am5.percent(55)
+                })
+            );
+
+            // Create series
+            // https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/#Series
+            var series = chart.series.push(
+                am5percent.PieSeries.new(root, {
+                    valueField: "value",
+                    categoryField: "category",
+                    alignLabels: true,
+                    legendLabelText: "{category}[/]",
+                    legendValueText: "([bold]{value}[/])"
+                })
+            );
+
+            series.states.create("hidden", {
+                endAngle: -90
+            });
+
+            series.ticks.template.setAll({
+                location: 0.5,
+                //strokeWidth: 1.5
+            });
+            // align and wrap series name
+            series.labels.template.setAll({
+                fontSize: 13,
+                maxWidth: 80,
+                oversizedBehavior: "wrap"
+            });
+
+            // Set data
+            // https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/#Setting_data
+            series.data.setAll([{
+                category: "InBox",
+                value: @Model.Tables[0].Rows[0]["inbox"]
+            }, {
+                category: "OutBox",
+                value: @Model.Tables[0].Rows[0]["outbox"]
+            }, {
+                category: "Openend Files",
+                value: @Model.Tables[0].Rows[0]["opened_files"]
+            }, {
+                category: "Approved Files",
+                value:@Model.Tables[0].Rows[0]["approved_files"]
+            }, {
+                category: "Returned Files",
+                value: @Model.Tables[0].Rows[0]["returned_files"]
+            }, {
+                    category: "Callback Files",
+                    value: @Model.Tables[0].Rows[0]["callbacked_files"]
+                }
+            // {
+            //    category: "UK",
+            //    value: 99
+            //}
+            ]);
+            // Set custom colors for each slice
+            series.slices.each(function (slice, index) {
+                var colors = ["#d30000", "#ffcf00", "#F18B44", "#A6009D", "#009640", "#18898D", "#B64678"];
+                var sliceColor = colors[index % colors.length];
+                slice.set("fill", am5.color(sliceColor));
+
+            });
+
+            // Create legend
+            // https://www.amcharts.com/docs/v5/charts/percent-charts/legend-percent-series/
+            var legend = chart.children.push(am5.Legend.new(root, {
+                centerX: am5.percent(50),
+                x: am5.percent(50),
+                centerY: am5.percent(50),
+                y: am5.percent(90)
+            }));
+
+            legend.data.setAll(series.dataItems);
+            legend.markerRectangles.template.setAll({
+                cornerRadiusTL: 10,
+                cornerRadiusTR: 10,
+                cornerRadiusBL: 10,
+                cornerRadiusBR: 10
+            });
+
+            // Tooltip Customization
+            series.slices.template.set("tooltipText", "{category} : [bold]{valuePercentTotal.formatNumber('0.00')}%[/] ({value})");
+
+
+            series.appear(1000, 100);
+
+        }); // end am5.ready()
+
+        am5.ready(function () {
+
+            // Create root element
+            // https://www.amcharts.com/docs/v5/getting-started/#Root_element
+            var root = am5.Root.new("donutchart");
+
+
+            // Set themes
+            // https://www.amcharts.com/docs/v5/concepts/themes/
+            root.setThemes([
+                am5themes_Animated.new(root)
+            ]);
+
+            // hide amcharts logo
+            root._logo.dispose();
+
+            // Create chart
+            // https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/
+            var chart = root.container.children.push(am5percent.PieChart.new(root, {
+                layout: root.verticalLayout,
+                innerRadius: am5.percent(50),
+                radius: am5.percent(60)
+            }));
+
+
+            // Create series
+            // https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/#Series
+            var series = chart.series.push(
+                am5percent.PieSeries.new(root, {
+                    valueField: "value",
+                    categoryField: "category",
+                    alignLabels: true,
+                    legendLabelText: "{category}[/]",
+                    legendValueText: "([bold]{value}[/])"
+                })
+            );
+
+            series.labels.template.setAll({
+                textType: "circular",
+                centerX: 0,
+                centerY: 0
+            });
+
+            series.ticks.template.setAll({
+                location: 0.5,
+                //strokeWidth: 1.5
+            });
+            // align and wrap series name
+            series.labels.template.setAll({
+                fontSize: 13,
+                maxWidth: 80,
+                oversizedBehavior: "wrap"
+            });
+
+            // Set data
+            // https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/#Setting_data
+            series.data.setAll([
+               /* { value: 10, category: "One" },*/
+                { value: @Model.Tables[0].Rows[0]["handover_files"], category: "Handover Files" },
+                { value: @Model.Tables[0].Rows[0]["created_files"], category: "Created File" },
+                { value: @Model.Tables[0].Rows[0]["vc_signed_files"], category: "Signed File from VC" },
+                { value: @Model.Tables[0].Rows[0]["internal_movement"], category: "Internal Movement" },
+                { value:@Model.Tables[0].Rows[0]["document_count"], category: "Created Document" },
+                { value:@Model.Tables[0].Rows[0]["file_history"], category: "File History" },
+            ]);
+
+            // Set custom colors for each slice
+            series.slices.each(function (slice, index) {
+                var colors = ["#d30000", "#ffcf00", "#F18B44", "#A6009D", "#009640", "#18898D", "#B64678"];
+                var sliceColor = colors[index % colors.length];
+                slice.set("fill", am5.color(sliceColor));
+
+            });
+
+            // Create legend
+            // https://www.amcharts.com/docs/v5/charts/percent-charts/legend-percent-series/
+            var legend = chart.children.push(am5.Legend.new(root, {
+                centerX: am5.percent(50),
+                x: am5.percent(50),
+                centerY: am5.percent(50),
+                y: am5.percent(90)
+            }));
+
+            legend.data.setAll(series.dataItems);
+            legend.markerRectangles.template.setAll({
+                cornerRadiusTL: 10,
+                cornerRadiusTR: 10,
+                cornerRadiusBL: 10,
+                cornerRadiusBR: 10
+            });
+
+            // Tooltip Customization
+            series.slices.template.set("tooltipText", "{category} : [bold]{valuePercentTotal.formatNumber('0.00')}%[/] ({value})");
+
+
+
+            // Play initial series animation
+            // https://www.amcharts.com/docs/v5/concepts/animations/#Animation_of_series
+            series.appear(1000, 100);
+
+            //// Tooltip Customization
+            //series.slices.template.set("tooltipText", "{category} : [bold]{valuePercentTotal.formatNumber('0.00')}%[/] ({value})");
+
+
+            //series.appear(1000, 100);
+        }); // end am5.ready()
+
+    </script>

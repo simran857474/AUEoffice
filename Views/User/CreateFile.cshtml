@@ -1,0 +1,562 @@
+﻿
+@model List<Eoffice.Models.ModelCreateFile>
+@{
+    ViewBag.Title = "CreateFile";
+    Layout = "~/Views/Shared/_LayoutNew.cshtml";
+}
+
+@{
+    var editfile = ViewBag.EditFile as Eoffice.Models.ModelCreateFile;
+    bool isEdit = editfile != null;
+}
+<style>
+    .is-invalid {
+        border: 1px solid red !important;
+    }
+
+    .form-background {
+        /*background-image: url('/Content/Images/eoffice.jpg');*/
+        background-image: url('@Url.Content("~/Content/Images/eoffice.jpg")');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        border-radius: 8px;
+    }
+    .text-danger {
+        color: maroon !important;
+    }
+
+</style>
+
+
+<section class="content mt-1">
+    <!-- Added top margin here -->
+    <div class="container-fluid">
+
+        <div id="accordion3" class="accordion-wrapper mb-3">
+            <div class="main-card mb-3 card">
+                <div id="headingthree" class="card-header">
+                    <button type="button" data-toggle="collapse" data-target="#collapseOne3" aria-expanded="true" aria-controls="collapseOne3" class="text-left m-0 p-0 btn btn-link btn-block">
+                        <h5 class="m-0 p-0 card-title">Create File<i class="float-right pe-7s-angle-down"></i></h5>
+
+                    </button>
+                </div>
+                <div data-parent="#accordion3" id="collapseOne3" aria-labelledby="headingthree" class="collapse @(isEdit ? "show" : "")">
+
+
+                    <div class="card-body">
+                        <div class="card shadow-lg p-4 form-background" @*style="background-color: #D69ABA"*@>
+
+                            <!-- University Title -->
+                            <h2 class="text-center mb-3" style="color: #BB1E3D; font-weight:200; font-family: 'Playfair Display' ">
+                                University of Allahabad
+                            </h2>
+                            <hr style="border-top: 2px solid #BB1E3D; width: 100%; margin-bottom: 30px;" />
+                            @*<div class="app-header__center">
+                                    <h1 class="university-name">University of Allahabad, Prayagraj, Uttar Pradesh</h1>
+                                </div>*@
+                            <!-- Create File Title -->
+                            <h4 class="text-center mb-4" style="font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                                Create File
+                            </h4>
+
+                            @using (Html.BeginForm(isEdit ? "EditFile" : "CreateFile", "User", FormMethod.Post, new { @id = "createFileForm" }))
+                            {
+
+                                <input type="hidden" name="DocType_Name" id="hdnDoc_TypeName" value="@(isEdit?editfile.DocType_Name:"")" />
+                                <input type="hidden" name="AutoNumber" id="hiddenAutoNumber" value="@ViewBag.AutoNumber" />
+                                <input type="hidden" name="File_Code" id="hiddenFile_Code" value="@(isEdit?editfile.File_Code:"")" />
+
+                                <!-- Dept, Section, File Type -->
+                                <div class="form-row mb-3">
+                                    <div class="col-md-4">
+                                        <label>Department</label>
+                                        <input type="text" name="File_DeptName" class="form-control" value="@ViewBag.DepName" readonly />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label>Section</label>
+                                        <input type="text" name="File_SectionName" class="form-control" value="@ViewBag.SecName" readonly />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label>File Type</label>
+                                        @Html.DropDownList("Doc_Type_Code", new SelectList(ViewBag.FileType ?? new List<SelectListItem>(), "Value", "Text", editfile?.DocType_Code), "--Select--", new { @class = "form-control ", id = "Doc_Type_Code" })
+                                        <span class="text-danger" id="error-Doc_Type_Code"></span>
+
+                                    </div>
+
+                                    <div class="col-md-4" id="filetypeotherdiv" style="display:none;">
+                                        <label>Other</label>
+                                        <input type="text" id="filetypeother" name="OtherDoc_Type" class="form-control" placeholder="Enter Other File Type" value="@(isEdit?editfile.OtherDoc_Type:"")" />
+                                        <span class="text-danger" id="error-filetypeother"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Other Details Title -->
+                                <h4 class="text-center mb-4" style="font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                                    Other Details
+                                </h4>
+
+                                <!-- File Category, Subcategory, Priority -->
+                                <div class="form-row mb-3">
+                                    <div class="col-md-4">
+                                        <label>File Category</label>
+                                        @Html.DropDownList("FileCat_Code", new SelectList(ViewBag.FileCategory ?? new List<SelectListItem>(), "Value", "Text", editfile?.FileCat_Code), "--Select--", new { @class = "form-control", id = "FileCat_Code" })
+                                        <span class="text-danger" id="error-FileCat_Code"></span>
+                                    </div>
+                                    <div class="col-md-4" id="filecategoryotherdiv" style="display:none;">
+                                        <label>Other</label>
+                                        <input type="text" id="filecategoryother" name="Other_Cat" class="form-control" placeholder="Enter Other File Category" value="@(isEdit?editfile.Other_Cat:"")" />
+                                        <span class="text-danger" id="error-filecategoryother"></span>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label>File Sub Category</label>
+                                        <select id="ddlSubCategory" name="FileSubCat_Code" class="form-control">
+
+                                            <option value="">--Select--</option>
+
+                                        </select>
+                                        <span class="text-danger" id="error-ddlSubCategory"></span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label>Priority</label>
+                                        @Html.DropDownList("Prior_Code", new SelectList(ViewBag.DocPriority ?? new List<SelectListItem>(), "Value", "Text", editfile?.Prior_Code), "--Select--", new { @class = "form-control", id = "Prior_Code" })
+                                        <span class="text-danger" id="error-Prior_Code"></span>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <label>Description</label>
+                                        <textarea name="File_Desc" class="form-control" rows="4" placeholder="Enter file description...">@(isEdit?editfile.File_Desc:"")</textarea>
+                                        <span class="text-danger" id="error-File_Desc"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Description -->
+                                <!-- Buttons -->
+                                <div class="text-center">
+                                    <input type="submit" value="@(isEdit ? "Update File" : "Create File")" class="btn btn-primary px-4 mr-2" />
+                                    <input type="reset" value="Reset" class="btn btn-secondary px-4" />
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <br />
+                </div>
+            </div>
+        </div>
+
+
+
+        <div id="accordion4" class="accordion-wrapper mb-3">
+            <div class="main-card mb-3 card">
+                <div id="headingfour" class="card-header">
+                    <button type="button" data-toggle="collapse" data-target="#collapseOne4" aria-expanded="true" aria-controls="collapseOne4" class="text-left m-0 p-0 btn btn-link btn-block">
+                        <h5 class="m-0 p-0 card-title"> List<i class="float-right pe-7s-angle-down"></i></h5>
+                    </button>
+                </div>
+                <div data-parent="#accordion4" id="collapseOne4" aria-labelledby="headingfour" class="collapse show">
+
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12" id="divDetails">
+                                <div class="">
+
+                                    <table style="width: 100%; " id="scr-vtr-dynamic" class="example1 table table-striped table-bordered nowrap table-hover text-left">
+                                        <thead>
+                                            <tr>
+                                                <th>S.No</th>
+                                                <th>File Number</th>
+                                                <th>File Description</th>
+                                                <th class="">Category</th>
+                                                <th class="">Sub Category</th>
+                                                <th class="">Priority</th>
+                                                <th class="">Created by Section</th>
+                                                <th class="">Created Date/time</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model != null && Model.Count > 0)
+                                            {
+                                                int i = 1;
+                                                foreach (var item in Model)
+                                                {
+                                                    <tr>
+                                                        <td>@i</td>
+                                                        <td> <a href="@Url.Action("Noting_Page", "User", new { fileCode = item.File_Code })"> @item.File_Code </a></td>
+                                                        <td>@item.File_Desc</td>
+                                                        <td>@item.FileCat_Name</td>
+                                                        <td>@item.FileSubCat_Name</td>
+                                                        <td>@item.Prior_Name</td>
+                                                        <td>@item.File_SectionName</td>
+                                                        <td>@item.CreatedDate</td>
+                                                        <td>
+                                                            @Html.ActionLink("Edit", "CreateFile", "User", new { File_Code = item.File_Code }, new { @class = "btn btn-sm btn-warning" })
+                                                            @Html.ActionLink("Delete", "DeleteFile", "User", new { File_Code = item.File_Code }, new { @class = "btn btn-sm btn-danger", onclick = "return confirm('Are you sure you want to delete this File?');" })
+                                                        </td>
+                                                    </tr>
+                                                    i++;
+                                                }
+                                            }
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<script src="~/Scripts/jquery-3.7.1.min.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+
+        const isEdit = '@(isEdit)'.toLowerCase() === 'true';
+        const selectedfilecategory = '@(isEdit ? editfile.FileCat_Code : "")';
+        const selectedfilesubcategory = '@(isEdit ? editfile.FileSubCat_Code : "")';
+        var message = '@TempData["msg"]';
+
+        if (message) {
+            switch (message) {
+                case "File created successfully.":
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: message,
+                        timer: 4000,
+                        showConfirmButton: false
+                    });
+                    break;
+                case "File not created.":
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed!',
+                        text: message,
+                        timer: 4000,
+                        showConfirmButton: false
+                    });
+                    break;
+                case "File not updated.":
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed!',
+                        text: message,
+                        timer: 4000,
+                        showConfirmButton: false
+                    });
+                    break;
+                case "File already exists.":
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed!',
+                        text: message,
+                        timer: 4000,
+                        showConfirmButton: false
+                    });
+                    break;
+                case "File updated successfully.":
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Updated!',
+                        text: message,
+                        timer: 4000,
+                        showConfirmButton: false
+                    });
+                    break;
+                case "File deleted successfully.":
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: message,
+                        timer: 4000,
+                        showConfirmButton: false
+                    });
+                    break;
+                case "File not deleted.":
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed!',
+                        text: message,
+                        timer: 4000,
+                        showConfirmButton: false
+                    });
+                    break;
+                default:
+                    // Optional: handle other messages
+                    break;
+            }
+        }
+
+        if (isEdit && selectedfilecategory != '') {
+            $('#FileCat_Code').val(selectedfilecategory);
+            $('#FileCat_Code').trigger('change');
+
+            // Wait for AJAX to complete then set department
+            setTimeout(function () {
+                $.ajax({
+
+                     url: '@Url.Action("GetFileSubCategoryByFileCategory", "User")',
+                    type: 'POST',
+                    data: { filecategory: selectedfilecategory },
+                    success: function (data) {
+                        var fileSubCatDropdown = $('#ddlSubCategory');
+                        fileSubCatDropdown.empty();
+                        fileSubCatDropdown.append($('<option/>', {
+                            value: '',
+                            text: '-Select-'
+                        }));
+
+                        $.each(data, function (i, item) {
+                            fileSubCatDropdown.append($('<option/>', {
+                                value: item.Value,
+                                text: item.Text
+                            }));
+                        });
+
+                        // Set selected department after dropdown is populated
+                        if (selectedfilesubcategory !== '') {
+                            fileSubCatDropdown.val(selectedfilesubcategory);
+                        }
+                    },
+                    error: function () {
+                        alert('Error loading file categories.');
+                    }
+                });
+            }, 100); // Slight delay ensures EstType is set before AJAX
+        }
+
+        // Initial check on page load
+        toggleOtherFields();
+
+        // On change of dropdowns
+        $('#Doc_Type_Code').change(function () {
+            toggleOtherFields();
+        });
+
+        // On change of dropdowns
+        $('#FileCat_Code').change(function () {
+            toggleOtherFields();
+        });
+
+        function toggleOtherFields() {
+            // For file type
+            if ($('#Doc_Type_Code option:selected').text().toLowerCase() === 'others | oth') {
+                $('#filetypeotherdiv').show();
+            } else {
+                $('#filetypeotherdiv').hide();
+                $('#filetypeother').val('');
+            }
+
+            // For file type
+            if ($('#FileCat_Code option:selected').text().toLowerCase() === 'others') {
+                $('#filecategoryotherdiv').show();
+            } else {
+                $('#filecategoryotherdiv').hide();
+                $('#filecategoryother').val('');
+            }
+        }
+
+        $('#Doc_Type_Code').change(function () {
+            const doctypename = $('#Doc_Type_Code option:selected').text();
+            $('#hdnDoc_TypeName').val(doctypename);
+        });
+    });
+
+    $('#FileCat_Code').change(function () {
+        var filecategory = $(this).val();
+
+        if (filecategory) {
+            $.ajax({
+
+                 url: '@Url.Action("GetFileSubCategoryByFileCategory", "User")',
+                type: 'POST',
+                data: { filecategory: filecategory },
+                success: function (data) {
+                    var deptDropdown = $('#ddlSubCategory');
+                    deptDropdown.empty();
+                    deptDropdown.append($('<option/>', {
+                        value: '',
+                        text: '-Select-'
+                    }));
+
+                    $.each(data, function (i, item) {
+                        deptDropdown.append($('<option/>', {
+                            value: item.Value,
+                            text: item.Text
+                        }));
+                    });
+                },
+                error: function () {
+                    alert('Error loading file sub categories.');
+                }
+            });
+        } else {
+            $('#ddlSubCategory').empty().append($('<option/>', {
+                value: '',
+                text: '-Select-'
+            }));
+        }
+    });
+
+
+
+    function showFileCodeModal() {
+        return new Promise((resolve) => {
+
+            var month = new Date().getMonth() + 1;
+
+            var dept = $('input[name="File_DeptName"]').val().split('|');
+            var sec = $('input[name="File_SectionName"]').val().split('|');
+            var year = new Date().getFullYear();
+
+            var file_type = $('#Doc_Type_Code option:selected').text().split('|');
+            var auto_number = $('#hiddenAutoNumber').val();
+
+            var deptCode = dept.length > 1 ? dept[1].trim() : dept[0].trim();
+            var secCode = sec.length > 1 ? sec[1].trim() : sec[0].trim();
+            var fileTypeCode = file_type.length > 1 ? file_type[1].trim() : file_type[0].trim();
+
+            var file_no = deptCode + '/' +
+                secCode + '/' +
+                fileTypeCode + '/' +
+                month + '/' +
+                auto_number + '/' +
+                year;
+
+            Swal.fire({
+                title: 'Confirm File Creation',
+                html: `<b>Generated File No:</b><br>${file_no}<br><br>This cannot be edited later.<br>Are you sure you want to continue?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Proceed',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#d33'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
+            });
+
+        });
+    }
+
+
+
+  /*  Validation jquery */
+    $('#createFileForm').submit(function (e) {
+        e.preventDefault(); // STOP default submit first
+        var isValid = true;
+
+        // Clear all previous error messages and borders
+        $('.text-danger').text('');
+        $('.form-control').removeClass('is-invalid');
+
+        function showError(id, message) {
+            $('#error-' + id).text(message);
+            $('#' + id).addClass('is-invalid'); // Add red border
+            isValid = false;
+        }
+
+        // Validate Doc Type
+        if ($('#Doc_Type_Code').val() === '' || $('#Doc_Type_Code').val() === '-Select-') {
+            showError('Doc_Type_Code', 'Please select a file type.');
+        }
+
+        // If "Others | OTH" selected, check input
+        if ($('#Doc_Type_Code option:selected').text().toLowerCase() === 'others | oth') {
+            if ($('#filetypeother').val().trim() === '') {
+                showError('filetypeother', 'Please enter other file type.');
+            }
+        }
+
+        // Validate File Category
+        if ($('#FileCat_Code').val() === '' || $('#FileCat_Code').val() === '-Select-') {
+            showError('FileCat_Code', 'Please select a file category.');
+        }
+
+        // If "Others" selected, check input
+        if ($('#FileCat_Code option:selected').text().toLowerCase() === 'others') {
+            if ($('#filecategoryother').val().trim() === '') {
+                showError('filecategoryother', 'Please enter other file category.');
+            }
+        }
+
+        // Validate Subcategory
+        if ($('#ddlSubCategory').val() === '' || $('#ddlSubCategory').val() === '-Select-') {
+            showError('ddlSubCategory', 'Please select a file subcategory.');
+        }
+
+        // Validate Priority
+        if ($('#Prior_Code').val() === '' || $('#Prior_Code').val() === '-Select-') {
+            showError('Prior_Code', 'Please select a priority.');
+        }
+
+        // Validate Description
+        const descField = $('textarea[name="File_Desc"]');
+        if (descField.val().trim() === '') {
+            showError('File_Desc', 'Please enter a description.');
+        }
+
+        // If invalid, prevent form submit
+        if (!isValid) {
+            e.preventDefault();
+            return;
+        }
+
+        const isEdit = '@(isEdit)'.toLowerCase() === 'true';
+
+        // Only show file code modal when creating new file, not when editing
+        if (!isEdit) {
+            // ===== SHOW SWEET ALERT CONFIRMATION FOR NEW FILE =====
+            showFileCodeModal().then((confirmed) => {
+                if (confirmed) {
+                    // Disable submit button and show spinner
+                    var $submitBtn = $('#createFileForm input[type="submit"]');
+                    var originalValue = $submitBtn.val();
+                    
+                    $submitBtn.prop('disabled', true);
+                    $submitBtn.val('Processing...');
+                    $submitBtn.css({
+                        'opacity': '0.7',
+                        'cursor': 'not-allowed'
+                    });
+                    
+                    // Submit the form
+                    $('#createFileForm')[0].submit();
+                }
+                // else do nothing (form stays)
+            });
+        } else {
+            // For edit mode, directly submit without modal
+            // Disable submit button and show spinner
+            var $submitBtn = $('#createFileForm input[type="submit"]');
+            var originalValue = $submitBtn.val();
+            
+            $submitBtn.prop('disabled', true);
+            $submitBtn.val('Updating...');
+            $submitBtn.css({
+                'opacity': '0.7',
+                'cursor': 'not-allowed'
+            });
+            
+            // Submit the form
+            $('#createFileForm')[0].submit();
+        }
+    });
+/*If you want to clear errors and red borders on reset:*/
+    $('input[type="reset"]').click(function () {
+        $('.text-danger').text('');
+        $('.form-control').removeClass('is-invalid');
+    });
+
+</script>

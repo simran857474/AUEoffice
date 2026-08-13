@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Example Web.config settings for encryption configuration
+  Add these to your <appSettings> section
+-->
+<configuration>
+  <appSettings>
+    <!-- Enable/Disable Encryption -->
+    <add key="EnableEncryption" value="true" />
+    
+    <!-- Migration Mode: Set to true during data migration phase
+         When true, application will handle both encrypted and plaintext values
+         Set to false after all data is encrypted -->
+    <add key="EncryptionMigrationMode" value="false" />
+    
+    <!-- AES Encryption Key (Base64 encoded 32-byte key)
+         IMPORTANT: Generate a new key for production!
+         Use: Convert.ToBase64String(new byte[32] { your random bytes })
+         Store in Azure Key Vault or similar secure storage in production -->
+    <add key="AesEncryptionKey" value="K34V1aL+FYiJz089TzwA==" />
+    
+    <!-- AES Initialization Vector (Base64 encoded 16-byte IV)
+         IMPORTANT: Generate a new IV for production!
+         Use: Convert.ToBase64String(new byte[16] { your random bytes })
+         For deterministic encryption, this must remain FIXED -->
+    <add key="AesEncryptionIV" value="AAECAwQFBgcICQoLDA0ODw==" />
+  </appSettings>
+</configuration>

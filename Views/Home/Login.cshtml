@@ -1,0 +1,682 @@
+﻿
+@{
+    Layout = null;
+}
+
+<script src="~/Scripts/jquery-3.7.1.min.js"></script>
+
+@if (ViewBag.ShowModal == true)
+{
+    <script>
+        $(document).ready(function () {
+            var modal = $("#departmentModal");
+            modal.appendTo("body");
+
+            // Bootstrap native toggle (if ArchitectUI conflicts)
+            if ($.fn.modal) {
+                modal.modal("show");
+            } else {
+                modal.addClass("show").css("display", "block");
+                $("body").addClass("modal-open").append('<div class="modal-backdrop fade show"></div>');
+            }
+        });
+    </script>
+}
+
+
+<!doctype html>
+<html lang="en">
+
+
+<!-- Mirrored from demo.dashboardpack.com/architectui-html-pro/pages-login-boxed.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 19 Jun 2021 07:24:20 GMT -->
+<!-- Added by HTTrack -->
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+    <link href="~/Content/font-awesome.min.css" rel="stylesheet" />
+    <link rel="icon" type="image/png" href="~/theme/dist/img/logo-inverse.png" alt="Logo" class="brand-image img-circle elevation-3" />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Language" content="en">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Login : E-Office Login</title>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" />
+    <meta name="description" content="Allahabad Univeristy Eoffice Project">
+
+    <!-- Disable tap highlight on IE -->
+    <meta name="msapplication-tap-highlight" content="no">
+    <link href="~/themeassets/demo.dashboardpack.com/architectui-html-pro/main.d810cf0ae7f39f28f336.css" rel="stylesheet">
+
+    <style>
+       /* .logo {
+            height: 80px;
+            width: auto;
+             background: url(../themeassets/demo.dashboardpack.com/architectui-html-pro/assets/images/logo-inverse.png) center / contain no-repeat;
+        }*/
+
+  .logo {
+    height: 80px;
+    width: auto;
+    background: url('@Url.Content("~/Content/Images/Au_Original.png")') center / contain no-repeat;
+  }
+
+
+    .app-header__center {
+    margin-top: 10px;
+    text-align: center;
+    }
+
+    .university-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: #800000;
+    text-shadow: 1px 1px 2px #aaa;
+    }
+
+    .password-wrapper {
+    position: relative;
+    }
+
+    .password-wrapper input {
+    padding-right: 40px; /* make space for icon */
+    }
+
+    .toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #666;
+    font-size: 18px;
+    transition: color 0.3s;
+    }
+    
+    .toggle-password:hover {
+        color: #3f6ad8;
+    }
+
+    /* 🔥 Fix ArchitectUI modal issue */
+    .modal {
+    z-index: 1050 !important;
+    }
+
+    .modal-backdrop {
+    z-index: 1040 !important;
+    }
+
+    .department-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    }
+
+    .department-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    }
+
+    /* Login spinner styles */
+    .login-spinner {
+        display: inline-block;
+        width: 1rem;
+        height: 1rem;
+        vertical-align: text-bottom;
+        border: 0.15em solid currentColor;
+        border-right-color: transparent;
+        border-radius: 50%;
+        animation: spinner-border 0.75s linear infinite;
+        margin-right: 0.5rem;
+    }
+
+    @@keyframes spinner-border {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .spinner-border-sm {
+        width: 0.875rem;
+        height: 0.875rem;
+        border-width: 0.125em;
+    }
+
+    input[type="submit"]:disabled {
+        cursor: not-allowed !important;
+        position: relative;
+    }
+
+    /* Animated dots for loading state */
+    @@keyframes loading-dots {
+        0%, 20% {
+            content: '⏳ Logging in.';
+        }
+        40% {
+            content: '⏳ Logging in..';
+        }
+        60%, 100% {
+            content: '⏳ Logging in...';
+        }
+    }
+    
+    /* Enhanced form inputs */
+    .form-control {
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: #3f6ad8;
+        box-shadow: 0 0 0 0.2rem rgba(63, 106, 216, 0.25);
+    }
+    
+    /* Radio button styling */
+    .form-check-input:checked {
+        background-color: #3f6ad8;
+        border-color: #3f6ad8;
+    }
+    
+    /* Button hover effect */
+    .btn-primary {
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(63, 106, 216, 0.3);
+    }
+    
+    /* Captcha styling */
+    #captcha {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 15px;
+    }
+    
+    #txtCaptcha {
+        background-size: cover !important;
+        font-weight: bold !important;
+        letter-spacing: 3px;
+    }
+    
+    #btnrefresh {
+        color: #3f6ad8;
+        transition: transform 0.3s;
+    }
+    
+    #btnrefresh:hover {
+        transform: rotate(180deg);
+        color: #2d4fb8;
+    }
+    
+    /* Input icons */
+    .input-icon-wrapper {
+        position: relative;
+    }
+    
+    .input-icon-wrapper i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #999;
+    }
+    
+    .input-icon-wrapper input {
+        padding-left: 40px;
+    }
+    
+    /* Welcome section styling */
+    .welcome-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 8px 8px 0 0;
+        margin: -20px -20px 20px -20px;
+    }
+    
+    .welcome-section h4 {
+        color: white;
+        margin: 0;
+    }
+    
+    /* Error message styling */
+    .alert {
+        border-radius: 8px;
+        border: none;
+    }
+
+
+    </style>
+
+</head>
+
+<body>
+
+
+
+    <div class="app-container app-theme-white body-tabs-shadow">
+        <div class="app-container">
+            <div class="h-100 bg-plum-plate bg-animation">
+                <div class="d-flex h-100 justify-content-center align-items-center">
+                    <div class="mx-auto app-login-box col-md-8">
+                        @*<div class="app-logo-inverse mx-auto mb-3"></div>*@
+                        <div class="modal-dialog w-100 mx-auto">
+                            <div class="modal-content" id="loginFormSection">
+                                @using (Html.BeginForm("Login", "Home", FormMethod.Post))
+                                {
+                                    <div class="modal-body">
+
+                                        <div class="logo-container">
+                                            <div class="logo"></div>
+                                        </div>
+                                        <div class="app-header__center">
+                                            <h4 class="university-name">University of Allahabad, Prayagraj, Uttar Pradesh</h4>
+                                        </div>
+
+
+                                        <hr />
+                                        <div class="h5 modal-title text-center">
+                                            <h4 class="mt-2">
+                                                <div><i class="fa fa-sign-in-alt mr-2"></i>Welcome</div>
+                                                <span style="font-size: 16px; color: #666;">Please sign in to your account below.</span>
+                                            </h4>
+                                        </div>
+
+                                        @if (!string.IsNullOrEmpty(Convert.ToString(TempData["ErrorMsg"])))
+                                        {
+                                            if (TempData["ErrorMsg"].ToString() != "Success")
+
+                                            {
+                                                <div class="alert alert-danger text-center" id="errorMsg">
+                                                    <i class="fa fa-exclamation-circle mr-2"></i>@TempData["ErrorMsg"]
+                                                </div>
+                                            }
+
+                                        }
+
+                                        <input type="hidden" id="hdn2" value="@ViewBag.Salt" />
+
+                                        <div class="form-row">
+
+                                            <div class="col-md-12 text-center mb-3">
+                                                <label class="d-block mb-2" style="font-weight: 600; color: #495057;">
+                                                    <i class="fa fa-user-circle mr-1"></i>Login As
+                                                </label>
+                                                <div class="position-relative form-check form-check-inline">
+                                                    <label class="form-check-label">
+                                                        <input name="RoleType" type="radio" class="form-check-input" value="2" checked>
+                                                        <i class="fa fa-user mr-1"></i>User
+                                                    </label>
+                                                </div>
+                                                <div class="position-relative form-check form-check-inline">
+                                                    <label class="form-check-label">
+                                                        <input name="RoleType" type="radio" class="form-check-input" value="1">
+                                                        <i class="fa fa-user-shield mr-1"></i>Admin
+                                                    </label>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="col-md-12">
+                                                <div class="position-relative form-group">
+                                                    @*<label for="exampleEmail" style="font-weight: 600;">
+                                                        <i class="fa fa-id-card mr-1"></i>User ID
+                                                    </label>*@
+                                                    <div class="input-icon-wrapper">
+                                                        <i class="fa fa-user"></i>
+                                                        <input name="User_Name" id="exampleEmail" placeholder="Enter your user ID" type="text" class="form-control" required>
+                                                    </div>
+                                                    <span class="text-danger" id="userError"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <div class="position-relative form-group">
+                                                    @*<label for="password" style="font-weight: 600;">
+                                                        <i class="fa fa-lock mr-1"></i>Password
+                                                    </label>*@
+                                                    <div class="password-wrapper">
+                                                        <div class="input-icon-wrapper">
+                                                            <i class="fa fa-key"></i>
+                                                            <input name="User_Password" id="password" placeholder="Enter your password" type="password" class="form-control" required>
+                                                        </div>
+                                                        <i class="fa fa-eye-slash toggle-password" id="togglePassword"></i>
+                                                    </div>
+                                                    <span class="text-danger" id="passError"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @*Next Section Code here*@
+                                        <div id="postLoginSection" style="display:none;">
+                                            <div class="text-center mb-3">
+                                                <h5>Welcome, <span id="loggedInUser"></span></h5>
+                                                <p><strong>Department:</strong> <span id="userDepartment"></span></p>
+                                                <p><strong>Section:</strong> <span id="userSection"></span></p>
+                                                <button id="goToDashboard" class="btn btn-success">Continue to Dashboard</button>
+                                            </div>
+                                        </div>
+
+
+                                        <section id="captcha">
+                                            @*<label class="d-block mb-2" style="font-weight: 600; color: #495057;">
+                                                <i class="fa fa-shield-alt mr-1"></i>Security Verification
+                                            </label>*@
+                                            <div class="col s12">
+                                                <div class="row align-items-center">
+                                                    <div class="col-md-5 mb-2">
+                                                        <input type="text" id="txtCaptcha" class="form-control fs-25px h-45px border-0" style="text-align: center; color: black; border: none; font-weight: bold; font-family: CordiaUPC; background-image: url('@Url.Content("~/themeassets/demo.dashboardpack.com/architectui-html-pro/assets/images/captcha_img.jpeg")'); font-size: 23px;" readonly="readonly" , onCopy="return false" onDrag="return false" onDrop="return false" onPaste="return false" />
+                                                    </div>
+
+                                                    <div class="col-md-2 text-center mb-2">
+                                                        <a href="javascript:void(0)" title="Refresh Captcha">
+                                                            <i onclick="GenerateCaptcha();" id="btnrefresh" class="fa fa-sync-alt" aria-hidden="true" style="font-size:25px;"></i>
+                                                        </a>
+                                                    </div>
+
+                                                    <div class="col-md-5 mb-2">
+                                                        <input type="text" id="txtCompare" inputmode="numeric" pattern="[0-9]*" class="form-control" autocomplete="off" onchange="ValidCaptcha()" placeholder="Enter the answer" style="height:45px;color:black;" />
+                                                        @*<small class="form-text text-muted">
+                                                            <i class="fa fa-info-circle mr-1"></i>Solve the math problem above
+                                                        </small>*@
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </section>
+
+
+                                    </div>
+                                    <div class="modal-footer clearfix">
+                                        <div class="float-left">
+                                            <a href="@Url.Action("ForgotPassword", "Home")" class="btn-lg btn btn-link" style="text-decoration:none;">
+                                                <i class="fa fa-question-circle mr-1"></i>Forgot Password?
+                                            </a>
+                                        </div>
+                                        <div class="float-right">
+                                            <button type="submit" class="btn btn-primary btn-lg" id="btnLogin">
+                                                <span class="btn-text">
+                                                    <i class="fa fa-sign-in-alt mr-2"></i>Login to Dashboard
+                                                </span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="text-center text-white opacity-8 mt-3">Copyright © Acme Digitek Solutions Pvt. Limited </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="departmentModal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content shadow-lg border-0 rounded">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title text-center">
+                        <i class="fa fa-building mr-2"></i> Choose Your Department / Section
+                    </h5>
+                    @*<button type="button" class="close text-white" data-dismiss="modal">&times;</button>*@
+                </div>
+
+                <div class="modal-body">
+                    <p class="text-muted mb-3 text-center">
+                        Please select the department or section you want to continue with:
+                    </p>
+
+                    <div class="row">
+                        @if (ViewBag.DepartmentData != null)
+                        {
+                            foreach (System.Data.DataRow row in ((System.Data.DataTable)ViewBag.DepartmentData).Rows)
+                            {
+                                <div class="col-md-12 mb-3">
+                                    <div class="card flex-row align-items-center department-card shadow-sm" style=" background-color: cornsilk;">
+                                        <div class="card-body d-flex justify-content-between align-items-center w-100">
+                                            <h6 class="card-title font-weight-bold mb-0">@row["dept_sec"]</h6>
+                                            <form action="/Home/SelectDepartment" method="post" class="ml-3 mt-2 dept-select-form">
+                                                <input type="hidden" name="ED_RowID" value="@row["ED_RowID"]" />
+                                                <button type="submit" class="btn btn-outline-primary btn-lg dept-submit-btn">
+                                                    Continue <i class="fa fa-arrow-right ml-1"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="col-12 text-center">
+                                <p class="text-danger">No department data available. Please contact admin.</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="modal-footer d-flex text-center">
+                    <button type="button" class="btn btn-outline-secondary" onclick="location.href='@Url.Action("Logout", "Home")'">
+                        <i class="fa fa-arrow-left mr-1"></i> Back to Login
+                    </button>
+                    @*<button type="button" class="btn btn-light" data-dismiss="modal">
+                            <i class="fa fa-times mr-1"></i> Close
+                        </button>*@
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    @*<script type="text/javascript" src="~/themeassets/demo.dashboardpack.com/architectui-html-pro/assets/scripts/main.d810cf0ae7f39f28f336.js"></script>*@
+
+    <script src="~/Scripts/jquery-3.7.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.bundle.min.js"></script> <!--  Add this -->
+    <script type="text/javascript" src="~/themeassets/demo.dashboardpack.com/architectui-html-pro/assets/scripts/main.d810cf0ae7f39f28f336.js"></script>
+
+
+    @*<script src="~/Scripts/jquery-3.7.1.min.js"></script>*@
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            $("#errorMsg").show().delay(5e3).fadeOut();  // automatically hide alert after some secs
+
+            GenerateCaptcha();
+
+            // Password toggle functionality
+            $('#togglePassword').on('click', function () {
+                const passwordInput = $('#password');
+                const type = passwordInput.attr('type') === 'password' ? 'text' : 'password';
+                passwordInput.attr('type', type);
+                $(this).toggleClass('fa-eye fa-eye-slash');
+            });
+
+            //updated code on 20-03-2026
+            $("#exampleEmail").on("input", function () {
+                $("#userError").text("");
+            });
+
+            $("#password").on("input", function () {
+                $("#passError").text("");
+            });
+            //updated code on 20-03-2026
+
+            // Attach the hashing function before form submission
+            $("form").on("submit", function (e) {
+
+                //var username = $("input[name='User_Name']").val();
+
+                //var password = $("input[name='User_Password']").val();
+
+
+                //updated code on 20-03-2026
+                var username = $("input[name='User_Name']").val().trim();
+                var password = $("input[name='User_Password']").val().trim();
+                var isValid = true;
+
+                // Clear previous errors
+                $("#userError").text("");
+                $("#passError").text("");
+
+                // Username validation
+                if (username === "") {
+                    $("#userError").text("User Id is required");
+                    isValid = false;
+                }
+
+                // Password validation
+                if (password === "") {
+                    $("#passError").text("Password is required");
+                    isValid = false;
+                }
+
+                // Captcha validation bhi yahin enforce karo
+                if (!ValidCaptcha()) {
+                    isValid = false;
+                }
+
+                // Agar validation fail ho jaye
+                if (!isValid) {
+                    e.preventDefault(); // form submit rok dega
+                    return false;
+                }
+                //updated code on 20-03-2026
+
+                // Get the submit button
+                var $submitBtn = $(this).find('button[type="submit"]');
+                var $btnText = $submitBtn.find('.btn-text');
+
+                // Disable button and show spinner
+                $submitBtn.prop('disabled', true);
+                $submitBtn.css({
+                    'opacity': '0.7',
+                    'cursor': 'not-allowed'
+                });
+
+                // Replace button text with spinner
+                $btnText.html('<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Logging in...');
+
+                var salt = document.getElementById('hdn2').value;
+                var fixedKey = "855S4K7850A";
+
+                // You can hardcode or generate dynamically if needed
+                var finalText = username + fixedKey + salt + password;
+                var hashed = CryptoJS.SHA256(finalText).toString(CryptoJS.enc.Hex);
+
+                // Overwrite the password field with the hash
+                $("input[name='User_Password']").val(hashed);
+
+                //// (Optional) Add a hidden field if needed by backend
+                //$("<input>").attr({
+                //    type: "hidden",
+                //    name: "ssapp",
+                //    value: hashed
+                //}).appendTo($(this));
+            });
+
+            // Handle department selection form submission
+            $(document).on("submit", ".dept-select-form", function(e) {
+                var $form = $(this);
+                var $btn = $form.find('.dept-submit-btn');
+                var originalHtml = $btn.html();
+
+                // Disable button and show spinner
+                $btn.prop('disabled', true);
+                $btn.html('<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Processing...');
+                $btn.css({
+                    'opacity': '0.7',
+                    'cursor': 'not-allowed'
+                });
+
+                // Form will submit normally, button stays disabled until page redirects
+            });
+
+        })
+        function GenerateCaptcha() {
+            var num1 = Math.floor(Math.random() * 10) + 1; // 1 to 10
+            var num2 = Math.floor(Math.random() * 10) + 1; // 1 to 10
+            var operator = ['+', '-', '*'][Math.floor(Math.random() * 3)];
+
+            //let expression = `${num1} ${operator} ${num2}`;
+            //document.getElementById("txtCaptcha").value = expression;
+            //document.getElementById("txtCaptcha").setAttribute("data-ans", eval(expression));
+            // Ensure positive result for subtraction
+            if (operator === '-' && num1 < num2) {
+                var temp = num1;
+                num1 = num2;
+                num2 = temp;
+            }
+
+            let expression = `${num1} ${operator} ${num2}`;
+            document.getElementById("txtCaptcha").value = expression;
+            document.getElementById("txtCaptcha").setAttribute("data-ans", eval(expression));
+        }
+
+
+
+        function ValidCaptcha() {
+            var expected = document.getElementById("txtCaptcha").getAttribute("data-ans");
+            var entered = document.getElementById("txtCompare").value.trim();
+
+            if (entered == expected) {
+                return true;
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Incorrect Captcha',
+                    text: 'Please enter the correct answer',
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'Try Again'
+                });
+                document.getElementById('txtCompare').value = '';
+                return false;
+            }
+        }
+
+
+        /* Remove spaces from Captcha Code */
+        function removeSpaces(string) {
+            return string.split(' ').join('');
+        }
+
+        // Captcha numeric validation
+        $("#txtCompare").on("input", function () {
+            this.value = this.value.replace(/[^0-9]/g, "");
+        });
+
+        $("#txtCompare").on("keydown", function (e) {
+            var allowedKeys = [8, 9, 13, 37, 38, 39, 40, 46];
+            if (allowedKeys.includes(e.keyCode)) return true;
+            if (e.key < "0" || e.key > "9") {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        $("#txtCompare").on("paste", function (e) {
+            var pastedData = e.originalEvent.clipboardData.getData("text");
+            if (!/^\d+$/.test(pastedData)) {
+                e.preventDefault();
+            }
+        });
+
+        // Department selection form - disable button on submit
+        $('.dept-select-form').on('submit', function() {
+            var $btn = $(this).find('.dept-submit-btn');
+            var originalHtml = $btn.html();
+            $btn.prop('disabled', true);
+            $btn.html('<span class="spinner-border spinner-border-sm mr-2"></span>Loading...');
+            $btn.css({'opacity': '0.7', 'cursor': 'not-allowed'});
+        });
+
+    </script>
+
+</body>
+
+
+<!-- Mirrored from demo.dashboardpack.com/architectui-html-pro/pages-login-boxed.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 19 Jun 2021 07:24:20 GMT -->
+</html>

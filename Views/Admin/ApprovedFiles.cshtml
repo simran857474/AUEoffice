@@ -1,0 +1,350 @@
+﻿@model System.Data.DataTable
+@{
+    ViewBag.Title = "ApprovedFiles";
+    Layout = "~/Views/Shared/_LayoutNew.cshtml";
+}
+
+<style>
+    #divDetails {
+        position: relative;
+    }
+
+    #attachmentLoader {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.7); /* transparent overlay */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 20;
+    }
+
+        #attachmentLoader .loader-content {
+            text-align: center;
+        }
+
+</style>
+
+<section class="content">
+    <div class="container-fluid">
+
+        <div id="accordionSearch" class="accordion-wrapper mb-3">
+            <div class="main-card mb-3 card">
+                <div class="card-header">
+                    <h5 class="m-0 p-0">Search Files</h5>
+                </div>
+                <div class="card-body">
+
+                    <!-- 🔹 Button Group -->
+                    <!--<div class="btn-group mb-3">
+                        <button type="button" class="btn btn-outline-primary" id="btnSearchOthers">Search by Est, Department, Section, Created By</button>
+                        <button type="button" class="btn btn-outline-success" id="btnSearchFileNo">Search by File No</button>
+                    </div>-->
+                    <!-- 🔹 Financial Year Search -->
+                    <div id="searchOthers" class="search-box" style="display:none;">
+                        <div class="form-row">
+                            <div class="col-md-3">
+                                <label>Establishment Type</label>
+                                @Html.DropDownList("EstType", new SelectList(ViewBag.EstTypeList as List<SelectListItem>, "Value", "Text"), "Select", new { @class = "form-control", id = "EstType" })
+
+                            </div>
+                            <div class="col-md-3">
+                                <label>Department</label>
+                                <select id="ddlDepartment" name="EstDep" class="form-control">
+                                    <option value="">Select</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label>Section</label>
+                                <select name="EstSec" id="ddlSection" class="form-control">
+                                    <option value="">Select</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label>Created By</label>
+                                <select name="EmpID" id="ddlEmployee" class="form-control">
+                                    <option value="">Select</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <button type="button" class="btn btn-info mt-4" id="btnOthersSearch">Search</button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- 🔹 Section Search -->
+                    <div id="searchFileNo" class="search-box" style="display:none;">
+                        <label>File No</label>
+                        <input type="text" id="txtFileNo" class="form-control" placeholder="Enter File Number" />
+                        <button type="button" class="btn btn-info mt-2" id="btnFileNoSearch">Search</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div id="accordiontwenty5" class="accordion-wrapper mb-3">
+            <div class="main-card mb-3 card">
+                <div id="headingtwenty5" class="card-header">
+                    <button type="button" data-toggle="collapse" data-target="#collapsetwenty5" aria-expanded="true" aria-controls="collapsetwenty5" class="text-left m-0 p-0 btn btn-link btn-block">
+                        <h5 class="m-0 p-0 card-title"> Approved Files<i class="float-right pe-7s-angle-down"></i></h5>
+                    </button>
+                </div>
+                <div data-parent="#accordiontwenty5" id="collapsetwenty5" aria-labelledby="headingtwenty5" class="collapse show">
+
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12" id="divDetails">
+                                <div class="">
+
+                                    <!-- 🔹 Full overlay loader -->
+                                    <div id="attachmentLoader" style="display:none;">
+                                        <div class="loader-content">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
+                                            <p>Loading...</p>
+                                        </div>
+                                    </div>
+
+                                    <table style="width: 100%; " id="scr-vtr-dynamic" class="example1 table table-striped table-bordered nowrap table-hover text-left">
+                                        <thead>
+                                            <tr>
+                                                <th>S.No</th>
+                                                <th class="text-left">File_Code</th>
+                                                <th class="text-left">File_Des</th>
+                                                <th class="text-left">Category</th>
+                                                <th class="text-left">Sub Category	</th>
+                                                <th class="text-left">Created By Section</th>
+                                                <th class="text-left">Sent From</th>
+                                                <th class="text-left">Sent To</th>
+                                                <th class="text-left">Sending Date/Time</th>
+                                                <th class="text-left">Priority</th>
+                                                <th class="text-left">Status</th>
+                                                <th class="text-left">Remark</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model != null && Model.Rows.Count > 0)
+                                            {
+                                                int i = 1;
+                                                foreach (System.Data.DataRow row in Model.Rows)
+                                                {
+                                                    <tr>
+                                                        <td>@i</td>
+                                                        <td>@*<a href="@Url.Action("Noting_Page", "User", new { fileCode = row["File_Code"] })">*@ @row["File_Code"]</td>
+                                                        <td style="white-space: normal !important; word-wrap: break-word; min-width: 300px; ">@row["File_Desc"]</td>
+                                                        <td>@row["FileCat_Name"]</td>
+                                                        <td>@row["FileSubCat_Name"]</td>
+                                                        <td>@row["Sec_Name"]</td>
+                                                        <td>@row["F_From"]</td>
+                                                        <td>@row["F_To"]</td>
+                                                        <td>@row["sent_dt"]</td>
+                                                        <td>@row["DocPrior_Name"]</td>
+                                                        <td>@row["File_status"]</td>
+                                                        <td>@row["Remark"]</td>
+
+                                                        @*<td>
+                                 @Html.ActionLink("Edit", "Department", "Admin", new { DepCode = item.Dep_Code }, new { @class = "btn btn-sm btn-warning" })
+                                 @Html.ActionLink("Delete", "DeleteDepartment", "Admin", new { DepCode = item.Dep_Code }, new { @class = "btn btn-sm btn-danger", onclick = "return confirm('Are you sure you want to delete this department?');" })
+                            </td>*@
+                                                    </tr>
+                                                    i++;
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<script src="~/Scripts/jquery-3.7.1.min.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+        // Hide all search boxes initially
+        $(".search-box").hide();
+
+        $("#searchOthers").show();
+
+        // Show Financial Year box
+        //$("#btnSearchOthers").click(function () {
+        //    $(".search-box").hide();
+        //    $("#searchOthers").show();
+        //});
+
+        //// Show Section box
+        //$("#btnSearchFileNo").click(function () {
+        //    $(".search-box").hide();
+        //    $("#searchFileNo").show();
+        //});
+    });
+
+    $('#EstType').change(function () {
+        var estTypeCode = $(this).val();
+
+        if (estTypeCode) {
+            $.ajax({
+                //url: '/Admin/GetDepartmentsByEstType',
+                 url: '@Url.Action("GetDepartmentsByEstType", "Admin")',
+                type: 'POST',
+                data: { estTypeCode: estTypeCode },
+                success: function (data) {
+                    var deptDropdown = $('#ddlDepartment');
+                    deptDropdown.empty();
+                    deptDropdown.append($('<option/>', {
+                        value: '',
+                        text: 'Select'
+                    }));
+
+                    $.each(data, function (i, item) {
+                        deptDropdown.append($('<option/>', {
+                            value: item.Value,
+                            text: item.Text
+                        }));
+                    });
+                },
+                error: function () {
+                    alert('Error loading departments.');
+                }
+            });
+        } else {
+            $('#ddlDepartment').empty().append($('<option/>', {
+                value: '',
+                text: 'Select'
+            }));
+        }
+    });
+
+
+    $('#ddlDepartment').change(function () {
+        var Dep_Code = $(this).val();
+        var EstTypeCode = $('#EstType').val();
+
+        if (EstTypeCode && Dep_Code) {
+            $.ajax({
+                //url: '/Admin/GetSectionsByDepartment',
+                 url: '@Url.Action("GetSectionsByDepartment", "Admin")',
+                type: 'POST',
+                data: { Dep_Code: Dep_Code, EstTypeCode: EstTypeCode },
+                success: function (data) {
+                    var deptDropdown = $('#ddlSection');
+                    deptDropdown.empty();
+                    deptDropdown.append($('<option/>', {
+                        value: '',
+                        text: 'Select'
+                    }));
+
+                    $.each(data, function (i, item) {
+                        deptDropdown.append($('<option/>', {
+                            value: item.Value,
+                            text: item.Text
+                        }));
+                    });
+                },
+                error: function () {
+                    alert('Error loading sections.');
+                }
+            });
+        } else {
+            $('#ddlSection').empty().append($('<option/>', {
+                value: '',
+                text: 'Select'
+            }));
+        }
+    });
+
+
+    $('#ddlSection').change(function () {
+        var Sec_Code = $(this).val();
+        var Dep_Code = $('#ddlDepartment').val();
+        var EstTypeCode = $('#EstType').val();
+
+        if (EstTypeCode && Dep_Code) {
+            $.ajax({
+                //url: '/Admin/GetCreatedByEmployeesBySection',
+                 url: '@Url.Action("GetCreatedByEmployeesBySection", "Admin")',
+                type: 'POST',
+                data: { Sec_Code: Sec_Code, Dep_Code: Dep_Code, EstTypeCode: EstTypeCode },
+                success: function (data) {
+                    var deptDropdown = $('#ddlEmployee');
+                    deptDropdown.empty();
+                    deptDropdown.append($('<option/>', {
+                        value: '',
+                        text: 'Select'
+                    }));
+
+                    $.each(data, function (i, item) {
+                        deptDropdown.append($('<option/>', {
+                            value: item.Value,
+                            text: item.Text
+                        }));
+                    });
+                },
+                error: function () {
+                    alert('Error loading employees.');
+                }
+            });
+        } else {
+            $('#ddlEmployee').empty().append($('<option/>', {
+                value: '',
+                text: 'Select'
+            }));
+        }
+    });
+
+
+    $("#btnOthersSearch").click(function () {
+        var estType = $("#EstType").val();
+        var deptCode = $("#ddlDepartment").val();
+        var secCode = $("#ddlSection").val();
+        var empCode = $("#ddlEmployee").val();
+
+        $("#attachmentLoader").show();
+
+        $.ajax({
+            url: '@Url.Action("SearchApprovedFiles", "Admin")',
+            type: 'POST',
+            data: { estType: estType, deptCode: deptCode, secCode: secCode, empCode: empCode },
+            success: function (res) {
+
+                $("#attachmentLoader").hide();
+
+                table.clear().draw();
+                $.each(res.data, function (i, item) {
+                    table.row.add([
+                        item.SNo,
+                        //`<a href="@Url.Action("Noting_Page", "User")?fileCode=${item.File_Code}">${item.File_Code}</a>`,
+                        item.File_Code,
+                        item.File_Desc,
+                        item.FileCat_Name,
+                        item.FileSubCat_Name,
+                        item.Sec_Name,
+                        item.F_From,
+                        item.F_To,
+                        item.sent_dt,
+                        item.DocPrior_Name,
+                        item.File_status,
+                        item.file_Remark
+                    ]).draw(false);
+                });
+            }
+        });
+    });
+
+
+
+</script>

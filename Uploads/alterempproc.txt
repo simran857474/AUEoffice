@@ -1,0 +1,85 @@
+USE [eOffice_Live]
+GO
+/****** Object:  StoredProcedure [dbo].[proc_update_employee_master]    Script Date: 13-04-2026 13:24:15 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER ProcEDURE [dbo].[proc_update_employee_master]                                               
+ @Emp_Code nvarchar(100)                                                    
+,@Emp_Name nvarchar(500)
+,@Father_Name nvarchar(500)                                                     
+,@Spouse_Name nvarchar(500) 
+,@Gender nvarchar(2)                                                     
+,@DOB date                                                  
+,@Contact_No nvarchar(10)                                                     
+,@E_Mail nvarchar(500)  
+,@Adhar nvarchar(12)
+,@Active bit  
+,@Adddress nvarchar(500)                                                     
+,@Remark nvarchar(500)                                                     
+,@Update_By nvarchar(50)                                                     
+,@Machine_IP nvarchar(50) 
+,@FileName nvarchar(max)
+AS                                                    
+begin try                                                                                                                                                                                       
+begin transaction
+update M_Employee                                                    
+set Emp_Name=@Emp_Name ,Father_Name=@Father_Name,Spouse_Name=@Spouse_Name ,Gender=@Gender,DOB=@DOB,Contact_No=@Contact_No,E_Mail=@E_Mail,
+Adhar=@Adhar,Active=@Active ,Adddress=@Adddress,Remark=@Remark,Update_By=@Update_By ,Update_DT=GETDATE(),Machine_IP=@Machine_IP,fileName=@FileName                                                    
+where Emp_Code=@Emp_Code
+select 's' as msg
+
+commit transaction                                                                                                                    
+end try                                                                                                               
+begin catch                                                                                                         
+rollback transaction                                                                                                                    
+select  ERROR_MESSAGE() as msg                                                                                                                              
+end catch 
+
+
+
+----------------------------------------------------------------------------------------------------------------
+
+
+
+USE [eOffice_Live]
+GO
+/****** Object:  StoredProcedure [dbo].[proc_insert_employee_master]    Script Date: 13-04-2026 13:24:11 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER ProcEDURE [dbo].[proc_insert_employee_master]                                                 
+ @Emp_Code nvarchar(100)                                                      
+,@Emp_Name nvarchar(500)  
+,@Father_Name nvarchar(500)                                                       
+,@Spouse_Name nvarchar(500)   
+,@Gender nvarchar(2)                                                       
+,@DOB date                                                    
+,@Contact_No nvarchar(10)                                                       
+,@E_Mail nvarchar(500)    
+,@Adhar nvarchar(12)  
+,@Active bit    
+,@Adddress nvarchar(500)                                                       
+,@Remark nvarchar(500)                                                       
+,@Created_By nvarchar(50)                                                       
+,@Machine_IP nvarchar(50)      
+,@FileName nvarchar(max)
+AS                                                      
+begin   try                                                                                                                                                                                         
+begin transaction  
+  
+INSERT INTO [dbo].[M_Employee]                                                      
+(Emp_Code ,Emp_Name ,Father_Name,Spouse_Name ,Gender,DOB,Contact_No,E_Mail,Adhar,Active ,Adddress,Remark,Created_By,Created_DT,Machine_IP, fileName)                                                      
+VALUES                                                      
+(@Emp_Code,@Emp_Name ,@Father_Name,@Spouse_Name,@Gender,@DOB,@Contact_No,@E_Mail ,@Adhar ,@Active ,@Adddress,@Remark,@Created_By,GETDATE(),@Machine_IP,@FileName)   
+  
+select 's' as msg  
+  
+commit transaction                                                                                                                      
+end try                                                                                                                 
+begin catch                                                                                                           
+rollback transaction                                                                                                                      
+select  ERROR_MESSAGE() as msg                                                                                                                                
+end catch 

@@ -1,0 +1,779 @@
+﻿@model List<Eoffice.Models.ModelUser>
+@{
+    ViewBag.Title = "CreateUser";
+    Layout = "~/Views/Shared/_LayoutNew.cshtml";
+    var edituser = ViewBag.EditCreateUser as Eoffice.Models.ModelUser;
+    bool isEdit = edituser != null;
+}
+
+
+<style>
+    .text-danger {
+        font-size: 0.875em;
+        display: block;
+        margin-top: 5px;
+    }
+
+    .is-invalid {
+        border-color: red;
+    }
+</style>
+
+@*<div class="app-page-title app-page-title-simple">
+    <div class="page-title-wrapper">
+        <div class="page-title-heading">
+            <div>
+                <div class="page-title-head center-elem">
+                    <span class="d-inline-block pr-2">
+                        <i class="lnr-apartment opacity-6"></i>
+                    </span>
+                    <span class="d-inline-block">Create User</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<br />*@
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="main-card mb-3 card">
+            <div class="card-body">
+                @using (Html.BeginForm(isEdit ? "EditUser" : "CreateUser", "Admin", FormMethod.Post, new { id = "createUserForm" }))
+                {
+                    <input type="hidden" name="EmpIDEdit" value="@(isEdit ? edituser.EmpID : "")" />
+                    <input type="hidden" name="Name" value="@(isEdit ? edituser.Name : "")" id="Name" />
+                    <input type="hidden" name="Address" value="@(isEdit ? edituser.Address : "")" id="Address" />
+                    <input type="hidden" name="des_code" value="@(isEdit ? edituser.des_code : "")" id="des_code" />
+                    <input type="hidden" name="ED_RowID" value="@(isEdit ? edituser.ED_RowID : "")" id="ED_RowID" />
+
+                    <div class="form-row">
+                        <div class="col-md-3">
+                            <label>Establishment Type</label>
+                            @Html.DropDownList("EstType", new SelectList(ViewBag.EstTypeList as List<SelectListItem>, "Value", "Text", edituser?.EstType), "Select", new { @class = "form-control", id = "EstType" })
+
+                        </div>
+                        <div class="col-md-3">
+                            <label>Department</label>
+                            <select id="ddlDepartment" name="EstDep" class="form-control">
+                                <option value="">Select Department</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Section</label>
+                            <select name="EstSec" id="ddlSection" class="form-control">
+                                <option value="">Select Section</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Employee Name</label>
+                            <select name="EmpID" id="ddlEmployee" class="form-control">
+                                <option value="">Select Employee</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row mt-3">
+                        <div class="col-md-3">
+                            <label>User Type</label>
+                            @Html.DropDownList("EmpType", new SelectList(ViewBag.EmpTypeList as List<SelectListItem>, "Value", "Text", edituser?.EmpType), "Select", new { @class = "form-control", id = "EmpType" })
+
+                        </div>
+                        <div class="col-md-3">
+                            <label>User Role</label>
+                            @Html.DropDownList("CategoryID", new SelectList(ViewBag.UserRoleList as List<SelectListItem>, "Value", "Text", edituser?.RoleCode), "Select", new { @class = "form-control", id = "CategoryID" })
+                        </div>
+                        <div class="col-md-3">
+                            <label>User ID</label>
+                            <input name="LoginName" id="LoginName" class="form-control" autocomplete="off" placeholder="Enter User Id" value="@(isEdit ? edituser.LoginName : "")" />
+                        </div>
+                        <div class="col-md-3">
+                            <label>Email</label>
+                            <input name="Email" id="Email" type="email" class="form-control" placeholder="Enter Email" value="@(isEdit ? edituser.Email : "")" />
+                        </div>
+                    </div>
+
+                    <div class="form-row mt-3">
+                        @*<div class="col-md-3">
+            <label>Password</label>
+            <input name="Password" id="Password" type="password" class="form-control" autocomplete="new-password" placeholder="Enter Password" value="@(isEdit ? edituser.Password : "")" />
+        </div>*@
+
+
+                        <div class="col-md-3">
+                            <label>Password</label>
+                            <div style="position:relative;">
+                                <input name="Password" id="Password" type="password" class="form-control" placeholder="Enter Password" value="@(isEdit ? edituser.Password : "")"/>
+                                <i class="fa fa-eye toggle-password"
+                                   toggle="#Password"
+                                   style="position:absolute; left:250px; top:10px; cursor:pointer;"></i>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label>Confirm Password</label>
+                            <input name="ConfirmPassword" id="ConfirmPassword" type="password" class="form-control" placeholder="Confirm Password" value="@(isEdit ? edituser.Password : "")" />
+                            <i class="fa fa-eye toggle-password"
+                               toggle="#ConfirmPassword"
+                               style="position:absolute; left:250px; top:45px; cursor:pointer;"></i>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Mobile</label>
+                            <input name="Mobile" id="Mobile" type="text" maxlength="10" class="form-control" placeholder="Enter Mobile Number" value="@(isEdit ? edituser.Mobile : "")" />
+                        </div>
+                    </div>
+
+                    <div class="form-row mt-2">
+                        <input type="submit" class="btn btn-primary" value="@(isEdit ? "Update" : "Submit")" />
+                        <input type="reset" class="btn btn-success ml-2" value="Reset" />
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="main-card mb-3 card">
+            <div class="card-body">
+
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12" id="divDetails" >
+                        <div class="">
+                            <table style="width:100%" id="scr-vtr-dynamic" class="example1 table table-striped table-bordered nowrap table-hover text-center">
+                                <thead>
+                                    <tr>
+                                        <th>S.No</th>
+                                        <th>UserId</th>
+                                        <th>EmpCode</th>
+                                        <th>Name</th>
+                                        <th>Est Type</th>
+                                        <th>Department</th>
+                                        <th>Section</th>
+                                        <th>Designation</th>
+                                        <th>Email</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model != null)
+{
+    int i = 1;
+    foreach (var item in Model)
+    {
+                                            <tr>
+                                                <td>@i</td>
+                                                <td>@item.LoginName</td>
+                                                <td>@item.EmpID</td>
+                                                <td>@item.Name</td>
+                                                <td>@item.EstType</td>
+                                                <td>@item.EstDep</td>
+                                                <td>@item.EstSec</td>
+                                                <td>@item.des_code</td>
+                                                <td>@item.Email</td>
+                                                <td>
+                                                    @Html.ActionLink("Edit", "CreateUser", new { TableID = item.EmpID }, new { @class = "btn btn-sm btn-warning" })
+                                                    @*@Html.ActionLink("Delete", "DeleteUser", "Admin", new { TableID = item.EmpID }, new { @class = "btn btn-sm btn-danger", onclick = "return confirm('Are you sure you want to delete?');" })*@
+                                                </td>
+                                            </tr>
+                                            i++;
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/Scripts/jquery-3.7.1.min.js"></script>
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+    $(document).ready(function () {
+        var message = '@TempData["msg"]';
+
+        if (message) {
+            switch (message) {
+                case "1":
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'User inserted successfully.',
+                        timer: 4000,
+                        showConfirmButton: false
+                    });
+                    break;
+                case "2":
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed!',
+                        text: 'User with this login name already exists.',
+                        timer: 4000,
+                        showConfirmButton: false
+                    });
+                    break;
+                case "3":
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed!',
+                        text: 'User already exists.',
+                        timer: 4000,
+                        showConfirmButton: false
+                    });
+                    break;
+                case "4":
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed!',
+                        text: 'Some error.',
+                        timer: 4000,
+                        showConfirmButton: false
+                    });
+                    break;
+                case "5":
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'User updated successfully.',
+                        timer: 4000,
+                        showConfirmButton: false
+                    });
+                    break;
+                case "deleted":
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Document Type deleted successfully.',
+                        timer: 4000,
+                        showConfirmButton: false
+                    });
+                    break;
+                case "deletefail":
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed!',
+                        text: 'Failed to delete Document Type.',
+                        timer: 4000,
+                        showConfirmButton: false
+                    });
+                    break;
+                default:
+                    // Optional: handle other messages
+                    break;
+            }
+        }
+    });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $("#createUserForm").validate({
+                rules: {
+                    EstType: { required: true },
+                    EstDep: { required: true },
+                    EstSec: { required: true },
+                    EmpID: { required: true },
+                    EmpType: { required: true },
+                    CategoryID: { required: true },
+                    LoginName: { required: true },
+                    Email: {
+                        required: true,
+                        email: true
+                    },
+                    Password: {
+                        required: true,
+                        minlength: 6
+                    },
+                    ConfirmPassword: {
+                        required: true,
+                        equalTo: "#Password"
+                    },
+                    Mobile: {
+                        required: true,
+                        digits: true,
+                        minlength: 10,
+                        maxlength: 10
+                    }
+                },
+                messages: {
+                    EstType: "Please select establishment type",
+                    EstDep: "Please select department",
+                    EstSec: "Please select section",
+                    EmpID: "Please select employee",
+                    EmpType: "Please select user type",
+                    CategoryID: "Please select user role",
+                    LoginName: "Please enter User ID",
+                    Email: {
+                        required: "Please enter email",
+                        email: "Enter a valid email"
+                    },
+                    Password: {
+                        required: "Please enter password",
+                        minlength: "At least 6 characters"
+                    },
+                    ConfirmPassword: {
+                        required: "Confirm your password",
+                        equalTo: "Passwords must match"
+                    },
+                    Mobile: {
+                        required: "Please enter mobile number",
+                        digits: "Only digits allowed",
+                        minlength: "Must be 10 digits",
+                        maxlength: "Must be 10 digits"
+                    }
+                },
+                errorClass: "text-danger",
+                errorElement: "span",
+                highlight: function (element) {
+                    $(element).addClass('is-invalid');
+                },
+                unhighlight: function (element) {
+                    $(element).removeClass('is-invalid');
+                },
+                submitHandler: function(form) {
+                    // Disable button and show spinner
+                    var $btn = $('#createUserForm input[type="submit"]');
+                    var originalVal = $btn.val();
+                    $btn.prop('disabled', true);
+                    $btn.val('Processing...');
+                    $btn.css({'opacity': '0.7', 'cursor': 'not-allowed'});
+                    form.submit();
+                }
+            });
+        });
+    </script>
+
+    <script>
+@*$(function () {
+    const isEdit = '@isEdit'.toLowerCase() === 'true';
+
+    const selEst = '@(isEdit ? edituser.EstType : "")';
+    const selDep = '@(isEdit ? edituser.EstDep : "")';
+    const selSec = '@(isEdit ? edituser.EstSec : "")';
+    const selEmp = '@(isEdit ? edituser.EmpID : "")';
+    const selType = '@(isEdit ? edituser.EmpType : "")';
+    const selRole = '@(isEdit ? edituser.RoleID : "")';
+
+    if (selEst) $('#ddlEstType').val(selEst);
+
+
+    if (isEdit && selEst !== '') {
+        $('#EstType').val(estType); // Set Est. Type dropdown
+        $('#EstType').trigger('change'); // This will trigger the AJAX call
+
+        // Wait for AJAX to complete then set department
+        setTimeout(function () {
+            $.ajax({
+                url: '/Admin/GetDepartmentsByEstType',
+                type: 'POST',
+                data: { estTypeCode: estType },
+                success: function (data) {
+                    var deptDropdown = $('#ddlDepartment');
+                    deptDropdown.empty();
+                    deptDropdown.append($('<option/>', {
+                        value: '',
+                        text: 'Select Department'
+                    }));
+
+                    $.each(data, function (i, item) {
+                        deptDropdown.append($('<option/>', {
+                            value: item.Value,
+                            text: item.Text
+                        }));
+                    });
+
+                    // Set selected department after dropdown is populated
+                    if (selectedDept !== '') {
+                        deptDropdown.val(selectedDept);
+                    }
+                },
+                error: function () {
+                    alert('Error loading departments.');
+                }
+            });
+        }, 100); // Slight delay ensures EstType is set before AJAX
+    }
+
+
+
+
+});*@
+
+
+        $(function () {
+
+    const isEdit = '@isEdit'.toLowerCase() === 'true';
+
+    const selEst = '@(isEdit ? edituser.EstType : "")';
+    const selDep = '@(isEdit ? edituser.EstDep : "")';
+    const selSec = '@(isEdit ? edituser.EstSec : "")';
+    const selEmp = '@(isEdit ? edituser.EmpID : "")';
+    const selType = '@(isEdit ? edituser.EmpType : "")';
+    const selRole = '@(isEdit ? edituser.CategoryID : "")';
+
+    if (isEdit) {
+
+        // Step 1: Set EstType
+        $('#EstType').val(selEst).trigger('change');
+
+        $('#EstType').prop('disabled', true);
+
+        // Step 2: Bind Department
+        bindDepartments(selDep, function () {
+            $('#ddlDepartment').prop('disabled', true);
+
+            // Step 3: Bind Section
+            bindSection(selSec, function () {
+                $('#ddlSection').prop('disabled', true);
+
+                // Step 4: Bind Employee
+                bindEmployee(selEmp, function () {
+                    $('#ddlEmployee').prop('disabled', true);
+
+                    // Step 5: Set other dropdowns
+                    $('#EmpType').val(selType);
+                    $('#CategoryID').val(selRole);
+
+                    // Make User ID readonly
+                    $('#LoginName').prop('readonly', true);
+                });
+            });
+        });
+    }
+
+
+    $('#EstType').change(function () {
+        var estTypeCode = $(this).val();
+
+        if (estTypeCode) {
+            $.ajax({
+                //url: '/Admin/GetDepartmentsByEstType',
+                  url: '@Url.Action("GetDepartmentsByEstType", "Admin")',
+                type: 'POST',
+                data: { estTypeCode: estTypeCode },
+                success: function (data) {
+                    var deptDropdown = $('#ddlDepartment');
+                    deptDropdown.empty();
+                    deptDropdown.append($('<option/>', {
+                        value: '',
+                        text: 'Select Department'
+                    }));
+
+                    $.each(data, function (i, item) {
+                        deptDropdown.append($('<option/>', {
+                            value: item.Value,
+                            text: item.Text
+                        }));
+                    });
+                },
+                error: function () {
+                    alert('Error loading departments.');
+                }
+            });
+        } else {
+            $('#ddlDepartment').empty().append($('<option/>', {
+                value: '',
+                text: 'Select Department'
+            }));
+        }
+    });
+
+
+    $('#ddlDepartment').change(function () {
+        var Dep_Code = $(this).val();
+        var EstTypeCode = $('#EstType').val();
+
+        if (EstTypeCode && Dep_Code) {
+            $.ajax({
+                //url: '/Admin/GetSectionsByDepartment',
+                  url: '@Url.Action("GetSectionsByDepartment", "Admin")',
+                type: 'POST',
+                data: { Dep_Code: Dep_Code, EstTypeCode: EstTypeCode },
+                success: function (data) {
+                    var deptDropdown = $('#ddlSection');
+                    deptDropdown.empty();
+                    deptDropdown.append($('<option/>', {
+                        value: '',
+                        text: 'Select Section'
+                    }));
+
+                    $.each(data, function (i, item) {
+                        deptDropdown.append($('<option/>', {
+                            value: item.Value,
+                            text: item.Text
+                        }));
+                    });
+                },
+                error: function () {
+                    alert('Error loading sections.');
+                }
+            });
+        } else {
+            $('#ddlSection').empty().append($('<option/>', {
+                value: '',
+                text: 'Select Section'
+            }));
+        }
+    });
+
+
+    $('#ddlSection').change(function () {
+        var Sec_Code = $(this).val();
+        var Dep_Code = $('#ddlDepartment').val();
+        var EstTypeCode = $('#EstType').val();
+
+        if (EstTypeCode && Dep_Code) {
+            $.ajax({
+                //url: '/Admin/GetEmployeeBySection',
+                  url: '@Url.Action("GetEmployeeBySection", "Admin")',
+                type: 'POST',
+                data: { Sec_Code: Sec_Code, Dep_Code: Dep_Code, EstTypeCode: EstTypeCode },
+                success: function (data) {
+                    var deptDropdown = $('#ddlEmployee');
+                    deptDropdown.empty();
+                    deptDropdown.append($('<option/>', {
+                        value: '',
+                        text: 'Select Employee'
+                    }));
+
+                    $.each(data, function (i, item) {
+                        deptDropdown.append($('<option/>', {
+                            value: item.Value,
+                            text: item.Text
+                        }));
+                    });
+                },
+                error: function () {
+                    alert('Error loading employees.');
+                }
+            });
+        } else {
+            $('#ddlEmployee').empty().append($('<option/>', {
+                value: '',
+                text: 'Select Employee'
+            }));
+        }
+    });
+
+
+    $('#ddlEmployee').change(function () {
+        var empId = $(this).val();
+        var estType = $('#EstType').val();
+        var depCode = $('#ddlDepartment').val();
+        var secCode = $('#ddlSection').val();
+
+        if (empId && depCode && secCode) {
+            $.ajax({
+                //url: '/Admin/GetEmployeeDetails',
+                url: '@Url.Action("GetEmployeeDetails", "Admin")',
+                type: 'POST',
+                data: {
+                    empId: empId,
+                    estType: estType,
+                    depCode: depCode,
+                    secCode: secCode
+                },
+                success: function (res) {
+                    if (res.success) {
+                        $('#Name').val(res.empName);
+                        $('#Address').val(res.address);
+                        $('#Email').val(res.email);
+                        $('#Mobile').val(res.mobile);
+                        $('#des_code').val(res.desigCode);
+                        $('#ED_RowID').val(res.edRowId);
+                    } else {
+                        $('#Name').val('');
+                        $('#Address').val('');
+                        $('#Email').val('');
+                        $('#Mobile').val('');
+                        $('#des_code').val('');
+                        $('#ED_RowID').val('');
+                    }
+                },
+                error: function () {
+                    alert('Error loading employee details.');
+                }
+            });
+        }
+    });
+
+
+});
+
+//function bindDepartments(selected = "", cb) {
+//    $.post('/Admin/fillDropdown', { Action:'bindDepartments', EstType: $('#ddlEstType').val() }, function (data) {
+//        const d = $('#ddlDepartment').empty().append('<option value="">Choose option</option>');
+//        $.each(data, (_, r) => d.append(`<option value="${r.id}">${r.value}</option>`));
+//        if (selected) d.val(selected);
+//        if (cb) cb();
+//    });
+        //}
+
+
+
+       /*  Comment on 08-04-2026*/
+        //function bindDepartments(selected = "", cb) {
+        //    $.post('/Admin/GetDepartmentsByEstType', { estTypeCode: $('#EstType').val() }, function (data) {
+        //        const d = $('#ddlDepartment').empty().append('<option value="">Select Department</option>');
+        //        $.each(data, (_, r) => d.append(`<option value="${r.Value}">${r.Text}</option>`));
+        //        if (selected) d.val(selected);
+        //        if (cb) cb();
+        //    });
+        //}
+        /*  Comment on 08-04-2026*/
+        function bindDepartments(selected = "", cb) {
+            $.post('@Url.Action("GetDepartmentsByEstType", "Admin")',
+                { estTypeCode: $('#EstType').val() },
+                function (data) {
+                    const d = $('#ddlDepartment').empty().append('<option value="">Select Department</option>');
+                    $.each(data, (_, r) => d.append(`<option value="${r.Value}">${r.Text}</option>`));
+                    if (selected) d.val(selected);
+                    if (cb) cb();
+                });
+        }
+
+
+//function bindSection(selected = "", cb) {
+//    $.post('/Admin/fillDropdown', { Action:'bindSection', Department: $('#ddlDepartment').val() }, function (data) {
+//        const d = $('#ddlSection').empty().append('<option value="">Choose option</option>');
+//        $.each(data, (_, r) => d.append(`<option value="${r.id}">${r.value}</option>`));
+//        if (selected) d.val(selected);
+//        if (cb) cb();
+//    });
+        //}
+
+
+        function bindSection(selected = "", cb) {
+            $.ajax({
+                //url: '/Admin/GetSectionsByDepartment',
+                  url: '@Url.Action("GetSectionsByDepartment", "Admin")',
+                type: 'POST',
+                data: {
+                    Dep_Code: $('#ddlDepartment').val(),
+                    EstTypeCode: $('#EstType').val()
+                },
+                success: function (data) {
+                    const ddl = $('#ddlSection');
+                    ddl.empty().append('<option value="">Select Section</option>');
+
+                    $.each(data, function (i, item) {
+                        ddl.append(`<option value="${item.Value}">${item.Text}</option>`);
+                    });
+
+                    if (selected) ddl.val(selected);
+                    if (cb) cb();
+                }
+            });
+        }
+
+        function bindEmployee(selected = "", cb) {
+            $.ajax({
+                //url: '/Admin/GetEmployeeBySection',
+                  url: '@Url.Action("GetEmployeeBySection", "Admin")',
+                type: 'POST',
+                data: {
+                    Sec_Code: $('#ddlSection').val(),
+                    Dep_Code: $('#ddlDepartment').val(),
+                    EstTypeCode: $('#EstType').val()
+                },
+                success: function (data) {
+                    const ddl = $('#ddlEmployee');
+                    ddl.empty().append('<option value="">Select Employee</option>');
+
+                    $.each(data, function (i, item) {
+                        ddl.append(`<option value="${item.Value}">${item.Text}</option>`);
+                    });
+
+                    // ✅ STEP 1: Try to set selected value
+                    if (selected && ddl.find(`option[value="${selected}"]`).length > 0) {
+                        ddl.val(selected);
+                    }
+                    else {
+                        // ✅ STEP 2: If no valid selected value
+                        if (ddl.find('option').length > 1) {
+                            // Select first option after default
+                            ddl.prop('selectedIndex', 1);
+                        } else {
+                            // Only default exists → keep default
+                            ddl.prop('selectedIndex', 0);
+                        }
+                    }
+
+                    if (cb) cb();
+                }
+            });
+        }
+
+//function bindEmployee(selected = "", cb) {
+//    $.post('/Admin/fillDropdown', { Action:'bindEmployee', Section: $('#ddlSection').val() }, function (data) {
+//        const d = $('#ddlEmpName').empty().append('<option value="">Choose option</option>');
+//        $.each(data, (_, r) => d.append(`<option value="${r.id}">${r.value}</option>`));
+//        if (selected) d.val(selected);
+//        if (cb) cb();
+//    });
+//}
+
+//function bindUserType(selected = "", cb) {
+//    $.post('/Admin/fillDropdown', { Action:'bindUserType' }, function (data) {
+//        const d = $('#ddlUserType').empty().append('<option value="">Choose option</option>');
+//        $.each(data, (_, r) => d.append(`<option value="${r.id}">${r.value}</option>`));
+//        if (selected) d.val(selected);
+//        if (cb) cb();
+//    });
+//}
+
+
+    function bindUserType(selected = "", cb) {
+    $.post('@Url.Action("fillDropdown", "Admin")',
+        { Action: 'bindUserType' },
+        function (data) {
+            const d = $('#ddlUserType').empty().append('<option value="">Choose option</option>');
+            $.each(data, (_, r) => d.append(`<option value="${r.id}">${r.value}</option>`));
+            if (selected) d.val(selected);
+            if (cb) cb();
+        });
+        }
+
+//function bindUserRole(selected = "", cb) {
+//    $.post('/Admin/fillDropdown', { Action:'bindUserRole' }, function (data) {
+//        const d = $('#ddlUserRole').empty().append('<option value="">Choose option</option>');
+//        $.each(data, (_, r) => d.append(`<option value="${r.id}">${r.value}</option>`));
+//        if (selected) d.val(selected);
+//        if (cb) cb();
+//    });
+//        }
+
+    function bindUserRole(selected = "", cb) {
+    $.post('@Url.Action("fillDropdown", "Admin")',
+        { Action: 'bindUserRole' },
+        function (data) {
+            const d = $('#ddlUserRole').empty().append('<option value="">Choose option</option>');
+            $.each(data, (_, r) => d.append(`<option value="${r.id}">${r.value}</option>`));
+            if (selected) d.val(selected);
+            if (cb) cb();
+        });
+}
+
+        $(document).on('click', '.toggle-password', function () {
+
+            const input = $($(this).attr('toggle'));
+
+            if (input.attr('type') === 'password') {
+                input.attr('type', 'text');
+                $(this).removeClass('fa-eye').addClass('fa-eye-slash');
+            } else {
+                input.attr('type', 'password');
+                $(this).removeClass('fa-eye-slash').addClass('fa-eye');
+            }
+        });
+
+    </script>
+
+}

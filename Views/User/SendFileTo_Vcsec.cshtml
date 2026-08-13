@@ -1,0 +1,197 @@
+﻿
+
+@{
+    ViewBag.Title = "SendFileTo_Vcsec";
+    Layout = "~/Views/Shared/_LayoutNew.cshtml";
+
+    var received = ViewBag.RecievedFiles as System.Data.DataTable; //stores the data of the files you've received. It's coming from the controller and will be used to show a table.
+}
+
+
+<section class="content">
+    <div class="container-fluid">
+
+        <div class="tabs-animation">
+            <!-- Top Note -->
+            @*<div class="alert alert-warning text-center mb-4">
+                    <strong>Note:</strong> This page is only for those persons who have retired or have been transferred.
+                </div>*@
+
+            <div id="accordionMain" class="accordion-wrapper mb-3">
+
+                <!-- Accordion 1 - Inbox -->
+                <div class="card">
+                    <div class="card-header" id="headingInbox">
+                        <button type="button" class="btn btn-link btn-block text-left m-0 p-0" data-toggle="collapse" data-target="#collapseInbox" aria-expanded="true" aria-controls="collapseInbox">
+                            <h5 class="m-0 p-0 card-title">Received Files<i class="float-right pe-7s-angle-down"></i></h5>
+                        </button>
+                    </div>
+                    <div id="collapseInbox" class="collapse show" aria-labelledby="headingInbox" data-parent="#accordionMain">
+                        <div class="card-body table-responsive p-0">
+                            @if (received != null && received.Rows.Count > 0) //If we have received files (data is not empty), then show them in a table.
+                            {
+                                <table class="table table-hover table-condensed table-head-fixed">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                <input type="checkbox" onclick="checkAll(this, 'chkInbox')" />
+                                            </th>
+                                            <th>S.No</th>
+                                            <th>File No</th>
+                                            <th>Description</th>
+                                            <th>Category</th>
+                                            <th>Sub Category</th>
+                                            <th>Section</th>
+                                            <th>Sent From</th>
+                                            <th>Sent To</th>
+                                            <th>Sending Date</th>
+                                            <th>Priority</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            int sno = 1;
+                                            foreach (System.Data.DataRow row in received.Rows)
+                                            {
+                                                <tr>
+                                                    <td><input type="checkbox" name="chkInbox" value="@row["File_Code"]" /></td>
+                                                    <td>@sno</td>
+                                                    <td>@row["File_Code"]</td>
+                                                    <td>@row["File_Desc"]</td>
+                                                    <td>@row["FileCat_Name"]</td>
+                                                    <td>@row["FileSubCat_Name"]</td>
+                                                    <td>@row["Sec_Name"]</td>
+                                                    <td>@row["F_From"]</td>
+                                                    <td>@row["F_To"]</td>
+                                                    <td>@row["sent_dt"]</td>
+                                                    <td>@row["DocPrior_Name"]</td>
+                                                    <td>@row["File_status"]</td>
+                                                </tr>
+                                                sno++;
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            }
+                            else
+                            {
+                                <p>No inbox records available.</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- HandOver Section -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    @*<h5>Hand Over</h5>
+                        <div class="form-group">
+                            <label for="handoverTo">Hand Over To</label>
+                            @Html.DropDownList("ddlSectionHeads", new SelectList(ViewBag.SectionHeads as List<SelectListItem>, "Value", "Text"), "Select", new { @class = "form-control mb-3", id = "ddlSectionHeads" })
+                        </div>
+
+                        <div class="form-check my-3">
+                            <input type="checkbox" class="form-check-input" id="confirmHandover">
+                            <label class="form-check-label" for="confirmHandover">I confirm that I am handing over the files.</label>
+                        </div>*@
+
+
+                    <div class="form-row">
+
+                        <div class="col-md-6">
+                            <label>Remark</label>
+                            <textarea id="txtRemark" class="form-control col-md-12" placeholder="Enter remark" rows="2" style="resize:none;" @(received == null || received.Rows.Count == 0 ? "disabled" : "")></textarea>
+
+                        </div>
+
+                        <div class="col-md-4 mt-5">
+                            <button type="button" class="btn btn-primary" id="btnForward" @(received == null || received.Rows.Count == 0 ? "disabled" : "")>Forward</button>
+
+                        </div>
+
+                    </div>
+
+                    
+                   
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<script src="~/Scripts/jquery-3.7.1.min.js"></script>
+
+<script>
+
+
+            function checkAll(source, name) {
+                var checkboxes = document.getElementsByName(name);
+                for (var i = 0; i < checkboxes.length; i++) {
+                    checkboxes[i].checked = source.checked;
+                }
+            }
+
+    $("#btnForward").click(function () { //When you click the Forward button, this code runs.
+        var remark = $("#txtRemark").val();
+        if (!remark) {
+            alert("Please enter a remark");  //If you forgot to write a remark, it shows an alert and stops.
+            return;
+        }
+
+        var files = [];
+
+        // Inbox
+        $("input[name='chkInbox']:checked").each(function () { //It checks which checkboxes are ticked (which files you selected).
+            files.push({ fileCode: $(this).val(), flag: "I" }); //It makes a list called files to hold all the selected file codes.
+        });
+
+     
+        if (files.length === 0) {
+            alert("Please select at least one file.");
+            return;
+        }
+
+        // Disable button and show spinner
+        var $btn = $("#btnSendToVC");
+        var originalHtml = $btn.html();
+        $btn.prop('disabled', true);
+        $btn.html('<span class="spinner-border spinner-border-sm mr-2"></span>Sending...');
+        $btn.css({'opacity': '0.7', 'cursor': 'not-allowed'});
+
+        $.ajax({
+            url: '@Url.Action("SendSelectedFilesToVC", "User")',//This sends your data (remark + selected files) to the controller.
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            //headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+            data: JSON.stringify({ remark: remark, files: files }),
+            success: function (data) {  //If the controller says “success,” show a green popup and reload the page.
+                if (data.success) {
+                    Swal.fire("Success!", data.message, "success").then((result) => {
+                        if (result.isConfirmed) {
+                            location.reload();
+                        }
+                    });
+                } else {
+                    Swal.fire("Error!", data.message, "error");
+                    // Re-enable button on error
+                    $btn.prop('disabled', false);
+                    $btn.html(originalHtml);
+                    $btn.css({'opacity': '', 'cursor': ''});
+                }
+            },
+            error: function (xhr, status, error) {
+                Swal.fire("Error!", "Something went wrong while forwarding the files.", "error");
+                // Re-enable button on error
+                $btn.prop('disabled', false);
+                $btn.html(originalHtml);
+                $btn.css({'opacity': '', 'cursor': ''});
+            }
+        });
+    });
+
+</script>

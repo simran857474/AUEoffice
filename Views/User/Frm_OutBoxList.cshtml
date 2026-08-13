@@ -1,0 +1,317 @@
+﻿@model System.Data.DataSet
+
+@{
+    ViewBag.Title = "Frm_OutBoxList";
+    Layout = "~/Views/Shared/_LayoutNew.cshtml";
+}
+
+<section class="content">
+    <div class="container-fluid">
+
+
+        <div id="accordiontwentyfour" class="accordion-wrapper mb-3">
+            <div class="main-card mb-3 card">
+                <div id="headingtwentyfour" class="card-header">
+                    <button type="button" data-toggle="collapse" data-target="#collapsetwentyfour" aria-expanded="true" aria-controls="collapsetwentyfour" class="text-left m-0 p-0 btn btn-link btn-block">
+                        <h5 class="m-0 p-0 card-title"> OutBoxList<i class="float-right pe-7s-angle-down"></i></h5>
+                    </button>
+                </div>
+                <div data-parent="#accordiontwentyfour" id="collapsetwentyfour" aria-labelledby="headingtwentyfour" class="collapse show">
+
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12" id="divDetails">
+                                <div class="">
+
+                                    <table style="width: 100%;" id="scr-vtr-dynamic" class="example1 table table-striped table-bordered nowrap table-hover text-left">
+                                        <thead>
+                                            <tr>
+                                                <th>S.No</th>
+                                                <th class="text-left">File Number</th>
+                                                <th class="text-left">Description</th>
+                                                <th class="text-left">Created By Section</th>
+                                                <th class="text-left">Created Date/Time</th>
+                                                <th class="text-left">Forwarded From</th>
+                                                <th class="text-left">Forwarded To</th>
+                                                <th class="text-left">Forwarded Date</th>
+                                                <th class="text-left">Priority</th>
+                                                <th class="text-left">Status</th>
+                                                <th class="text-left">Remarks</th>
+                                                <th class="text-left">History</th>
+                                                <th class="text-left">Call Back</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model != null && Model.Tables.Count > 0 && Model.Tables[0].Rows.Count > 0)
+                                            {
+                                                int i = 1;
+                                                foreach (System.Data.DataRow row in Model.Tables[0].Rows)
+                                                {
+                                                    <tr>
+                                                        <td>@i</td>
+                                                        <td> <a href="@Url.Action("Noting_Page", "User", new { fileCode = row["File_Code"] })">@row["File_Code"]</a> </td>
+                                                        <td style="white-space: normal !important; word-wrap: break-word; min-width: 300px;">@row["File_Desc"]</td>
+                                                        <td>@row["Sec_Name"]</td>
+                                                        <td>@row["Created_DT"]</td>
+                                                        <td>@row["transfer_from"]</td>
+                                                        <td>@row["transfer_to"]</td>
+                                                        <td>@row["forwarded_DT"]</td>
+                                                        <td>@row["DocPrior_Name"]</td>
+                                                        <td>@row["File_status"]</td>
+                                                        <td>@row["Remark"]</td>
+                                                        <td>
+                                                            <i class="fa fa-eye text-primary history-icon" data-filecode="@row["File_Code"]" style="cursor:pointer"></i>
+                                                        </td>
+
+                                                        @*<td>
+            <i class="fa fa-history text-primary callback-icon" data-filecode="@row["File_Code"]"
+               data-rowid="@row["Row_ID"]" data-forwardedfrom="@row["transfer_from"]" data-forwardedto="@row["transfer_to"]"
+               style="cursor:pointer"></i>
+        </td>*@
+
+
+                                                        <td>
+                                                            @if (row["CB_Flag"].ToString() == "0")
+                                                            {
+                                                                <i class="fa fa-history text-primary callback-icon"
+                                                                   data-filecode="@row["File_Code"]"
+                                                                   data-rowid="@row["Row_ID"]"
+                                                                   data-forwardedfrom="@row["transfer_from"]"
+                                                                   data-forwardedto="@row["transfer_to"]"
+                                                                   style="cursor:pointer"></i>
+                                                            }
+                                                            else if (row["CB_Flag"].ToString() == "1")
+                                                            {
+                                                                <i class="fa fa-history text-muted"
+                                                                   title="Already forwarded"
+                                                                   style="cursor:not-allowed; opacity:0.5;"></i>
+                                                            }
+                                                            else if (row["CB_Flag"].ToString() == "-1")
+                                                            {
+                                                                <i class="fa fa-history text-muted"
+                                                                   title="Action taken from other side"
+                                                                   style="cursor:not-allowed; opacity:0.5;"></i>
+                                                            }
+                                                        </td>
+
+
+                                                    </tr>
+                                                    i++;
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<div class="modal fade" id="modal-lg" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">File Movement Details</h4>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div id="fileDetails" class="mb-3"></div>
+                <div class="table-responsive" style="max-height: 50vh; overflow-y: auto; display: block;">
+                    <table class="table table-bordered table-striped" id="historyTable">
+                        <thead style="position: sticky; top: 0; background-color: #fff; z-index: 10;">
+                            <tr>
+                                <th>S.No</th>
+                                <th>Forwarded From</th>
+                                <th>Forwarded To</th>
+                                <th>Forwarded/Called Back Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="5" style="text-align:center; color: gray; padding: 40px;">
+                                    <i class="fa fa-inbox" style="font-size: 48px; color: #ccc; display: block; margin-bottom: 10px;"></i>
+                                    No records found
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="callBackRemarkModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Call Back Remark</h4>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+
+                    <textarea id="callbackRemark" class="form-control col-md-12" placeholder="Enter remark" rows="5" style="resize:none;"></textarea>
+
+
+
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btnSubmitCallback">Submit</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/jquery-3.7.1.min.js"></script>
+
+<script>
+    $(document).on("click", ".history-icon", function () {
+        var fileCode = $(this).data("filecode");
+
+        $.ajax({
+            url: '@Url.Action("GetOutBoxFileHistory", "User")',
+            type: 'GET',
+            data: { fileCode: fileCode },
+            success: function (data) {
+                if (data.length > 0) {
+                    // Show file name & section name
+                    var fileDetails = `<strong>File No:</strong> ${data[0].FileName} <br/>
+                                   <strong>File Created Section:</strong> ${data[0].SectionName}`;
+                    $("#fileDetails").html(fileDetails);
+
+                    // Populate table
+                    var rows = '';
+                    $.each(data, function (i, item) {
+                        rows += `<tr>
+                        <td>${item.SNo}</td>
+                        <td>${item.ForwardedFrom}</td>
+                        <td>${item.ForwardedTo}</td>
+                        <td>${item.Date}</td>
+                        <td>${item.Action}</td>
+                    </tr>`;
+                    });
+                    $("#historyTable tbody").html(rows);
+
+                    // Show modal
+                    $("#modal-lg").modal("show");
+                } else {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'No History',
+                        text: 'No history found for this file.',
+                        confirmButtonColor: '#3085d6'
+                    });
+
+                    // Show empty state in table
+                    var emptyRow = `<tr>
+                        <td colspan="5" style="text-align:center; color: gray; padding: 40px;">
+                            <i class="fa fa-inbox" style="font-size: 48px; color: #ccc; display: block; margin-bottom: 10px;"></i>
+                            No history found for this file.
+                        </td>
+                    </tr>`;
+                    $("#historyTable tbody").html(emptyRow);
+                }
+            },
+            error: function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error fetching data.',
+                    confirmButtonColor: '#d33'
+                });
+            }
+        });
+    });
+
+    // clicking on call back icon
+    $(document).on("click", ".callback-icon", function () {
+        var fileCode = $(this).data("filecode");
+        var rowid = $(this).data("rowid");
+        var forwardedFrom = $(this).data("forwardedfrom");
+        var forwardedTo = $(this).data("forwardedto");
+
+        $.ajax({
+            url: '@Url.Action("CheckCallBackFile", "User")',
+            type: 'GET',
+            data: { fileCode: fileCode, rowid: rowid, forwardedFrom: forwardedFrom, forwardedTo: forwardedTo },
+            success: function (data) {
+                if (data.success) {
+
+
+                    // Show modal
+                    $("#callBackRemarkModal").modal("show");
+                } else {
+                    Swal.fire("Error", data.message, "error");
+                }
+            },
+            error: function () {
+                Swal.fire("Error", "Something went wrong.", "error");
+            }
+        });
+    });
+
+    // clicking on submit button in call back modal
+    $(document).on("click", "#btnSubmitCallback", function () {
+        var remark = $("#callbackRemark").val();
+
+        if ($.trim(remark) === "") {
+            Swal.fire("Error", "Please enter remark.", "error");
+            return;
+        }
+
+        // Disable button and show spinner
+        var $btn = $("#btnSubmitCallback");
+        var originalHtml = $btn.html();
+        $btn.prop('disabled', true);
+        $btn.html('<span class="spinner-border spinner-border-sm mr-2"></span>Submitting...');
+        $btn.css({'opacity': '0.7', 'cursor': 'not-allowed'});
+
+        $.ajax({
+            url: '@Url.Action("SubmitCallBackRemark", "User")',
+            type: 'POST',
+            data: { remark: remark },
+            success: function (response) {
+                if (response.success) {
+                    $("#callbackRemark").val(""); // clear textbox
+                    $("#callBackRemarkModal").modal("hide");
+                    Swal.fire("Success", "File has been restored successfully.", "success")
+                        .then(() => {
+                            location.reload(); // refresh OutBoxList
+                        });
+                } else {
+                    Swal.fire("Error", response.message, "error");
+                    // Re-enable button on error
+                    $btn.prop('disabled', false);
+                    $btn.html(originalHtml);
+                    $btn.css({'opacity': '', 'cursor': ''});
+                }
+            },
+            error: function () {
+                Swal.fire("Error", "Something went wrong while submitting remark.", "error");
+                // Re-enable button on error
+                $btn.prop('disabled', false);
+                $btn.html(originalHtml);
+                $btn.css({'opacity': '', 'cursor': ''});
+            }
+        });
+    });
+
+
+</script>

@@ -1,0 +1,281 @@
+-- =====================================================
+-- RECOMMENDED DATABASE INDEXES FOR E-OFFICE APPLICATION
+-- =====================================================
+-- These indexes will significantly improve query performance
+-- Run these on your SQL Server database
+-- =====================================================
+
+USE [YourDatabaseName]; -- Replace with your actual database name
+GO
+
+-- =====================================================
+-- 1. UTILITY_MUSER TABLE INDEXES
+-- =====================================================
+-- For login queries
+CREATE NONCLUSTERED INDEX IX_Utility_MUser_LoginName_Password_Category
+ON Utility_MUser (LoginName, Password, CategoryCode)
+INCLUDE (Emp_Code, RoleId);
+GO
+
+-- =====================================================
+-- 2. M_EMPLOYEE TABLE INDEXES
+-- =====================================================
+-- For employee lookups by code
+CREATE NONCLUSTERED INDEX IX_M_Employee_EmpCode
+ON M_Employee (Emp_Code)
+INCLUDE (Emp_Name, Adddress, E_mail, Contact_No, Sec_Code);
+GO
+
+-- For section-based employee queries
+CREATE NONCLUSTERED INDEX IX_M_Employee_SecCode
+ON M_Employee (Sec_Code)
+INCLUDE (Emp_Code, Emp_Name);
+GO
+
+-- =====================================================
+-- 3. M_SECTION TABLE INDEXES
+-- =====================================================
+-- For department and section lookups
+CREATE NONCLUSTERED INDEX IX_M_Section_DepCode_Active
+ON M_Section (Dep_Code, Active)
+INCLUDE (Sec_Code, Sec_Name, Shrt_Name, Dep_TypeCode);
+GO
+
+-- For section code lookups
+CREATE NONCLUSTERED INDEX IX_M_Section_SecCode
+ON M_Section (Sec_Code)
+INCLUDE (Sec_Name, Dep_Code, Shrt_Name);
+GO
+
+-- For department type filtering
+CREATE NONCLUSTERED INDEX IX_M_Section_DepTypeCode
+ON M_Section (Dep_TypeCode, Dep_Code)
+INCLUDE (Sec_Code, Sec_Name);
+GO
+
+-- =====================================================
+-- 4. M_DEPARTMENT TABLE INDEXES
+-- =====================================================
+-- For department lookups
+CREATE NONCLUSTERED INDEX IX_M_Department_DepCode
+ON M_Department (Dep_Code)
+INCLUDE (Dep_Name, short_name);
+GO
+
+-- =====================================================
+-- 5. M_DESIGNATION TABLE INDEXES
+-- =====================================================
+-- For active designation lookups
+CREATE NONCLUSTERED INDEX IX_M_Designation_Active
+ON M_Designation (Active)
+INCLUDE (Des_Code, Des_Name, Shrt_Name);
+GO
+
+-- =====================================================
+-- 6. EMPLOYERDEPARTMENT TABLE INDEXES
+-- =====================================================
+-- For employee department/section queries
+CREATE NONCLUSTERED INDEX IX_EmployerDepartment_EmpCode_Sec_Dept
+ON EmployerDepartment (Emp_Code, Est_secCode, Est_deptCode)
+INCLUDE (Est_desigCode, id);
+GO
+
+-- =====================================================
+-- 7. M_FILE TABLE INDEXES (CRITICAL FOR PERFORMANCE)
+-- =====================================================
+-- For file code lookups (most frequently used)
+CREATE NONCLUSTERED INDEX IX_M_File_FileCode
+ON M_File (File_Code)
+INCLUDE (File_Desc, File_Dept, File_Section, File_Cat, Created_By, CreatedDate);
+GO
+
+-- For user's created files
+CREATE NONCLUSTERED INDEX IX_M_File_CreatedBy
+ON M_File (Created_By)
+INCLUDE (File_Code, File_Desc, CreatedDate);
+GO
+
+-- For department and section filtering
+CREATE NONCLUSTERED INDEX IX_M_File_Dept_Section
+ON M_File (File_Dept, File_Section)
+INCLUDE (File_Code, File_Desc, Created_By);
+GO
+
+-- For file category filtering
+CREATE NONCLUSTERED INDEX IX_M_File_FileCat
+ON M_File (File_Cat)
+INCLUDE (File_Code, File_Desc);
+GO
+
+-- =====================================================
+-- 8. T_FILE TABLE INDEXES (CRITICAL FOR PERFORMANCE)
+-- =====================================================
+-- For file forwarding queries (most critical)
+CREATE NONCLUSTERED INDEX IX_T_File_ForwardedTo_ActionDate_FileCode
+ON T_File (forwarded_To, Action_Date, File_Code)
+INCLUDE (forwarded_From, Row_ID, CB_Flag, CB_Date);
+GO
+
+-- For file forwarding from queries
+CREATE NONCLUSTERED INDEX IX_T_File_ForwardedFrom_ActionDate_FileCode
+ON T_File (forwarded_From, Action_Date, File_Code)
+INCLUDE (forwarded_To, Row_ID);
+GO
+
+-- For file code and row ID lookups
+CREATE NONCLUSTERED INDEX IX_T_File_FileCode_RowID
+ON T_File (File_Code, Row_ID)
+INCLUDE (CB_Flag, CB_Date, forwarded_To, forwarded_From, Action_Date);
+GO
+
+-- For callback flag queries
+CREATE NONCLUSTERED INDEX IX_T_File_CBFlag
+ON T_File (CB_Flag)
+INCLUDE (File_Code, Row_ID, CB_Date);
+GO
+
+-- =====================================================
+-- 9. M_DOCUMENT TABLE INDEXES (CRITICAL FOR PERFORMANCE)
+-- =====================================================
+-- For file code document lookups (most frequently used)
+CREATE NONCLUSTERED INDEX IX_M_Document_FileCode
+ON M_Document (File_Code)
+INCLUDE (Doc_Code, row_id, Doc_Upload, DisplayFile, Main_doc, TotalPageNo);
+GO
+
+-- For main document queries
+CREATE NONCLUSTERED INDEX IX_M_Document_FileCode_MainDoc
+ON M_Document (File_Code, Main_doc)
+INCLUDE (Doc_Code, Doc_Upload, DisplayFile);
+GO
+
+-- For document code lookups
+CREATE NONCLUSTERED INDEX IX_M_Document_DocCode
+ON M_Document (Doc_Code)
+INCLUDE (File_Code, Doc_Upload, row_id);
+GO
+
+-- For row ID ordering
+CREATE NONCLUSTERED INDEX IX_M_Document_FileCode_RowID
+ON M_Document (File_Code, row_id)
+INCLUDE (Doc_Code, Doc_Upload);
+GO
+
+-- =====================================================
+-- 10. T_NOTING TABLE INDEXES (CRITICAL FOR PERFORMANCE)
+-- =====================================================
+-- For file code noting queries (most frequently used)
+CREATE NONCLUSTERED INDEX IX_T_Noting_FileCode_RowID
+ON T_Noting (File_Code, Row_ID DESC)
+INCLUDE (Doc_Code, Emp_Code, Note_Desc, Created_By, CreatedDate);
+GO
+
+-- For employee noting queries
+CREATE NONCLUSTERED INDEX IX_T_Noting_FileCode_EmpCode
+ON T_Noting (File_Code, Emp_Code)
+INCLUDE (Doc_Code, Note_Desc, Row_ID);
+GO
+
+-- For document noting queries
+CREATE NONCLUSTERED INDEX IX_T_Noting_FileCode_DocCode_EmpCode
+ON T_Noting (File_Code, Doc_Code, Emp_Code)
+INCLUDE (Note_Desc, Row_ID, Created_By);
+GO
+
+-- For created by queries
+CREATE NONCLUSTERED INDEX IX_T_Noting_CreatedBy
+ON T_Noting (Created_By, File_Code)
+INCLUDE (Doc_Code, Row_ID);
+GO
+
+-- =====================================================
+-- 11. M_FILESUBCAT TABLE INDEXES
+-- =====================================================
+-- For file category subcategory lookups
+CREATE NONCLUSTERED INDEX IX_M_FileSubCat_FileCatCode
+ON M_FileSubCat (FileCat_Code)
+INCLUDE (FileSubCat_Code, FileSubCat_Name);
+GO
+
+-- =====================================================
+-- 12. UTILITY_MROLE TABLE INDEXES
+-- =====================================================
+-- For role lookups
+CREATE NONCLUSTERED INDEX IX_Utility_MRole_TableId
+ON Utility_MRole (tableid)
+INCLUDE (RoleName);
+GO
+
+-- =====================================================
+-- 13. M_EMP_TYPE TABLE INDEXES
+-- =====================================================
+-- For employee type lookups
+CREATE NONCLUSTERED INDEX IX_M_Emp_Type_EmpTypeID
+ON M_Emp_Type (Emp_Type_ID)
+INCLUDE (Emp_Type);
+GO
+
+-- =====================================================
+-- MAINTENANCE RECOMMENDATIONS
+-- =====================================================
+-- Run these commands periodically (weekly/monthly) to maintain index health:
+
+-- Update statistics
+-- UPDATE STATISTICS M_File WITH FULLSCAN;
+-- UPDATE STATISTICS T_File WITH FULLSCAN;
+-- UPDATE STATISTICS M_Document WITH FULLSCAN;
+-- UPDATE STATISTICS T_Noting WITH FULLSCAN;
+
+-- Rebuild fragmented indexes (run monthly)
+-- ALTER INDEX ALL ON M_File REBUILD;
+-- ALTER INDEX ALL ON T_File REBUILD;
+-- ALTER INDEX ALL ON M_Document REBUILD;
+-- ALTER INDEX ALL ON T_Noting REBUILD;
+
+-- =====================================================
+-- MONITORING QUERIES
+-- =====================================================
+-- Check index usage statistics
+/*
+SELECT 
+    OBJECT_NAME(s.object_id) AS TableName,
+    i.name AS IndexName,
+    s.user_seeks,
+    s.user_scans,
+    s.user_lookups,
+    s.user_updates,
+    s.last_user_seek,
+    s.last_user_scan
+FROM sys.dm_db_index_usage_stats s
+INNER JOIN sys.indexes i ON s.object_id = i.object_id AND s.index_id = i.index_id
+WHERE database_id = DB_ID()
+ORDER BY s.user_seeks + s.user_scans + s.user_lookups DESC;
+*/
+
+-- Check missing indexes
+/*
+SELECT 
+    OBJECT_NAME(d.object_id) AS TableName,
+    d.equality_columns,
+    d.inequality_columns,
+    d.included_columns,
+    s.avg_user_impact,
+    s.user_seeks,
+    s.user_scans
+FROM sys.dm_db_missing_index_details d
+INNER JOIN sys.dm_db_missing_index_groups g ON d.index_handle = g.index_handle
+INNER JOIN sys.dm_db_missing_index_group_stats s ON g.index_group_handle = s.group_handle
+WHERE database_id = DB_ID()
+ORDER BY s.avg_user_impact * (s.user_seeks + s.user_scans) DESC;
+*/
+
+-- =====================================================
+-- NOTES:
+-- =====================================================
+-- 1. These indexes are based on the most common query patterns
+-- 2. The INCLUDE columns contain frequently accessed data to avoid key lookups
+-- 3. Test in a development environment first
+-- 4. Monitor index usage and adjust as needed
+-- 5. Some indexes may need adjustment based on your specific data distribution
+-- 6. Consider partitioning large tables (T_File, M_Document, T_Noting) if they grow very large
+-- =====================================================

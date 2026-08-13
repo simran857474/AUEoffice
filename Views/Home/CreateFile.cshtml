@@ -1,0 +1,83 @@
+﻿
+@{
+    ViewBag.Title = "CreateFile";
+    Layout = "~/Views/Shared/_LayoutNew.cshtml";
+}
+
+
+<div class="card shadow-lg p-4">
+    <!-- University Title -->
+    <h2 class="text-center mb-3" style="color: red; font-weight: bold; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        University of Allahabad
+    </h2>
+
+    <!-- Create File Title -->
+    <h4 class="text-center mb-4" style="font-weight: 600; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        Create File
+    </h4>
+
+    @using (Html.BeginForm("CreateFile", "File", FormMethod.Post, new { @id = "createFileForm" }))
+    {
+        <!-- Dept, Section, File Type -->
+        <div class="form-row mb-3">
+            <div class="col-md-4">
+                <label>Department</label>
+                <input type="text" name="Department" class="form-control" value="" readonly />
+            </div>
+            <div class="col-md-4">
+                <label>Section</label>
+                <input type="text" name="Section" class="form-control" value="" readonly />
+            </div>
+            <div class="col-md-4">
+                <label>File Type</label>
+                @* Uncomment and bind from controller later *@
+                @Html.DropDownList("FileType", ViewBag.FileTypeList as IEnumerable<SelectListItem> ?? new List<SelectListItem>
+                {
+                    new SelectListItem { Text = "Select File Type", Value = "" }
+                }, new { @class = "form-control" })
+            </div>
+        </div>
+
+        <!-- Other Details Title -->
+        <h5 class="text-center mt-4 mb-3" style="font-weight: 600; text-decoration: underline;">
+            Other Details
+        </h5>
+
+        <!-- File Category, Subcategory, Priority -->
+        <div class="form-row mb-3">
+            <div class="col-md-4">
+                <label>File Category</label>
+                @Html.DropDownList("FileCategory", ViewBag.FileCategoryList as IEnumerable<SelectListItem> ?? new List<SelectListItem>
+                {
+                    new SelectListItem { Text = "Select Category", Value = "" }
+                }, new { @class = "form-control" })
+            </div>
+            <div class="col-md-4">
+                <label>File Sub Category</label>
+                @Html.DropDownList("FileSubCategory", ViewBag.FileSubCategoryList as IEnumerable<SelectListItem> ?? new List<SelectListItem>
+                {
+                    new SelectListItem { Text = "Select Sub Category", Value = "" }
+                }, new { @class = "form-control" })
+            </div>
+            <div class="col-md-4">
+                <label>Priority</label>
+                @Html.DropDownList("Priority", ViewBag.PriorityList as IEnumerable<SelectListItem> ?? new List<SelectListItem>
+                {
+                    new SelectListItem { Text = "Select Priority", Value = "" }
+                }, new { @class = "form-control" })
+            </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group mb-4">
+            <label>Description</label>
+            <textarea name="Description" class="form-control" rows="4" placeholder="Enter file description..."></textarea>
+        </div>
+
+        <!-- Buttons -->
+        <div class="text-center">
+            <input type="submit" value="Create File" class="btn btn-primary px-4 mr-2" />
+            <input type="reset" value="Reset" class="btn btn-secondary px-4" />
+        </div>
+    }
+</div>

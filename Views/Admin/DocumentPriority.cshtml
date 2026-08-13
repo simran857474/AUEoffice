@@ -1,0 +1,241 @@
+﻿@model List<Eoffice.Models.ModelDocPriority>
+@{
+    ViewBag.Title = "DocumentPriority";
+    Layout = "~/Views/Shared/_LayoutNew.cshtml";
+}
+@{
+    var editDoc = ViewBag.EditDocument as Eoffice.Models.ModelDocPriority;
+    bool isEdit = editDoc != null;
+}
+@*<div class="app-page-title app-page-title-simple">
+    <div class="page-title-wrapper">
+        <div class="page-title-heading">
+            <div>
+                <div class="page-title-head center-elem">
+                    <span class="d-inline-block pr-2">
+                        <i class="lnr-apartment opacity-6"></i>
+                    </span>
+                    <span class="d-inline-block">Document Priority</span>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>*@
+<section class="content">
+    <div class="container-fluid">
+        <div id="accordion11" class="accordion-wrapper mb-3">
+            <div class="main-card mb-3 card">
+                <div id="headingeleven" class="card-header">
+                    <button type="button" data-toggle="collapse" data-target="#collapseOne11" aria-expanded="true" aria-controls="collapseOne11" class="text-left m-0 p-0 btn btn-link btn-block">
+                        <h5 class="m-0 p-0 card-title">Add  Document Priority<i class="float-right pe-7s-angle-down"></i></h5>
+
+                    </button>
+                </div>
+                <div data-parent="#accordion11" id="collapseOne11" aria-labelledby="headingeleven" class="collapse @(isEdit ? "show":"")">
+
+                    <div class="card-body">
+                        @using (Html.BeginForm(isEdit ? "EditDocument" : "DocumentPriority", "Admin", FormMethod.Post, new { id = "documentForm" }))
+                        {
+                            <input type="hidden" name="DocPrior_Code" value="@(isEdit ? editDoc.DocPrior_Code : "")" />
+
+                            <div class="form-row">
+                                <div class="col-md-4">
+                                    <div class="position-relative form-group">
+                                        <label for="Doc_Name">Document Priority Name</label>
+                                        <input name="Doc_PriorName" id="Doc_Name" placeholder="Enter Document Priority Name"
+                                               type="text" class="form-control" value="@(isEdit ? editDoc.Doc_PriorName : "")" />
+                                        <span id="Doc_NameError" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="col-md-4">
+                                    <input type="submit" class="mt-2 ml-2 btn btn-primary" value="@(isEdit ? "Update" : "Submit")" />
+                                    <input type="reset" class="mt-2 ml-2 btn btn-success" value="Reset" />
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <br />
+
+                </div>
+            </div>
+        </div>
+
+
+        <div id="accordion12" class="accordion-wrapper mb-3">
+            <div class="main-card mb-3 card">
+                <div id="headingtwelve" class="card-header">
+                    <button type="button" data-toggle="collapse" data-target="#collapseOne12" aria-expanded="true" aria-controls="collapseOne12" class="text-left m-0 p-0 btn btn-link btn-block">
+                        <h5 class="m-0 p-0 card-title">Document Priority List<i class="float-right pe-7s-angle-down"></i></h5>
+
+                    </button>
+                </div>
+                <div data-parent="#accordion12" id="collapseOne12" aria-labelledby="headingtwelve" class="collapse show">
+
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12" id="divDetails" >
+                                <div class="">
+
+                                    <table style="width: 100%;" id="scr-vtr-dynamic" class="example1 table table-striped table-bordered nowrap table-hover text-center">
+                                        <thead>
+                                            <tr>
+                                                <th>S.No</th>
+                                                <th>DocPrior_Code</th>
+                                                <th>Priority Name</th>
+                                                <th>Status</th>
+                                                <th>Edit</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+
+                                            @if (Model != null && Model.Count > 0)
+                                            {
+                                                int i = 1;
+                                                foreach (var item in Model)
+                                                {
+                                                    <tr>
+                                                        <td>@i</td>
+                                                        <td>@item.DocPrior_Code</td>
+                                                        <td>@item.Doc_PriorName</td>
+                                                        <td>@(item.isactive == "False" ? "Active" : "InActive")</td>
+                                                        <td>
+                                                            @Html.ActionLink("Edit", "DocumentPriority", "Admin", new { DocPrior_Code = item.DocPrior_Code }, new { @class = "btn btn-sm btn-warning" })
+                                                            @Html.ActionLink("Delete", "DeleteDocument", "Admin", new { DocPrior_Code = item.DocPrior_Code }, new { @class = "btn btn-sm btn-danger", onclick = "return confirm('Are you sure you want to delete this document priority?');" })
+                                                        </td>
+                                                    </tr>
+                                                    i++;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <tr>
+                                                    <td colspan="6">No records found</td>
+                                                </tr>
+                                            }
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+
+
+
+@section Scripts {
+
+    <script src="~/Scripts/jquery-3.7.1.min.js"></script>
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            var message = '@TempData["insertmsg"]';
+
+            if (message) {
+                switch (message) {
+                    case "1":
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'Document Priority inserted successfully.',
+                            timer: 4000,
+                            showConfirmButton: false
+                        });
+                        break;
+                    case "2":
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed!',
+                            text: 'Failed to insert Document Priority.',
+                            timer: 4000,
+                            showConfirmButton: false
+                        });
+                        break;
+                    case "updated":
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated!',
+                            text: 'Document Priority updated successfully.',
+                            timer: 4000,
+                            showConfirmButton: false
+                        });
+                        break;
+                    case "updatefail":
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed!',
+                            text: 'Failed to update Document Priority.',
+                            timer: 4000,
+                            showConfirmButton: false
+                        });
+                        break;
+                    case "deleted":
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: 'Document Priority deleted successfully.',
+                            timer: 4000,
+                            showConfirmButton: false
+                        });
+                        break;
+                    case "deletefail":
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed!',
+                            text: 'Failed to delete Document Priority.',
+                            timer: 4000,
+                            showConfirmButton: false
+                        });
+                        break;
+                    default:
+                        // Optional: handle other messages
+                        break;
+                }
+            }
+
+        });
+
+
+        $("#documentForm").validate({
+            rules: {
+                Doc_PriorName: {
+                    required: true
+                }
+            },
+            messages: {
+                Doc_PriorName: {
+                    required : "Please enter Document Priority Name."
+                }
+            },
+            errorPlacement: function (error, element) {
+                var errorId = element.attr("id") + "Error";
+                $("#" + errorId).html(error);
+            },
+            submitHandler: function (form) {
+                // Disable button and show spinner
+                var $btn = $('#documentForm input[type="submit"]');
+                var originalVal = $btn.val();
+                $btn.prop('disabled', true);
+                $btn.val('Processing...');
+                $btn.css({'opacity': '0.7', 'cursor': 'not-allowed'});
+                form.submit();
+            }
+        });
+    </script>
+}
+

@@ -1,0 +1,184 @@
+createuser - 
+
+CREATE PROCEDURE USP_CheckLoginName
+    @LoginName NVARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT LoginName 
+    FROM Utility_MUser 
+    WHERE LoginName = @LoginName;
+END
+
+
+
+-------------------------------------------------------------------------------------
+
+GetEmployeeDetails() - admincontroller - 
+
+CREATE PROCEDURE USP_GetEmployeeDetails
+    @EmpId NVARCHAR(50),
+    @EstType NVARCHAR(10),
+    @DeptCode NVARCHAR(50),
+    @SecCode NVARCHAR(50)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Employee basic details
+    SELECT TOP 1
+        e.Emp_Name,
+        e.Adddress,
+        e.E_mail,
+        e.Contact_No,
+        s.Sec_Name
+    FROM M_Employee e
+    LEFT JOIN M_Section s ON s.Sec_Code = e.Sec_Code
+    WHERE e.Emp_Code = @EmpId;
+
+    -- Return designation info only if estType != 3
+    IF (@EstType <> '3')
+    BEGIN
+        SELECT TOP 1 
+            Est_desigCode,
+            id
+        FROM EmployerDepartment
+        WHERE Emp_Code = @EmpId
+          AND Est_secCode = @SecCode
+          AND Est_deptCode = @DeptCode;
+    END
+END
+
+
+
+
+----------------------------------------------------------------------------------------
+
+GetSectionList() - 
+
+
+CREATE PROCEDURE USP_GetSectionList
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        M_Section.Dep_Code,
+        Sec_Code,
+        Sec_Name,
+        M_Section.Shrt_Name,
+        Dep_TypeCode,
+        REPLACE(REPLACE(Dep_Type,'1-',''),'2-','') AS DepTypeName,
+        M_Department.Dep_Name,
+        M_Section.Active
+    FROM 
+        M_Section
+    INNER JOIN 
+        M_Department ON M_Department.Dep_Code = M_Section.Dep_Code
+    WHERE 
+        ISNULL(M_Section.Active, '') = 0
+    ORDER BY 
+        DepTypeName, Dep_Name, Sec_Name;
+END
+
+
+
+-------------------------------------------------------------------------------------
+
+BindDesignation() - BAL
+
+CREATE PROCEDURE USP_GetDesignationList
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        Des_Code,
+        (CONVERT(NVARCHAR, Des_Name) + ' | ' + Shrt_Name) AS Des_Name
+    FROM 
+        M_Designation
+    WHERE 
+        ISNULL(Active, '') = '0'
+    ORDER BY 
+        Des_Name;
+END
+
+
+------------------------------------------------------------------------------------
+
+BindSection() - BAL
+
+CREATE PROCEDURE USP_GetSections
+    @Dep_Code NVARCHAR(50),
+    @EstTypeCode NVARCHAR(50)
+AS
+BEGIN
+    SELECT Dep_Code, Sec_Code, Sec_Name, Dep_TypeCode, Shrt_Name
+    FROM M_Section
+    WHERE Dep_Code = @Dep_Code
+      AND Dep_TypeCode = @EstTypeCode
+    ORDER BY Sec_Name;
+END;
+
+
+--------------------------------------------------------------------------------------
+
+BindEmp_Type() - BAL
+
+
+CREATE PROCEDURE USP_GetEmpType
+AS
+BEGIN
+    SELECT Emp_Type_ID, Emp_Type
+    FROM M_Emp_Type
+    ORDER BY Emp_Type;
+END;
+
+-----------------------------------------------------------------------------------------
+
+BindUserRole() - BAL
+
+
+CREATE PROCEDURE USP_GetUserRoles
+AS
+BEGIN
+    SELECT tableid, RoleName 
+    FROM Utility_MRole
+    WHERE tableid NOT IN (1)
+    ORDER BY RoleName;
+END;
+
+
+-------------------------------------------------------------------------------
+
+GetMergedDocs() - BAL
+
+CREATE PROCEDURE USP_GetMergedDocs
+    @File_Code NVARCHAR(50)
+AS
+BEGIN
+    SELECT Doc_Code, row_id
+    FROM M_Document
+    WHERE File_Code = @File_Code
+    ORDER BY row_id ASC;
+END;
+
+
+
+-----------------------------------------------------------------------------
+
+Login - HomeController -
+
+CREATE PROCEDURE USP_GetUtilityUser
+    @LoginName NVARCHAR(100),
+    @Password NVARCHAR(200),
+    @CategoryCode NVARCHAR(50)
+AS
+BEGIN
+    SELECT * 
+    FROM Utility_MUser
+    WHERE LoginName = @LoginName
+      AND Password = @Password
+      AND CategoryCode = @CategoryCode;
+END;

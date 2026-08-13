@@ -1,0 +1,23 @@
+CREATE PROCEDURE sp_UpdatePlainPassword
+    @LoginName NVARCHAR(100),
+    @PlainPwd NVARCHAR(MAX),
+    @EncryptedPwd NVARCHAR(MAX)
+AS
+BEGIN
+    UPDATE user_pwd
+    SET plain_pwd = @PlainPwd,
+        encripted_pwd = @EncryptedPwd
+    WHERE login_name = @LoginName
+END
+
+
+--------------------------------------------------
+CREATE PROCEDURE sp_GetUserDetailsByUsername
+    @Username NVARCHAR(100)
+AS
+BEGIN
+    SELECT a.LoginName, a.Password, b.E_Mail, b.Contact_No, a.Is_Pwd_Change
+    FROM Utility_MUser a
+    INNER JOIN M_Employee b ON a.EmpID = b.Emp_Code
+    WHERE a.LoginName = @Username AND a.LoginStatus = '1'
+END

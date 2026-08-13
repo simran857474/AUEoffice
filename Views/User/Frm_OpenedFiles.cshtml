@@ -1,0 +1,131 @@
+﻿@model System.Data.DataTable
+@{
+    ViewBag.Title = "Frm_OpenedFiles";
+    Layout = "~/Views/Shared/_LayoutNew.cshtml";
+}
+
+
+<section class="content">
+    <div class="container-fluid">
+
+
+        <div id="accordiontwenty5" class="accordion-wrapper mb-3">
+            <div class="main-card mb-3 card">
+                <div id="headingtwenty5" class="card-header">
+                    <button type="button" data-toggle="collapse" data-target="#collapsetwenty5" aria-expanded="true" aria-controls="collapsetwenty5" class="text-left m-0 p-0 btn btn-link btn-block">
+                        <h5 class="m-0 p-0 card-title"> Opened Files<i class="float-right pe-7s-angle-down"></i></h5>
+                    </button>
+                </div>
+                <div data-parent="#accordiontwenty5" id="collapsetwenty5" aria-labelledby="headingtwenty5" class="collapse show">
+
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12" id="divDetails">
+                                <div class="">
+
+                                    <table style="width: 100%; " id="scr-vtr-dynamic" class="example1 table table-striped table-bordered nowrap table-hover text-left">
+                                        <thead>
+                                            <tr>
+                                                <th>S.No</th>
+                                                <th class="text-left">File Number</th>
+                                                <th class="text-left">Description</th>
+                                                <th class="text-left">Category</th>
+                                                <th class="text-left">Sub Category</th>
+                                                <th class="text-left">Created By Section</th>
+                                                <th class="text-left">Priority</th>
+                                                <th class="text-left">Created Date/Time</th>
+                                                <th>Status</th>
+                                                <th>Delete File</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model != null && Model.Rows.Count > 0 )
+                                            {
+                                                int i = 1;
+                                                foreach (System.Data.DataRow row in Model.Rows)
+                                                {
+                                                    <tr>
+                                                        <td>@i</td>
+                                                        <td> <a href="@Url.Action("Noting_Page", "User", new { fileCode = row["File_Code"] })"> @row["File_Code"] </a> </td>
+                                                        <td style="white-space: normal !important; word-wrap: break-word; min-width: 300px; ">@row["File_Desc"]</td>
+                                                        <td>@row["FileCat_Name"]</td>
+                                                        <td>@row["FileSubCat_Name"]</td>
+                                                        <td>@row["Sec_Name"]</td>
+                                                        <td>@row["DocPrior_Name"]</td>
+                                                        <td>@row["Created_DT"]</td>
+                                                        <td>@row["File_status"]</td>
+                                                        <td>
+                                                            <i class="fa fa-trash text-danger"
+                                                               style="cursor:pointer;"
+                                                               onclick="deleteOpenedFile('@row["File_Code"]')"></i>
+                                                        </td>
+                                                    </tr>
+                                                    i++;
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+
+<script>
+function deleteOpenedFile(fileCode) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "This file will be deleted.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: '@Url.Action("DeleteCallBackFile", "User")',
+                type: 'GET',
+                data: { FileCode: fileCode },
+                success: function (response) {
+                    if (response && response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: 'File deleted successfully.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                        setTimeout(function () {
+                            location.reload();
+                        }, 3000);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed!',
+                            text: 'File could not be deleted.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    }
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Something went wrong while deleting.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
+            });
+        }
+    });
+}
+</script>

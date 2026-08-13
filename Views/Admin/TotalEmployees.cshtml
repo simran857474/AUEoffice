@@ -1,0 +1,152 @@
+﻿@model System.Data.DataSet
+@{
+    ViewBag.Title = "TotalEmployees";
+    Layout = "~/Views/Shared/_LayoutNew.cshtml";
+}
+
+<style>
+    #divDetails {
+        position: relative;
+    }
+
+    #attachmentLoader {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.7); /* transparent overlay */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 20;
+    }
+
+        #attachmentLoader .loader-content {
+            text-align: center;
+        }
+</style>
+
+<section class="content">
+    <div class="container-fluid">
+        <div id="accordiontwentyfour" class="accordion-wrapper mb-3">
+            <div class="main-card mb-3 card">
+                <div id="headingtwentyfour" class="card-header">
+                    <button type="button" data-toggle="collapse" data-target="#collapsetwentyfour" aria-expanded="true" aria-controls="collapsetwentyfour" class="text-left m-0 p-0 btn btn-link btn-block">
+                        <h5 class="m-0 p-0 card-title">Employee List<i class="float-right pe-7s-angle-down"></i></h5>
+                    </button>
+                </div>
+                <div data-parent="#accordiontwentyfour" id="collapsetwentyfour" aria-labelledby="headingtwentyfour" class="collapse show">
+                    <div class="card-body">
+
+                        <div class="row mb-5">
+                            <div class="col-md-6">
+                                <label>Establishment Type</label>
+                                @Html.DropDownList("Est_Type", new SelectList(ViewBag.EstTypeList as List<SelectListItem>, "Value", "Text"), new { @class = "form-control", id = "Est_Type" })
+
+
+                            </div>
+
+
+                            <div class="">
+                                <button type="submit" class="btn btn-primary" style="margin-top:30px;" id="btnEstTypeSearch">Search</button>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12" id="divDetails">
+                                <div class="">
+
+                                    <!-- 🔹 Full overlay loader -->
+                                    <div id="attachmentLoader" style="display:none;">
+                                        <div class="loader-content">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
+                                            <p>Loading...</p>
+                                        </div>
+                                    </div>
+
+                                    <table style="width: 100%; " id="scr-vtr-dynamic" class="example1 table table-striped table-bordered nowrap table-hover text-left">
+                                        <thead class="text-left">
+                                            <tr class="text-left">
+                                                <th>S.No</th>
+                                                <th class="text-left">Employee Code</th>
+                                                <th class="text-left">Employee Name</th>
+                                                <th class="text-left">Mobile No</th>
+                                                <th class="text-left">E-Mail</th>
+                                                <th class="text-left">Estb. Type</th>
+                                                <th class="text-left">Department</th>
+                                                <th class="text-left">Section</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model != null && Model.Tables.Count > 0 && Model.Tables[0].Rows.Count > 0)
+                                            {
+                                                int i = 1;
+                                                foreach (System.Data.DataRow row in Model.Tables[0].Rows)
+                                                {
+                                                    <tr>
+                                                        <td>@i</td>
+                                                        <td> @row["Emp_Code"]</td>
+                                                        <td>@row["Employee_Name"]</td>
+                                                        <td>@row["Contact_No"]</td>
+                                                        <td>@row["E_Mail"]</td>
+                                                        <td>@row["Est_TypeName"]</td>
+                                                        <td>@row["Est_deptName"]</td>
+                                                        <td>@row["Est_secName"]</td>
+                                                    </tr>
+                                                    i++;
+                                                }
+                                            }
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<script src="~/Scripts/jquery-3.7.1.min.js"></script>
+
+<script>
+
+
+    $("#btnEstTypeSearch").click(function () {
+        var estType = $("#Est_Type").val();
+        $("#attachmentLoader").show();
+
+        $.ajax({
+            url: '/Admin/SearchEmployees',
+            type: 'POST',
+            data: { estType: estType },
+            success: function (res) {
+
+                $("#attachmentLoader").hide();
+
+                table.clear().draw();
+                $.each(res.data, function (i, item) {
+                    table.row.add([
+                        i + 1,
+                        item.Emp_Code,
+                        item.Emp_Name,
+                        item.Contact_No,
+                        item.Email,
+                        item.Type_,
+                        item.Dep_Code,
+                        item.Sec_Code,
+                    ]).draw(false);
+                });
+            }
+        });
+    });
+
+
+
+</script>

@@ -1,0 +1,983 @@
+﻿@model List<Eoffice.Models.ModelAddEmployee>
+@{
+    ViewBag.Title = "AddEmployee";
+    Layout = "~/Views/Shared/_LayoutNew.cshtml";
+}
+
+@{
+    var editEmp = ViewBag.EditEmployee as Eoffice.Models.ModelAddEmployee;
+    bool isEdit = editEmp != null;
+}
+
+
+@*<div class="app-page-title app-page-title-simple">
+    <div class="page-title-wrapper">
+        <div class="page-title-heading">
+            <div>
+                <div class="page-title-head center-elem">
+                    <span class="d-inline-block pr-2">
+                        <i class="lnr-apartment opacity-6"></i>
+                    </span>
+                    <span class="d-inline-block">Add Employee</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>*@
+
+<section class="content">
+    <div class="container-fluid">
+        <div id="accordion1" class="accordion-wrapper mb-3">
+            <div class="main-card mb-3 card">
+                <div id="headingOne" class="card-header">
+                    <button type="button" data-toggle="collapse" data-target="#collapseOne2" aria-expanded="true" aria-controls="collapseOne2" class="text-left m-0 p-0 btn btn-link btn-block">
+                        <h5 class="m-0 p-0 card-title">Add Employee<i class="float-right pe-7s-angle-down"></i></h5>
+
+                    </button>
+                </div>
+                <div data-parent="#accordion1" id="collapseOne2" aria-labelledby="headingOne" class="collapse @(isEdit ? "show" : "")">
+
+                    <div class="card-body">
+                        @*<h5 class="card-title">Add Department</h5>*@
+                        @using (Html.BeginForm(isEdit ? "EditEmployee" : "AddEmployee", "Admin", FormMethod.Post, new { enctype = "multipart/form-data", id = "employeeForm" }))
+                        {
+                            <div class="form-row justify-content-end">
+                                <div class="col-md-3 text-right">
+                                    <div class="position-relative form-group" style="cursor:pointer;">
+                                        <div style="width: 100px; height: 100px; border: 2px solid #ccc; border-radius: 4px; overflow: hidden; margin-left:40%;">
+                                            <img id="profilePreview" src="~/Content/Images/default.png" alt="Profile Photo" style="width: 100%; height: 100%; object-fit: cover;">
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <input type="hidden" name="Emp_Code" value="@(isEdit?editEmp.Emp_Code:"")" />
+                            <div class="form-row">
+                                <div class="col-md-3">
+                                    <div class="position-relative form-group">
+                                        <label for="examplecode111" class="">Employee Code</label>
+                                        <input name="Emp_CodeDisplay" id="EmpCode" placeholder="Enter Employee Code" type="Text" class="form-control" value="@(isEdit ? editEmp.Emp_Code: "")">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="position-relative form-group">
+                                        <label for="exampleEmpName111" class="">Employee Name</label>
+                                        <input name="Emp_Name" id="EmpName" placeholder="Enter Employee name" type="Text" class="form-control" value="@(isEdit ? editEmp.Emp_Name: "")">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="position-relative form-group">
+                                        <label for="exampleFathername111" class="">Father's Name </label>
+                                        <input name="Father_Name" id="EmpFather" placeholder="Enter Faher's' Name" type="text" class="form-control" value="@(isEdit ? editEmp.Father_Name: "")">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="position-relative form-group">
+                                        <label for="exampleSpouse111" class="">Spouse Name</label>
+                                        <input name="Spouse_Name" id="SpouseName" placeholder="Enter Spouse Code" type="Text" class="form-control" value="@(isEdit ? editEmp.Spouse_Name: "")">
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-row">
+
+                                <div class="col-md-3">
+                                    <div class="position-relative form-group">
+                                        <label for="exampleSelect" class="">Gender</label>
+                                        @Html.DropDownList("Gender_Code", new SelectList(ViewBag.GenderList as List<SelectListItem>, "Value", "Text", editEmp?.Gender_Code), "Select", new { @class = "form-control", id = "Gender_Code" })
+
+
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="position-relative form-group">
+                                        <label for="exampleDob111" class="">Date Of Birth</label>
+                                        <input name="DOB" id="Dob" placeholder="Enter Dob" type="date" class="form-control" value="@(isEdit ? editEmp.DOB: "")">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="position-relative form-group">
+                                        <label for="exampleContact111" class="">Contact</label>
+                                        @*<input name="Contact_No" id="Contact" placeholder="Enter Contact Number" type="text" maxlength="10" class="form-control" value="@(isEdit ? editEmp.Contact_No: "")">*@
+                                        <input name="Contact_No" id="Contact" placeholder="Enter Contact Number" type="tel" maxlength="10" class="form-control" value="@(isEdit ? editEmp.Contact_No : "")" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+
+
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="position-relative form-group">
+                                        <label for="exampleEmail111" class="">Email</label>
+                                        <input name="Email" id="Email" placeholder="Enter Email" type="email" class="form-control" value="@(isEdit ? editEmp.Email: "")">
+
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="form-row">
+                                <div class="col-md-3">
+                                    <div class="position-relative form-group">
+                                        <label for="exampleAdhar111">Adhar Number</label>
+                                        <input name="Adhar" id="Adhar" placeholder="Enter Adhar Number"
+                                               type="text" class="form-control"
+                                               value="@(isEdit ? editEmp.Adhar: "")">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="position-relative form-group">
+                                        <label for="exampleSelect" class="">Status</label>
+                                        <select name="isactive" id="" class="form-control">
+                                            <option value="" disabled @(isEdit ? "" : "selected")>Select</option>
+                                            <option value="1" @(isEdit && editEmp.isactive == "1" ? "selected" : "")>Active</option>
+                                            <option value="0" @(isEdit && editEmp.isactive == "2" ? "selected" : "")>InActive</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="position-relative form-group">
+                                        <label for="exampleAddress111" class="">Address</label>
+                                        <input name="Address" id="Address" placeholder="Enter Your Address" type="text" class="form-control" value="@(isEdit ? editEmp.Address: "")">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="position-relative form-group">
+                                        <label for="exampleRemark111" class=""> Remarks</label>
+                                        <input name="Remark" id="Remark" placeholder="Remark" type="Text" class="form-control" value="@(isEdit ? editEmp.Remark: "")">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-md-2">
+                                    <div class="position-relative form-group">
+                                        <label for="exampleSelect" class="">Establishment Type</label>
+                                        @Html.DropDownList("Type_", new SelectList(ViewBag.EstTypeList as List<SelectListItem>, "Value", "Text", editEmp?.Type_), "Select", new { @class = "form-control", id = "Type_" })
+
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="position-relative form-group">
+                                        <label for="exampleSelect" class="">Department</label>
+                                        <select id="ddlDepartment" name="Dep_Code" class="form-control">
+                                            <option value="">Select Department</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="position-relative form-group">
+                                        <label for="exampleSelect" class="">Section</label>
+                                        <select name="Sec_Code" id="ddlSection" class="form-control">
+                                            <option value="">Select Section</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="position-relative form-group">
+                                        <label for="exampleSelect" class="">Designation</label>
+                                        @Html.DropDownList("Des_Code", new SelectList(ViewBag.DesignationList as List<SelectListItem>, "Value", "Text", editEmp?.Des_Code), "Select", new { @class = "form-control", id = "Des_Code" })
+
+                                    </div>
+                                </div>
+                                <div class="col-md-1 mt-2">
+                                    <button type="button" class="btn btn-success mt-4" id="addComboBtn">+</button>
+                                </div>
+
+                            </div>
+                            <div class="form-row">
+                                <div class="col-md-3">
+                                    <div class="position-relative form-group">
+                                        <label for="ProfileImage" class="">Upload Profile Photo</label>
+                                        <input type="file" name="ProfileImage" id="ProfileImage" accept="image/*" class="form-control-file">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+
+                            </div>
+
+                            <table id="comboTable" class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Establishment Type</th>
+                                        <th>Department</th>
+                                        <th>Section</th>
+                                        <th>Designation</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+
+                            <input type="hidden" id="EstDeptSectionData" name="EstDeptSections" />
+
+
+                            <div class="form-row">
+                                <input type="submit" class="mt-2 ml-2 btn btn-primary" value="@(isEdit ? "Update" : "Submit")" />
+                                <input type="button" id="btnReset" class="mt-2 ml-2 btn btn-success" value="Reset" />
+                            </div>
+                        }
+                    </div>
+                    <br />
+                </div>
+
+            </div>
+        </div>
+
+        <div id="accordion2" class="accordion-wrapper mb-3">
+            <div class="main-card mb-3 card">
+                <div id="headingTwo" class="card-header">
+                    <button type="button" data-toggle="collapse" data-target="#collapseOne1" aria-expanded="true" aria-controls="collapseOne1" class="text-left m-0 p-0 btn btn-link btn-block">
+                        <h5 class="m-0 p-0 card-title">Employee List<i class="float-right pe-7s-angle-down"></i></h5>
+
+                    </button>
+                </div>
+                <div data-parent="#accordion2" id="collapseOne1" aria-labelledby="headingTwo" class="collapse show">
+
+                    <div class="card-body">
+
+                        <div class="row">
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12" id="divDetails" >
+                                <div class="">
+
+                                    <table style="width: 100%;" id="scr-vtr-dynamic" class="example1 table table-striped table-bordered nowrap table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>S.No</th>
+                                                <th>EmpCode</th>
+                                                <th>EmpName</th>
+                                                <th>Contact_No</th>
+                                                <th>Email</th>
+                                                <th>Est_Type</th>
+                                                <th>Department</th>
+                                                <th>Section</th>
+                                                @*<th>Designation</th>*@
+                                                @*<th>Status</th>*@
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model != null && Model.Count > 0)
+                                            {
+                                                int i = 1;
+                                                foreach (var item in Model)
+                                                {
+                                                    <tr>
+                                                        <td>@i</td>
+                                                        <td>@item.Emp_Code</td>
+                                                        <td>@item.Emp_Name</td>
+                                                        <td>@item.Contact_No</td>
+                                                        <td>@item.Email</td>
+                                                        <td>@item.Type_</td>
+                                                        <td>@item.Dep_Code</td>
+                                                        <td>@item.Sec_Code</td>
+                                                        @*<td>@item.Designation</td>*@
+                                                        @*<td>@item.isactive</td>*@
+                                                        <td>
+                                                            <button type="button" class="btn btn-sm btn-warning btnEditEmployee" data-empcode="@item.Emp_Code">Edit</button>
+                                                            @*@Html.ActionLink("Delete", "DeleteEmployee", "Admin", new { Row_Id = item.Emp_Code }, new { @class = "btn btn-sm btn-danger", onclick = "return confirm('Are you sure you want to delete this Employee Details?');" })*@
+                                                        </td>
+                                                    </tr>
+                                                    i++;
+                                                }
+                                            }
+                                        <tbody />
+
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@section Scripts {
+    <script src="~/Scripts/jquery-3.7.1.min.js"></script>
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script> >
+    <script>
+
+    //Adhar number masking ----
+    $(document).ready(function () {
+        $('#Adhar').mask('0000-0000-0000');
+    });
+
+    //Profile image  preview
+    $('#ProfileImage').on('change', function (event) {
+        const file = event.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                $('#profilePreview').attr('src', e.target.result);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            alert("Please select a valid image file.");
+        }
+    });
+
+    // Load Employee for Edit - AJAX call
+    $(document).on('click', '.btnEditEmployee', function () {
+        var empCode = $(this).data('empcode');
+        loadEmployeeForEdit(empCode);
+    });
+
+    function loadEmployeeForEdit(empCode) {
+        $.ajax({
+            url: '@Url.Action("GetEmployeeForEdit", "Admin")',
+            type: 'POST',
+            data: { empCode: empCode },
+            beforeSend: function () {
+                // Show loading indicator
+                Swal.fire({
+                    title: 'Loading...',
+                    text: 'Please wait while we load employee data',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+            },
+            success: function (response) {
+                Swal.close();
+                
+                if (response.success) {
+                    var data = response.data;
+
+                    console.log(data);
+                    
+                    // Populate basic employee fields
+                    $('input[name="Emp_Code"]').val(data.Emp_Code);
+                    $('#EmpCode').val(data.Emp_Code).prop('disabled', true);
+                    $('#EmpName').val(data.Emp_Name);
+                    $('#EmpFather').val(data.Father_Name);
+                    $('#SpouseName').val(data.Spouse_Name);
+                    $('#Gender_Code').val(data.Gender);
+                    
+                    // Convert date format from DD/MM/YYYY to YYYY-MM-DD
+                    if (data.DOB) {
+                        var dobParts = data.DOB.split('/');
+                        if (dobParts.length === 3) {
+                            var formattedDOB = dobParts[2] + '-' + dobParts[1] + '-' + dobParts[0];
+                            $('#Dob').val(formattedDOB);
+                        } else {
+                            $('#Dob').val(data.DOB);
+                        }
+                    }
+                    
+                    $('#Contact').val(data.Contact_No);
+                    $('#Email').val(data.E_Mail);
+                    $('#Remark').val(data.Remark);
+                    $('#Adhar').val(data.Adhar);
+                    $('#Address').val(data.Adddress);
+                    
+                    // Convert boolean/string status to dropdown value
+                    var statusValue = '';
+                    if (data.Active === 'True' || data.Active === true || data.Active === '1' || data.Active === 1) {
+                        statusValue = '1';
+                    } else if (data.Active === 'False' || data.Active === false || data.Active === '0' || data.Active === 0) {
+                        statusValue = '0';
+                    }
+                    $('select[name="isactive"]').val(statusValue);
+                    
+                    // Set profile image
+                    if (data.ImageUrl) {
+                        $('#profilePreview').attr('src', data.ImageUrl);
+                    } else {
+                        $('#profilePreview').attr('src', '@Url.Content("~/Content/Images/default.png")');
+                    }
+                    
+                    // Clear existing department mappings table
+                    $('#comboTable tbody').empty();
+                    
+                    // Populate department mappings grid
+                    if (data.DepartmentMappings && data.DepartmentMappings.length > 0) {
+                        $.each(data.DepartmentMappings, function (index, mapping) {
+                            // Parse the pipe-separated values
+                            var typeParts = mapping.Type.split('|');
+                            var deptParts = mapping.Department.split('|');
+                            var secParts = mapping.Section.split('|');
+                            var desgParts = mapping.Designation.split('|');
+                            
+                            var typeText = typeParts[0].trim();
+                            var typeCode = typeParts[1].trim();
+                            var deptText = deptParts[0].trim();
+                            var deptCode = deptParts[1].trim();
+                            var secText = secParts[0].trim();
+                            var secCode = secParts[1].trim();
+                            var desgText = desgParts[0].trim();
+                            var desgCode = desgParts[1].trim();
+                            
+                            var row = `<tr>
+                                <td data-code="${typeCode}" data-text="${typeText}">${typeText} | ${typeCode}</td>
+                                <td data-code="${deptCode}" data-text="${deptText}">${deptText} | ${deptCode}</td>
+                                <td data-code="${secCode}" data-text="${secText}">${secText} | ${secCode}</td>
+                                <td data-code="${desgCode}" data-text="${desgText}">${desgText} | ${desgCode}</td>
+                                <td><button type="button" class="btn btn-danger btn-sm removeRow">X</button></td>
+                            </tr>`;
+                            
+                            $('#comboTable tbody').append(row);
+                        });
+                        
+                        // Update hidden field with mappings
+                        updateHiddenField();
+                    }
+                    
+                    // Change form action to EditEmployee
+                    $('#employeeForm').attr('action', '@Url.Action("EditEmployee", "Admin")');
+                    
+                    // Change button text to Update
+                    $('#employeeForm input[type="submit"]').val('Update');
+                    
+                    // Collapse the employee list accordion
+                    $('#collapseOne1').removeClass('show');
+                    
+                    // Expand the form accordion
+                    $('#collapseOne2').addClass('show');
+                    
+                    // Wait a bit then scroll
+                    setTimeout(function() {
+                        $('html, body').animate({
+                            scrollTop: $('#accordion1').offset().top - 20
+                        }, 500);
+                    }, 300);
+                    
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: response.message || 'Employee not found',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                }
+            },
+            error: function (xhr, status, error) {
+                Swal.close();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Something went wrong! ' + error,
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            }
+        });
+    }
+
+
+  $(document).ready(function () {
+
+      const isEdit = '@(isEdit)'.toLowerCase() === 'true';
+
+      const selectedEstType = '@(isEdit ? editEmp.Type_ : "")';
+      const selectedDepartment = '@(isEdit ? editEmp.Dep_Code : "")';
+      const selectedSection = '@(isEdit ? editEmp.Sec_Code : "")';
+      const selectedDesignation = '@(isEdit ? editEmp.Des_Code : "")';
+
+
+      if (isEdit && selectedEstType !== '') {
+          $('#Type_').val(estType); // Set Est. Type dropdown
+          $('#Type_').trigger('change'); // This will trigger the AJAX call
+
+          // Wait for AJAX to complete then set department
+          setTimeout(function () {
+              $.ajax({
+                  //url: '/Admin/GetDepartmentsByEstType',
+                    url: '@Url.Action("GetDepartmentsByEstType", "Admin")',
+                  type: 'POST',
+                  data: { estTypeCode: estType },
+                  success: function (data) {
+                      var deptDropdown = $('#ddlDepartment');
+                      deptDropdown.empty();
+                      deptDropdown.append($('<option/>', {
+                          value: '',
+                          text: 'Select Department'
+                      }));
+
+                      $.each(data, function (i, item) {
+                          deptDropdown.append($('<option/>', {
+                              value: item.Value,
+                              text: item.Text
+                          }));
+                      });
+
+                      // Set selected department after dropdown is populated
+                      if (selectedDept !== '') {
+                          deptDropdown.val(selectedDept);
+                      }
+                  },
+                  error: function () {
+                      alert('Error loading departments.');
+                  }
+              });
+          }, 100); // Slight delay ensures EstType is set before AJAX
+      }
+
+
+      $('#Type_').change(function () {
+          var estTypeCode = $(this).val();
+
+          if (estTypeCode) {
+              $.ajax({
+                  //url: '/Admin/GetDepartmentsByEstType',
+                   url: '@Url.Action("GetDepartmentsByEstType", "Admin")',
+                  type: 'POST',
+                  data: { estTypeCode: estTypeCode },
+                  success: function (data) {
+                      var deptDropdown = $('#ddlDepartment');
+                      deptDropdown.empty();
+                      deptDropdown.append($('<option/>', {
+                          value: '',
+                          text: 'Select Department'
+                      }));
+
+                      $.each(data, function (i, item) {
+                          deptDropdown.append($('<option/>', {
+                              value: item.Value,
+                              text: item.Text
+                          }));
+                      });
+                  },
+                  error: function () {
+                      alert('Error loading departments.');
+                  }
+              });
+          } else {
+              $('#ddlDepartment').empty().append($('<option/>', {
+                  value: '',
+                  text: 'Select Department'
+              }));
+          }
+      });
+
+
+      $('#ddlDepartment').change(function () {
+          var Dep_Code = $(this).val();
+          var EstTypeCode = $('#Type_').val();
+
+          if (EstTypeCode && Dep_Code) {
+              $.ajax({
+                  //url: '/Admin/GetSectionsByDepartment',
+                   url: '@Url.Action("GetSectionsByDepartment", "Admin")',
+                  type: 'POST',
+                  data: { Dep_Code: Dep_Code, EstTypeCode: EstTypeCode },
+                  success: function (data) {
+                      var deptDropdown = $('#ddlSection');
+                      deptDropdown.empty();
+                      deptDropdown.append($('<option/>', {
+                          value: '',
+                          text: 'Select Section'
+                      }));
+
+                      $.each(data, function (i, item) {
+                          deptDropdown.append($('<option/>', {
+                              value: item.Value,
+                              text: item.Text
+                          }));
+                      });
+                  },
+                  error: function () {
+                      alert('Error loading sections.');
+                  }
+              });
+          } else {
+              $('#ddlSection').empty().append($('<option/>', {
+                  value: '',
+                  text: 'Select Section'
+              }));
+          }
+      });
+  });
+
+    $('#addComboBtn').click(function () {
+        let typeText = $('#Type_ option:selected').text();
+        let typeVal = $('#Type_').val();
+        let deptText = $('#ddlDepartment option:selected').text();
+        let deptVal = $('#ddlDepartment').val();
+        let secText = $('#ddlSection option:selected').text();
+        let secVal = $('#ddlSection').val();
+        let desText = $('#Des_Code option:selected').text();
+        let desVal = $('#Des_Code').val();
+
+        if (!typeVal || !deptVal || !secVal || !desVal) {
+            alert("Please select all values before adding.");
+            return;
+        }
+
+        let row = `<tr>
+        <td data-code="${typeVal}" data-text="${typeText}">${typeText} | ${typeVal}</td>
+        <td data-code="${deptVal}" data-text="${deptText}">${deptText} | ${deptVal}</td>
+        <td data-code="${secVal}" data-text="${secText}">${secText} | ${secVal}</td>
+        <td data-code="${desVal}" data-text="${desText}">${desText} | ${desVal}</td>
+        <td><button type="button" class="btn btn-danger btn-sm removeRow">X</button></td>
+    </tr>`;
+
+        $('#comboTable tbody').append(row);
+        updateHiddenField();
+    });
+
+    $(document).on('click', '.removeRow', function () {
+        $(this).closest('tr').remove();
+        updateHiddenField();
+    });
+
+    // Reset button functionality
+    $('#btnReset').on('click', function () {
+        // Reset form
+        $('#employeeForm')[0].reset();
+        
+        // Clear hidden fields
+        $('input[name="Emp_Code"]').val('');
+        $('#EstDeptSectionData').val('');
+        
+        // Enable employee code field
+        $('#EmpCode').prop('disabled', false);
+        
+        // Clear table
+        $('#comboTable tbody').empty();
+        
+        // Reset profile image
+        $('#profilePreview').attr('src', '@Url.Content("~/Content/Images/default.png")');
+        
+        // Reset form action to AddEmployee
+        $('#employeeForm').attr('action', '@Url.Action("AddEmployee", "Admin")');
+        
+        // Change button text to Submit
+        $('#employeeForm input[type="submit"]').val('Submit');
+        
+        // Clear validation classes
+        $('#employeeForm').find('.is-valid, .is-invalid').removeClass('is-valid is-invalid');
+        $('#employeeForm').find('.invalid-feedback').remove();
+        
+        // Reset dropdowns
+        $('#ddlDepartment').empty().append($('<option/>', { value: '', text: 'Select Department' }));
+        $('#ddlSection').empty().append($('<option/>', { value: '', text: 'Select Section' }));
+    });
+
+    function updateHiddenField() {
+        let dataList = [];
+
+        $('#comboTable tbody tr').each(function () {
+            let row = {
+                Type_: $(this).find('td').eq(0).data('code'),
+                Type_Text: $(this).find('td').eq(0).data('text'),
+                Dep_Code: $(this).find('td').eq(1).data('code'),
+                Dep_Text: $(this).find('td').eq(1).data('text'),
+                Sec_Code: $(this).find('td').eq(2).data('code'),
+                Sec_Text: $(this).find('td').eq(2).data('text'),
+                Des_Code: $(this).find('td').eq(3).data('code'),
+                Des_Text: $(this).find('td').eq(3).data('text')
+            };
+            dataList.push(row);
+        });
+
+        $('#EstDeptSectionData').val(JSON.stringify(dataList));
+    }
+
+
+function bindDepartments(id, defaultvalue, callback) {
+    if (!defaultvalue || defaultvalue === -1) defaultvalue = -1;
+
+    var obj = {
+        Action: "bindDepartments",
+        EstType: $('#ddlEstType').val()
+    };
+
+    $.ajax({
+        type: 'POST',
+        //url: '/Admin/fillDropdown',
+         url: '@Url.Action("fillDropdown", "Admin")',
+        data: obj,
+        success: function (Data) {
+            var ddl = $('#' + id);
+            ddl.empty().append($('<option/>', { value: "-1", text: "Choose option" }));
+
+            $.each(Data, function (index, rowData) {
+                ddl.append($('<option/>', {
+                    value: rowData.id,
+                    text: rowData.value
+                }));
+            });
+
+            ddl.val(defaultvalue);
+
+            if (typeof callback === "function") callback();
+        },
+        error: function () {
+            console.error("Error binding Departments");
+        }
+    });
+}
+    function bindSection(id, defaultvalue, callback) {
+        if (!defaultvalue || defaultvalue === -1) defaultvalue = -1;
+
+        var obj = {
+            Action: "bindSection",
+            Department: $('#ddlDepartment').val()
+        };
+
+        $.ajax({
+            type: 'POST',
+            //url: '/Admin/fillDropdown',
+             url: '@Url.Action("fillDropdown", "Admin")',
+            data: obj,
+            success: function (Data) {
+                var ddl = $('#' + id);
+                ddl.empty().append($('<option/>', { value: "-1", text: "Choose option" }));
+
+                $.each(Data, function (index, rowData) {
+                    ddl.append($('<option/>', {
+                        value: rowData.id,
+                        text: rowData.value
+                    }));
+                });
+
+                ddl.val(defaultvalue);
+
+                if (typeof callback === "function") callback();
+            },
+            error: function () {
+                console.error("Error binding Sections");
+            }
+        });
+    }
+    function bindDesignation(id, defaultvalue, callback) {
+        if (!defaultvalue || defaultvalue === -1) defaultvalue = -1;
+
+        var obj = {
+            Action: "bindDesignation"
+        };
+
+        $.ajax({
+            type: 'POST',
+            //url: '/Admin/fillDropdown',
+             url: '@Url.Action("fillDropdown", "Admin")',
+            data: obj,
+            success: function (Data) {
+                var ddl = $('#' + id);
+                ddl.empty().append($('<option/>', { value: "-1", text: "Choose option" }));
+
+                $.each(Data, function (index, rowData) {
+                    ddl.append($('<option/>', {
+                        value: rowData.id,
+                        text: rowData.value
+                    }));
+                });
+
+                ddl.val(defaultvalue);
+
+                if (typeof callback === "function") callback();
+            },
+            error: function () {
+                console.error("Error binding Designations");
+            }
+        });
+    }
+
+    </script>
+
+
+
+    <script>
+        $(document).ready(function () {
+            var message = '@TempData["insertmsg"]';
+
+            if (message) {
+                switch (message) {
+                    case "1":
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'Employee inserted successfully.',
+                            timer: 4000,
+                            showConfirmButton: false
+                        });
+                        break;
+                    case "2":
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed!',
+                            text: 'Failed to insert Employee.',
+                            timer: 4000,
+                            showConfirmButton: false
+                        });
+                        break;
+                    case "updated":
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated!',
+                            text: 'Employee updated successfully.',
+                            timer: 4000,
+                            showConfirmButton: false
+                        });
+                        break;
+                    case "updatefail":
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed!',
+                            text: 'Failed to update Employee.',
+                            timer: 4000,
+                            showConfirmButton: false
+                        });
+                        break;
+                    case "error":
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'Something went wrong. Please try again.',
+                            timer: 4000,
+                            showConfirmButton: false
+                        });
+                        break;
+                    case "deleted":
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: 'Employee deleted successfully.',
+                            timer: 4000,
+                            showConfirmButton: false
+                        });
+                        break;
+                    case "deletefail":
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed!',
+                            text: 'Failed to delete Employee.',
+                            timer: 4000,
+                            showConfirmButton: false
+                        });
+                        break;
+                    default:
+                        // Optional: handle other messages
+                        break;
+                }
+            }
+        });
+    </script>
+
+    <script>
+        function showValidation(input, condition, message) {
+            const $input = $(input);
+            $input.removeClass("is-valid is-invalid");
+
+            if (condition) {
+                $input.addClass("is-valid");
+                $input.next('.invalid-feedback').remove();
+            } else {
+                $input.addClass("is-invalid");
+                if ($input.next('.invalid-feedback').length === 0) {
+                    $input.after(`<div class="invalid-feedback">${message}</div>`);
+                }
+            }
+        }
+
+        $(document).ready(function () {
+            // Contact Number validation (Indian numbers only)
+            $('#Contact').on('input blur', function () {
+                const pattern = /^[6-9]\d{9}$/;
+                const isValid = pattern.test(this.value);
+                showValidation(this, isValid, "Please enter a valid Indian mobile number (10 digits starting with 6-9).");
+            });
+
+            // Email validation
+            $('#Email').on('input blur', function () {
+                const pattern = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+                const isValid = pattern.test(this.value);
+                showValidation(this, isValid, "Please enter a valid email address.");
+            });
+
+            // Name validation (alphabetical only)
+            $('#EmpName').on('input blur', function () {
+                const pattern = /^[A-Za-z\s]{2,}$/;
+                const isValid = pattern.test(this.value);
+                showValidation(this, isValid, "Name should contain only alphabets.");
+            });
+
+            $('#EmpCode').on('input blur', function () {
+                const isValid = this.value.trim().length > 0;
+                showValidation(this, isValid, "Employee code is required.");
+            });
+
+            $('#EmpFather').on('input blur', function () {
+                const pattern = /^[A-Za-z\s]{2,}$/;
+                const isValid = pattern.test(this.value);
+                showValidation(this, isValid, "Father's name should contain only alphabets.");
+            });
+
+            //$('#SpouseName').on('input blur', function () {
+            //    if (this.value.trim() === "") return;
+            //    const pattern = /^[A-Za-z\s]{2,}$/;
+            //    const isValid = pattern.test(this.value);
+            //    showValidation(this, isValid, "Spouse name should contain only alphabets.");
+            //});
+
+            $('#DOB').on('blur', function () {
+                const isValid = this.value !== "";
+                showValidation(this, isValid, "Date of birth is required.");
+            });
+
+            //$('#Adhar').on('input blur', function () {
+            //    const pattern = /^\d{12}$/;
+            //    const isValid = pattern.test(this.value);
+            //    showValidation(this, isValid, "Adhar number must be 12 digits.");
+            //});
+
+            //$('#Address').on('input blur', function () {
+            //    const isValid = this.value.trim().length >= 5;
+            //    showValidation(this, isValid, "Address should be at least 5 characters.");
+            //});
+
+            //$('#Remark').on('input blur', function () {
+            //    const isValid = this.value.trim().length >= 3;
+            //    showValidation(this, isValid, "Remark should be at least 3 characters.");
+            //});
+
+            // Form submission validation
+            $('#employeeForm').on('submit', function (e) {
+                $(this).find('input, select').trigger('blur');
+
+                if ($(this).find('.is-invalid').length > 0) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Validation Error!',
+                        text: 'Please fix validation errors before submitting.',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                    return;
+                }
+
+                if ($('#comboTable tbody tr').length === 0) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Missing Information!',
+                        text: 'Please add at least one Establishment Type - Department - Section - Designation combination.',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                    return;
+                }
+
+                // Update hidden field before submission
+                updateHiddenField();
+
+                // Disable button and show spinner
+                var $btn = $('#employeeForm input[type="submit"]');
+                var originalVal = $btn.val();
+                $btn.prop('disabled', true);
+                $btn.val('Processing...');
+                $btn.css({'opacity': '0.7', 'cursor': 'not-allowed'});
+            });
+        });
+    </script>
+}
+
+
+
+

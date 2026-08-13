@@ -1,0 +1,3978 @@
+@model System.Data.DataTable
+
+@{
+    ViewBag.Title = "Noting_Page";
+    Layout = "~/Views/Shared/_LayoutNew.cshtml";
+
+    var mergedDocsJson = Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.MergedDocs); // for sending it to controller
+
+    var attachedDocs = ViewBag.AttachedDocs as System.Data.DataTable;
+
+    var filedt = ViewBag.Filedt as System.Data.DataTable;
+
+    var docCode = "";
+
+    if (attachedDocs != null && attachedDocs.Rows.Count > 0)
+    {
+        docCode = attachedDocs.Rows[0]["Doc_Code"].ToString();
+    }
+}
+
+<style>
+
+
+    .custom-attachment-btn {
+        background-color: white;
+        color: black;
+        border: 1px solid black;
+        transition: 0.3s;
+    }
+
+        .custom-attachment-btn:hover {
+            background-color: #007bff; /* Bootstrap blue */
+            color: white;
+            border-color: #007bff;
+        }
+    /* Flipbook Fullscreen Container */
+    .flipbook-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: #525252;
+        display: none;
+        overflow: hidden;
+        z-index: 9999;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+
+        .flipbook-container.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+        }
+
+    /* Hide body scrollbar when flipbook is active */
+    body.flipbook-active {
+        overflow: hidden !important;
+    }
+
+
+    /*.page-wrapper {
+        width: 100% !important;
+        height: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: white !important;
+    }
+
+    .page-wrapper canvas {
+        max-width: 100% !important;
+        max-height: 100% !important;
+        width: auto !important;
+        height: auto !important;
+        display: block !important;
+    }*/
+
+    /* Page indicator at top */
+    .flipbook-page-indicator-top {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10001;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 10px 25px;
+        border-radius: 25px;
+        font-size: 18px;
+        font-weight: 600;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    /* Close button for fullscreen */
+    .flipbook-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 10001;
+        background: rgba(187, 30, 61, 0.95);
+        color: white;
+        border: none;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        transition: all 0.3s ease;
+    }
+
+        .flipbook-close:hover {
+            transform: scale(1.1);
+            background: #8B1530;
+        }
+
+    /* ============================================
+       FLIPBOOK CSS - Using Content/flipbook/magazine.css
+       The magazine.css file contains all the necessary styles
+       ============================================ */
+
+    /* Loader styles - Override magazine.css loader */
+    .magazine-viewport .loader {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        z-index: 10002 !important;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        width: auto !important;
+        height: auto !important;
+        background-image: none !important;
+        margin: 0 !important;
+    }
+
+        .magazine-viewport .loader::before {
+            content: '';
+            width: 60px;
+            height: 60px;
+            border: 6px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #BB1E3D;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .magazine-viewport .loader::after {
+            content: 'Loading Flipbook...';
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+    @@keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Magazine viewport should fill the flipbook container */
+    .flipbook-container .magazine-viewport {
+        position: absolute;
+        width: 100%;
+        height: calc(100% - 80px);
+        top: 0;
+        left: 0;
+        overflow: hidden;
+    }
+
+    /* Container positioning - centered, allows zoom */
+    .magazine-viewport .container {
+        position: absolute;
+        width: auto;
+        height: auto;
+        margin: 0;
+        top: 50%;
+        left: 50%;
+        transform-origin: center center;
+    }
+
+    /* Magazine positioning - Turn.js will handle autoCenter */
+    .magazine-viewport .magazine {
+        position: relative;
+        margin: 0;
+        display: block;
+        z-index: 2;
+    }
+
+    /* Page dimensions - will be calculated by Turn.js */
+    .magazine-viewport .page {
+        background-color: white;
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+    }
+
+    /* Enhanced shadows for realistic book crease */
+    .magazine-viewport .turn-page {
+        box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    }
+
+    /* Left page (even) - shadow on right edge */
+    .magazine-viewport .even .turn-page {
+        box-shadow: inset -10px 0 20px -8px rgba(0,0,0,0.4), 0 0 20px rgba(0,0,0,0.2);
+    }
+
+    /* Right page (odd) - shadow on left edge */
+    .magazine-viewport .odd .turn-page {
+        box-shadow: inset 10px 0 20px -8px rgba(0,0,0,0.4), 0 0 20px rgba(0,0,0,0.2);
+    }
+
+    /* Center crease shadow effect */
+    .magazine-viewport .magazine::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 0;
+        width: 8px;
+        height: 100%;
+        background: linear-gradient(to right, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.2) 100% );
+        transform: translateX(-50%);
+        z-index: 1000;
+        pointer-events: none;
+        box-shadow: 0 0 15px rgba(0,0,0,0.4);
+    }
+
+    /* Hide crease when showing single page (cover) */
+    .magazine-viewport .magazine.turn-page-1::before {
+        display: none;
+    }
+
+    /* Blank page styling */
+    .blank-page {
+        background: linear-gradient(to right, #fefefe 0%, #ffffff 100%);
+    }
+
+    /* Hard cover pages - thicker appearance */
+    .hard-cover-front,
+    .hard-cover-back {
+        position: relative;
+    }
+
+        .hard-cover-front::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 8px;
+            height: 100%;
+            background: linear-gradient(to right, transparent, rgba(0,0,0,0.3));
+            pointer-events: none;
+        }
+
+        .hard-cover-back::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 8px;
+            height: 100%;
+            background: linear-gradient(to left, transparent, rgba(0,0,0,0.3));
+            pointer-events: none;
+        }
+
+    /* Responsive scaling for smaller screens */
+    @@media (max-width: 1280px) or (max-height: 920px) {
+        .magazine-viewport .container {
+            transform: translate(-50%, -50%) scale(0.8);
+        }
+    }
+
+    @@media (max-width: 1024px) or (max-height: 768px) {
+        .magazine-viewport .container {
+            transform: translate(-50%, -50%) scale(0.65);
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .magazine-viewport .container {
+            transform: translate(-50%, -50%) scale(0.5);
+        }
+    }
+
+    /* Page dimensions - will be set by Turn.js */
+    .magazine-viewport .page {
+        background-color: white;
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+    }
+
+    /* COMMENTED OUT - Using magazine.css instead
+
+    /* Book container - centered with book-like proportions */
+    /*
+    .flipbook-book-wrapper {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 1230px;
+        height: 870px;
+        margin: -435px 0 0 -615px;
+        perspective: 2000px;
+    }
+
+    .flipbook-magazine {
+        width: 1230px;
+        height: 870px;
+        position: relative !important;
+        left: 0 !important;
+        top: 0 !important;
+        z-index: 2;
+    }
+
+    .flipbook-magazine .turn-page {
+        width: 615px;
+        height: 870px;
+        background-color: white;
+        box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    }
+    */
+
+    /* END COMMENTED OUT CSS */
+
+    /* Book pages container */
+    #flipbook-pages {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        box-shadow: none;
+        border-radius: 5px;
+        overflow: visible;
+        background: transparent;
+        transform-style: preserve-3d;
+    }
+
+        /* Hide white background when single page */
+        #flipbook-pages.single-page-view {
+            background: transparent;
+            box-shadow: none;
+        }
+
+        /* Book spine effect - hide on single page */
+        #flipbook-pages::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to right, rgba(0,0,0,0.2), transparent);
+            transform: translateX(-50%);
+            z-index: 5;
+        }
+
+        #flipbook-pages.single-page-view::before {
+            display: none;
+        }
+
+    /* Flipbook Controls Bar - At the bottom */
+    .flipbook-controls {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 10000;
+        background: rgba(40, 40, 40, 0.95);
+        padding: 15px 30px;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        backdrop-filter: blur(10px);
+    }
+
+    @@media (max-width: 768px) {
+        .flipbook-controls {
+            padding: 12px 15px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+    }
+
+    .flipbook-btn {
+        background: #f5f5f5;
+        color: #333;
+        border: none;
+        width: 45px;
+        height: 45px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+        .flipbook-btn:hover:not(:disabled) {
+            background: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .flipbook-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .flipbook-btn.play-pause {
+            width: 55px;
+            height: 55px;
+            font-size: 22px;
+            background: #BB1E3D;
+            color: white;
+        }
+
+            .flipbook-btn.play-pause:hover:not(:disabled) {
+                background: #8B1530;
+            }
+
+    @@media (max-width: 768px) {
+        .flipbook-btn {
+            width: 38px;
+            height: 38px;
+            font-size: 16px;
+        }
+
+            .flipbook-btn.play-pause {
+                width: 48px;
+                height: 48px;
+                font-size: 20px;
+            }
+    }
+
+    .page-indicator {
+        color: white;
+        font-weight: 600;
+        font-size: 16px;
+        min-width: 100px;
+        text-align: center;
+        padding: 0 20px;
+    }
+
+    .flipbook-speed {
+        color: white;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    @@media (max-width: 768px) {
+        .page-indicator {
+            font-size: 14px;
+            min-width: 80px;
+            padding: 0 10px;
+        }
+
+        .flipbook-speed {
+            font-size: 12px;
+            gap: 8px;
+        }
+    }
+
+    .speed-slider {
+        width: 80px;
+        height: 6px;
+        border-radius: 3px;
+        background: rgba(255,255,255,0.3);
+        outline: none;
+        cursor: pointer;
+    }
+
+        .speed-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+
+    .note-editor.note-frame {
+        border: 1px solid #ddd;
+    }
+
+    .note-editable {
+        min-height: 500px;
+        max-height: 500px;
+        overflow-y: auto !important;
+    }
+
+
+    .page {
+        position: absolute;
+        width: 50%;
+        height: 100%;
+        background: white;
+        box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        transform-style: preserve-3d;
+        overflow: hidden;
+        backface-visibility: hidden;
+        transition: box-shadow 0.3s ease;
+        cursor: crosshair;
+    }
+
+    /* Turn.js page styles */
+    .flipbook-magazine {
+        width: 100%;
+        height: 100%;
+        position: relative !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        margin: 0 auto !important;
+    }
+
+        .flipbook-magazine .turn-page {
+            background-color: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+
+        .flipbook-magazine .page-wrapper {
+            width: 100%;
+            height: 100%;
+            background: white;
+        }
+
+            .flipbook-magazine .page-wrapper canvas {
+                width: 100%;
+                height: 100%;
+                display: block;
+            }
+
+        .flipbook-magazine .gradient {
+            display: none;
+        }
+
+        .flipbook-magazine .loader {
+            background-image: url('data:image/gif;base64,R0lGODlhFgAWAIABAP///wAAACH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgABACwAAAAAFgAWAAACKYyPqcvtD6OctNqLs968+w+G4kiW5omm6sq27gvH8kzX9o3n+s73/g8MCgA7');
+            width: 22px;
+            height: 22px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin: -11px 0 0 -11px;
+        }
+
+    .page::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to right, rgba(0,0,0,0.05) 0%, transparent 10%);
+        pointer-events: none;
+    }
+
+    .page:hover {
+        z-index: 100;
+    }
+
+    .page-left {
+        left: 0;
+        z-index: 2;
+        transform-origin: right center;
+        box-shadow: inset -5px 0 10px rgba(0,0,0,0.1);
+    }
+
+        .page-left::after {
+            right: 0;
+            background: linear-gradient(to left, rgba(0,0,0,0.05) 0%, transparent 10%);
+        }
+
+    .page-right {
+        left: 50%;
+        z-index: 1;
+        transform-origin: left center;
+        box-shadow: inset 5px 0 10px rgba(0,0,0,0.1);
+    }
+
+    /* Center single page when it's the only one */
+    .page-left.single-page {
+        left: 25%;
+        z-index: 2;
+        box-shadow: 0 0 30px rgba(0,0,0,0.3);
+    }
+
+    /* Zoom Lens */
+    .zoom-lens {
+        display: none !important;
+    }
+
+        .zoom-lens canvas {
+            display: none !important;
+        }
+
+    .page:hover .zoom-lens {
+        display: none !important;
+    }
+
+    .page-left {
+        left: 0;
+        z-index: 2;
+        transform-origin: right center;
+    }
+
+    .page-right {
+        left: 50%;
+        z-index: 1;
+        transform-origin: left center;
+    }
+
+    /* Center single page when it's the only one */
+    .page-left.single-page {
+        left: 25%;
+        z-index: 2;
+    }
+
+    .page-left.turning-left {
+        animation: turnPageLeft 1.2s cubic-bezier(0.645, 0.045, 0.355, 1) forwards;
+        z-index: 10;
+    }
+
+    .page-right.turning-right {
+        animation: turnPageRight 1.2s cubic-bezier(0.645, 0.045, 0.355, 1) forwards;
+        z-index: 10;
+    }
+
+    @@keyframes turnPageRight {
+        0% {
+            transform: rotateY(0deg);
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+
+        50% {
+            transform: rotateY(-90deg);
+            box-shadow: -30px 0 50px rgba(0,0,0,0.4);
+        }
+
+        100% {
+            transform: rotateY(-180deg);
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+    }
+
+    @@keyframes turnPageLeft {
+        0% {
+            transform: rotateY(0deg);
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+
+        50% {
+            transform: rotateY(90deg);
+            box-shadow: 30px 0 50px rgba(0,0,0,0.4);
+        }
+
+        100% {
+            transform: rotateY(180deg);
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+    }
+
+    .page canvas {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+    }
+
+    /* Responsive adjustments */
+    @@media (max-width: 992px) {
+        .flipbook-book-wrapper {
+            width: 98%;
+            height: 70%;
+        }
+
+        .cover-page {
+            font-size: 14px;
+        }
+
+
+        .department-logo {
+            width: 100px;
+            margin-bottom: 20px;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .flipbook-controls {
+            flex-wrap: wrap;
+            padding: 8px 12px;
+            gap: 8px;
+        }
+
+        .flipbook-btn {
+            width: 32px;
+            height: 32px;
+            font-size: 12px;
+        }
+
+            .flipbook-btn.play-pause {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+
+        .page-indicator {
+            font-size: 11px;
+            min-width: 50px;
+        }
+
+        .flipbook-speed {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+    /* Hide PDF viewer when flipbook is shown */
+    #pdfViewer.hidden {
+        display: none;
+    }
+
+
+
+    /* Cover page (centered before opening) */
+    .cover-page {
+        position: absolute;
+        width: 50%;
+        height: 100%;
+        left: 25%;
+        background: linear-gradient(135deg, #BB1E3D 0%, #8B1530 100%);
+        color: white;
+        text-align: center;
+        padding: 30px 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        z-index: 5;
+        transform-origin: left center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        border-radius: 5px;
+        transform-style: preserve-3d;
+        backface-visibility: visible;
+    }
+
+        .cover-page:hover {
+            transform: scale(1.02);
+            box-shadow: 0 15px 50px rgba(187, 30, 61, 0.5);
+        }
+
+        .cover-page.opened {
+            left: 0;
+            width: 50%;
+        }
+
+        .cover-page.swing-open {
+            animation: swingOpen 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+
+    @@keyframes swingOpen {
+        0% {
+            transform: rotateY(0deg);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        }
+
+        100% {
+            transform: rotateY(-165deg);
+            box-shadow: -30px 0 50px rgba(0,0,0,0.5);
+        }
+    }
+
+    .cover-content {
+        width: 85%;
+        max-height: 100%;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .cover-content table {
+            font-size: 14px !important;
+            margin-top: 20px !important;
+        }
+
+        .cover-content h2 {
+            font-size: 20px !important;
+            margin: 5px 0 !important;
+        }
+
+        .cover-content h3 {
+            font-size: 16px !important;
+            margin: 5px 0 !important;
+        }
+
+    .department-logo {
+        width: 120px;
+        height: auto;
+        margin-bottom: 20px;
+    }
+
+    .department-name {
+        font-size: 28px;
+        margin-bottom: 15px;
+    }
+
+    .section-name {
+        font-size: 20px;
+        margin-bottom: 30px;
+    }
+
+    .document-info {
+        margin-top: 30px;
+        font-size: 16px;
+    }
+
+    /* Hard cover page styles for Turn.js */
+    .hard-cover-page {
+        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%) !important;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hard-cover-front {
+        position: relative;
+        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        box-shadow: inset -5px 0 15px rgba(0,0,0,0.4), 5px 0 20px rgba(0,0,0,0.5);
+    }
+
+    .hard-cover-texture {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: repeating-linear-gradient( 90deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px ), repeating-linear-gradient( 0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px );
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .hard-cover-page .cover-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Enhanced book crease/spine shadow for Turn.js */
+    .flipbook-magazine .turn-page {
+        box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    }
+
+    /* Left page shadow (right edge) */
+    .flipbook-magazine .even .turn-page {
+        box-shadow: inset -7px 0 15px -5px rgba(0,0,0,0.3), 0 0 20px rgba(0,0,0,0.2);
+    }
+
+    /* Right page shadow (left edge) */
+    .flipbook-magazine .odd .turn-page {
+        box-shadow: inset 7px 0 15px -5px rgba(0,0,0,0.3), 0 0 20px rgba(0,0,0,0.2);
+    }
+
+    /* Center crease effect */
+    .flipbook-magazine::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 0;
+        width: 6px;
+        height: 100%;
+        background: linear-gradient(to right, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.15) 100% );
+        transform: translateX(-50%);
+        z-index: 1000;
+        pointer-events: none;
+        box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+
+    /* Hide crease when showing single page (cover) */
+    .flipbook-magazine.turn-page-single::before {
+        display: none;
+    }
+
+
+
+    /*Notings*/
+
+    /* Modern Card */
+    /* .au-card-modern {
+        background: #fcfcfc;
+        border-radius: 16px;
+        box-shadow: 0 4px 32px 0 rgba(80, 90, 120, 0.08);
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }*/
+
+    .au-card-header-modern {
+        background: linear-gradient(90deg, #2563eb 0%, #38bdf8 100%);
+        color: #fff;
+        font-size: 1.18rem;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-align: center;
+        padding: 16px 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    /*.au-card-body-modern {
+        padding: 28px 24px 24px 24px;
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+    }*/
+
+    /* Noting Header */
+    .au-noting-header-modern {
+        background: #f3f6fb;
+        border-radius: 10px;
+        padding: 18px 16px;
+        margin-bottom: 2rem;
+        border: 1px solid #e5e7eb;
+    }
+
+    .au-logo-modern {
+        height: 54px;
+        width: auto;
+        margin-right: 18px;
+        border-radius: 6px;
+    }
+
+    .au-noting-header-modern strong {
+        color: #30418c;
+    }
+
+    /* Notes List */
+    /*    .au-note-list-modern {
+        max-height: 260px;
+        overflow-y: auto;
+        background: #f6fef9;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        padding: 12px;
+    }*/
+    /* Only this element should scroll for notes list */
+    .au-note-list-modern {
+        background: #f6fef9;
+        border: 1px solid #e7e7e7;
+        border-radius: 8px;
+        padding: 12px;
+    }
+
+    /* Do NOT set height or overflow on .au-card-modern or .au-card-body-modern */
+    .au-card-modern {
+        background: #fcfcfc;
+        border-radius: 16px;
+        box-shadow: 0 4px 32px 0 rgba(80, 90, 120, 0.08);
+        overflow: hidden;
+    }
+
+    .au-card-body-modern {
+        padding: 20px;
+    }
+
+    .au-note-block-modern {
+        background: #fff;
+        border-radius: 8px;
+        border: 1px solid #e3e6ee;
+        box-shadow: 0 3px 12px rgba(100,140,180,0.08);
+        margin-bottom: 15px;
+        padding: 12px;
+        transition: all 0.3s ease;
+    }
+
+        .au-note-block-modern:hover {
+            box-shadow: 0 5px 20px rgba(100,140,180,0.15);
+            transform: translateY(-2px);
+        }
+
+    .au-empty-notes-modern {
+        text-align: center;
+        color: #b0b6c2;
+        font-size: 1.1rem;
+        padding: 38px 0 30px 0;
+        font-weight: 500;
+    }
+
+    /* Add New Note */
+    .au-add-note-modern {
+        background: #f7fafc;
+        border-radius: 10px;
+        padding: 21px 18px 15px 18px;
+        border: 1px solid #e5e7eb;
+        margin-top: 22px;
+        margin-bottom: 0;
+    }
+
+    .au-add-note-label-modern {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #334155;
+        margin-bottom: 7px;
+        display: flex;
+        align-items: center;
+    }
+
+    .au-note-textarea-modern {
+        min-height: 90px;
+        max-height: 220px;
+        border-radius: 7px;
+        border: 1px solid #cbd5e1;
+        background: #fff;
+        margin-bottom: 10px;
+        font-size: 1em;
+    }
+
+    .gap-2 {
+        gap: 0.5rem;
+    }
+
+    .au-sel-modern {
+        border-radius: 4px;
+        border: 1px solid #d1d5db;
+        background: #f1f5f9;
+        color: #475569;
+        font-size: 1em;
+    }
+
+    /* Buttons */
+    .au-btn-save-modern {
+        background: #22c55e;
+        color: #fff;
+        border-radius: 5px;
+        font-weight: 500;
+    }
+
+    .au-btn-confirm-modern {
+        background: #2563eb;
+        color: #fff;
+        border-radius: 5px;
+        font-weight: 500;
+    }
+
+    .au-btn-reset-modern {
+        background: #f87171;
+        color: #fff;
+        border-radius: 5px;
+        font-weight: 500;
+    }
+
+    .au-btn-save-modern:hover {
+        background: #16a34a;
+    }
+
+    .au-btn-confirm-modern:hover {
+        background: #1e40af;
+    }
+
+    .au-btn-reset-modern:hover {
+        background: #dc2626;
+    }
+    /* CKEditor should have a scrollbar when content grows */
+    .ck-editor__editable {
+        min-height: 220px;
+        max-height: 220px; /* Or whatever you like */
+        overflow-y: auto !important;
+        box-sizing: border-box;
+        /* Remove vertical resizing by user if you want fixed scroll instead of resize */
+        resize: none !important;
+    }
+
+    /* Optional: Remove outer card's scroll for the left column */
+    .col-md-6 {
+        overflow: visible !important;
+        height: auto !important;
+    }
+
+    .note-frame {
+        width: 100%;
+        min-height: 300px;
+        height: auto !important;
+        overflow: hidden;
+        border: none;
+        background-color: #f8f9fa;
+        font-family: 'Source Sans Pro', sans-serif;
+        display: block;
+    }
+
+    @@media (max-width: 991px) {
+        .au-card-body-modern {
+            padding: 14px 10px 16px 10px;
+        }
+
+        @@media (max-width: 991px) {
+            .au-note-list-modern {
+                max-height: 300px; /* or higher */
+            }
+        }
+    }
+
+    #highlight-canvas {
+        background: transparent;
+        pointer-events: none; /* Disabled except in highlight mode */
+    }
+
+
+    .draft-highlight {
+        border: 2px solid #f1c40f !important;
+        border-radius: 4px;
+    }
+
+    .draft-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        background: #f39c12;
+        color: #fff;
+        font-size: 12px;
+        font-weight: bold;
+        border-radius: 3px;
+        margin-bottom: 5px;
+    }
+
+    /* Draft Indicator - Prominent and Blinking */
+    .draft-indicator {
+        position: fixed;
+        top: 120px;
+        right: 20px;
+        z-index: 1000;
+        background: linear-gradient(135deg, #f39c12, #e67e22);
+        color: #fff;
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(243, 156, 18, 0.4);
+        font-weight: bold;
+        font-size: 14px;
+        display: none;
+        animation: pulse-glow 2s infinite;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+
+        .draft-indicator:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.6);
+        }
+
+        .draft-indicator i {
+            margin-right: 8px;
+            font-size: 18px;
+            animation: bounce 1s infinite;
+        }
+
+    @@keyframes pulse-glow {
+        0%, 100% {
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.4);
+            opacity: 1;
+        }
+
+        50% {
+            box-shadow: 0 4px 25px rgba(243, 156, 18, 0.8);
+            opacity: 0.9;
+        }
+    }
+
+    @@keyframes bounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-5px);
+        }
+    }
+
+    /* Mobile responsive */
+    @@media (max-width: 768px) {
+        .draft-indicator {
+            top: 80px;
+            right: 10px;
+            padding: 10px 15px;
+            font-size: 12px;
+        }
+    }
+
+    /* Hide the powered-by CKEditor branding balloon */
+    .ck.ck-balloon-panel {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+
+    @@font-face {
+        font-family: 'KrutiDev010';
+        src: url('/fonts/Kruti_Dev_010_Regular.ttf') format('truetype');
+    }
+
+    .ck-content.kruti-dev {
+        font-family: 'KrutiDev010', Arial, sans-serif !important;
+        font-size: 18px;
+    }
+
+
+    #attachmentTable thead th {
+        position: sticky;
+        top: 0;
+        background: #fff;
+        z-index: 2;
+    }
+</style>
+
+<!-- Draft Indicator - Fixed Position -->
+<div id="draftIndicator" class="draft-indicator" onclick="loadDraftNoting()">
+    <i class="fa fa-file-alt"></i>
+    <span>Draft Saved! Click to Load</span>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="header mb-3">
+            <div class="row align-items-center">
+                <div class="col-sm-10">
+                    @*<h4>&nbsp;&nbsp;Noting Details</h4>*@
+                </div>
+                <div class="col-sm-2 text-right">
+                    <button type="button" onclick="window.history.back();" class="btn btn-sx bg-teal waves-effect" title="Go Back To Previous Page">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Go Back</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full-width Colored Tabs -->
+        <div class="card card-primary card-outline card-tabs">
+            <div class="card-header p-0 border-bottom-0">
+                <ul class="nav nav-tabs nav-fill" id="noting-tabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active text-info" id="tab-noting" data-toggle="pill" href="#pane-noting" role="tab"><i class="fa fa-edit"></i> Noting Details</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-success" id="tab-transfer" data-toggle="pill" href="#pane-transfer" role="tab"><i class="fa fa-exchange-alt"></i> File Transfer</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-primary" id="tab-history" data-toggle="pill" href="#pane-history" role="tab"><i class="fa fa-book-open"></i> Movement History</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="noting-tabs-content">
+                    <!-- Noting Details Tab -->
+                    <div class="tab-pane fade show active" id="pane-noting" role="tabpanel">
+                        <!-- Header Row with Paperclip -->
+                        @*<div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5></h5>
+                                <button class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#attachmentModal" id="btnAttachments">
+                                    <i class="fa fa-paperclip"></i> Add Documents
+                                </button>
+                            </div>*@
+
+                        <div class="row">
+                            <!-- Note Sheet Section -->
+                            <div class="col-md-6 d-flex">
+                                <div class="au-card-modern h-100 w-100 d-flex flex-column">
+                                    @*@*<div class="au-card-header-modern">
+                                            <i class="fa fa-sticky-note"></i> Note Sheet
+                                        </div>*@
+                                    <div class="card-header text-center font-weight-bold text-white" style="background-color: #119AB2;">
+                                        <i class="fa fa-sticky-note"></i> Note Sheet
+                                        <button id="btnPrintNoteSheet" class="btn btn-sm btn-light float-right">
+                                            <i class="fa fa-print"></i> Print
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <!-- Noting Header -->
+                                        <div class="au-noting-header-modern d-flex align-items-center mb-3">
+                                            <img src="~/themeassets/demo.dashboardpack.com/architectui-html-pro/assets/images/logo-inverse.png" alt="Logo" class="au-logo-modern me-3" />
+                                            <div>
+                                                <div>
+                                                    <strong>File No :</strong>
+                                                    <span class="text-danger fw-bold">
+                                                        @(ViewBag.FileCode)
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <strong>Department / Section :</strong>
+                                                    <span class="fw-bold">
+                                                        @(ViewBag.DepSecName)
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Existing Notes -->
+                                        <div id="notingContainer" class="au-note-list-modern mb-3 flex-grow-1" style="max-height: 450px; overflow-y: auto;">
+                                            @if (Model != null && Model.Rows.Count > 0)
+                                            {
+                                                foreach (System.Data.DataRow row in Model.Rows)
+                                                {
+                                                    <div class="au-note-block-modern">
+                                                        <div class="note-wrapper">
+                                                            <iframe class="note-frame bg-light" style="width: 100%; height: 300px; background-color: #D4DD7A; font-family: Source Sans Pro; overflow: auto; border: none; border-radius: 6px;"></iframe>
+                                                        </div>
+                                                        <script>
+                                                            (function() {
+                                                                var noteHtml = @Html.Raw(Json.Encode(row["Note_Desc"].ToString()));
+                                                                var iframeList = document.querySelectorAll(".note-frame");
+                                                                var el = iframeList[iframeList.length - 1];
+                                                                var doc = el.contentDocument || el.contentWindow.document;
+
+                                                                doc.open();
+                                                                doc.write(`<body style="background-color:#D4DD7A; padding:10px; margin:0;">${noteHtml}</body>`);
+                                                                doc.close();
+
+                                                                // Auto-resize
+                                                                setTimeout(function() {
+                                                                    el.style.height = el.contentWindow.document.body.scrollHeight + 'px';
+                                                                }, 50);
+
+                                                                doc.addEventListener('click', function (e) {
+                                                                    var a = e.target.closest('a.pdf-ref-link');
+                                                                    if (a) {
+                                                                        e.preventDefault();
+                                                                        window.open(a.href, "_blank");
+                                                                    }
+                                                                });
+                                                            })();
+                                                        </script>
+
+                                                    </div>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <div class="au-empty-notes-modern">No notings are saved yet. Saved notes will appear here if any.</div>
+                                            }
+                                        </div>
+                                        <!-- Add New Note -->
+                                        @*<form method="post" class="au-add-note-modern no-print mb-0">*@
+                                        @*@Html.AntiForgeryToken()*@
+                                        @*<input type="hidden" name="fileNo" value="@(Model.Rows.Count > 0 ? Model.Rows[0]["File_Code"].ToString() : "")" />
+                                            <input type="hidden" name="docCode" value="@(Model.Rows.Count > 0 ? Model.Rows[0]["Doc_Code"].ToString() : "")" />*@
+
+                                        <div class="card">
+
+                                            <div class="card-header">
+                                                <h3 class="card-title"><span class="me-2"></span> Add New Note</h3>
+                                                <div class="card-tools">
+                                                    <button type="button" class="btn btn-tool" data-card-widget="maximize">
+                                                        <i class="fas fa-expand"></i>
+                                                    </button>
+                                                </div>
+
+                                            </div>
+
+                                            <div class="card-body">
+                                                <div class="form-group mb-2">
+
+                                                    @*<label for="noteText" class="au-add-note-label-modern">
+                                                            <span class="me-2">✍</span> Add New Note
+                                                        </label>*@
+                                                    <div id="draftBadgeContainer"></div>
+                                                    <textarea id="noteText" name="noteText" class="form-control au-note-textarea-modern"></textarea>
+                                                </div>
+                                                <div class="d-flex flex-wrap gap-2 align-items-center">
+                                                    <select id="ActionType" class="form-control au-sel-modern me-2" style="max-width:170px;" name="ActionType">
+                                                        <option value="">--Choose--</option>
+                                                        <option value="draft">Save as Draft</option>
+                                                        <option value="final">Save as Final</option>
+                                                    </select>
+                                                    @*<button type="submit" class="btn au-btn-save-modern me-2">💾 Save Note</button>*@
+                                                    <button type="submit" class="btn au-btn-confirm-modern me-2" id="btnConfirm">Confirm</button>
+                                                    <button type="reset" class="btn au-btn-reset-modern" id="btnNotingReset">Reset</button>
+                                                    @*<button type="button" class="btn btn-secondary me-2" id="btnShowDraft">Show Draft</button>*@
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                        @*</form>*@
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Attachment Sheet Section -->
+                            <div class="col-md-6 d-flex">
+                                <div class="card h-100 w-100 d-flex flex-column">
+
+                                    @*<div class="card-header bg-primary text-center font-weight-bold text-white">
+                                            <i class="fa fa-paperclip"></i> Attachment Sheet
+                                        </div>*@
+                                    @*<div class="card-header text-center font-weight-bold text-white" style="background-color: #119AB2;">
+                                            <i class="fa fa-paperclip"></i> Attachment Sheet
+                                            <button id="btnPrintAttachment" class="btn btn-sm btn-light float-right">
+                                                <i class="fa fa-print"></i> Print
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-primary float-right" data-toggle="modal" data-target="#attachmentModal" id="btnAttachments">
+                                                <i class="fa fa-paperclip"></i> Add Documents
+                                            </button>
+                                        </div>*@
+
+                                    <div class="card-header text-center font-weight-bold text-white" style="background-color: #119AB2;">
+                                        <i class="fa fa-paperclip"></i> Attachment Sheet
+                                        <button id="btnPrintAttachment" class="btn btn-sm btn-light float-right">
+                                            <i class="fa fa-print"></i> Print
+                                        </button>
+                                        <!-- Header Row with Paperclip -->
+
+                                        <button class="btn btn-sm custom-attachment-btn" data-toggle="modal" data-target="#attachmentModal" id="btnAttachments" style="margin-left:35%;">
+                                            <i class="fa fa-paperclip"></i> Add Documents
+                                        </button>
+
+                                    </div>
+                                    <div class="card-body d-flex flex-column" style="height: 100%;">
+                                        <div class="form-row align-items-end">
+                                            <!-- Document Dropdown -->
+                                            <div class="form-group col-md-6">
+                                                <label for="ddlDocuments">Select Document:</label>
+                                                @Html.DropDownList("ddlMergedDoc", ViewBag.MergedDocs as List<SelectListItem>,
+                                                    new { @class = "form-control", id = "ddlMergedDoc" })
+                                            </div>
+
+                                            <!-- Page Number Input -->
+                                            <div class="form-group col-md-2">
+                                                <label for="txtPageNumber">Page No:</label>
+                                                <input type="number" id="txtPageNumber" class="form-control" placeholder="Enter page number" min="1" max="100" />
+                                            </div>
+
+                                            <!-- OK Button -->
+                                            <div class="form-group col-md-2">
+                                                <label class="d-none d-md-block">&nbsp;</label> <!-- for spacing -->
+                                                <button id="btnAddReference" class="btn btn-primary btn-block">
+                                                    OK
+                                                </button>
+                                            </div>
+
+                                            <!-- Flipbook Button -->
+                                            <div class="form-group col-md-2">
+                                                <label class="d-none d-md-block">&nbsp;</label> <!-- for spacing -->
+                                                <button id="toggleFlipbook" class="btn btn-block" style="background-color: #D12529; color: white; border: none;" title="View as Flipbook">
+                                                    <i class="fas fa-book-open"></i>
+                                                </button>
+                                            </div>
+
+                                        </div>
+
+                                        <!-- Optional: Show selected document info -->
+                                        <div id="docInfo" class="mt-3"></div>
+
+                                        <!-- PDF Viewer -->
+                                        <div id="pdfViewer" class="mt-3 flex-grow-1" style="min-height: 450px;">
+                                            <iframe id="pdfFrame" name="pdfFrame" src="" width="100%" height="100%" style="border: 1px solid #ddd; border-radius: 8px;"></iframe>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Flipbook Container (Fullscreen) -->
+                        <div class="flipbook-container">
+                            <!-- Page Indicator at Top -->
+                            <div class="flipbook-page-indicator-top">
+                                <span id="top-current-page">0</span> / <span id="top-total-pages">0</span>
+                            </div>
+
+                            <!-- Close Button -->
+                            <button class="flipbook-close" id="flipbook-close" title="Close Flipbook">
+                                <i class="fas fa-times"></i>
+                            </button>
+
+                            <!-- Book Wrapper - Using magazine.css structure -->
+                            <div class="magazine-viewport">
+                                <!-- Loader -->
+                                <div class="loader" id="flipbook-loader"></div>
+
+                                <div class="container" style="opacity: 0; transition: opacity 0.5s ease;">
+                                    <!-- Cover Page - HIDDEN, only used for cloning content -->
+                                    <div class="page cover-page" id="flipbook-cover" style="display: none;">
+                                        <div class="cover-content">
+                                            <img src="~/theme/dist/img/logo-inverse.png" alt="Department Logo" class="department-logo" />
+
+                                            @if (filedt != null && filedt.Rows.Count > 0)
+                                            {
+                                                var row = filedt.Rows[0];
+
+                                                <h2 style="margin:5px 0; font-size:20px; font-weight:bold;">@row["Dep_Name"]</h2>
+                                                <h3 style="margin:5px 0; font-size:16px; font-weight:normal; color:#eee;">@row["Section"]</h3>
+                                                <h3 style="margin:5px 0; font-size:16px; color:yellow; font-weight:bold;">File No: @ViewBag.FileCode</h3>
+
+                                                <table style="width:100%; margin-top:20px; border-collapse:collapse; font-size:13px;">
+                                                    <tr>
+                                                        <td style="padding:6px; text-align:left; width:50%;"><strong>File Category:</strong> @row["FileCat_Name"]</td>
+                                                        <td style="padding:6px; text-align:left; width:50%;"><strong>Sub Category:</strong> @row["FileSubCat_Name"]</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="padding:6px; text-align:left;"><strong>Description:</strong> @row["File_Desc"]</td>
+                                                        <td style="padding:6px; text-align:left;"><strong>Priority:</strong> @row["DocPrior_Name"]</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="padding:6px; text-align:left;"><strong>Created By:</strong> @row["Name"]</td>
+                                                        <td style="padding:6px; text-align:left;">
+                                                            <strong>Date:</strong> @row["date"] / @row["time"]
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            }
+                                            else
+                                            {
+                                                <p>No file details found.</p>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <!-- Flipbook Pages Container (OLD - kept for reference) -->
+                                    <div id="flipbook-pages" style="display:none;"></div>
+
+                                    <!-- Turn.js Magazine Container -->
+                                    <div id="flipbook-magazine" class="magazine" style="display:none; opacity: 0;"></div>
+                                </div>
+                            </div>
+
+                            <!-- Enhanced Navigation Controls -->
+                            <div class="flipbook-controls">
+                                <button class="flipbook-btn" id="flipbook-first" title="First Page">
+                                    <i class="fas fa-step-backward"></i>
+                                </button>
+                                <button class="flipbook-btn" id="flipbook-prev" title="Previous Page">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <button class="flipbook-btn play-pause" id="flipbook-play" title="Auto Play">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                                <div class="page-indicator">
+                                    <span id="current-page">0</span> / <span id="total-pages">0</span>
+                                </div>
+                                <button class="flipbook-btn" id="flipbook-next" title="Next Page">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                                <button class="flipbook-btn" id="flipbook-last" title="Last Page">
+                                    <i class="fas fa-step-forward"></i>
+                                </button>
+                                <button class="flipbook-btn" id="flipbook-zoom-out" title="Zoom Out">
+                                    <i class="fas fa-search-minus"></i>
+                                </button>
+                                <button class="flipbook-btn" id="flipbook-zoom-in" title="Zoom In">
+                                    <i class="fas fa-search-plus"></i>
+                                </button>
+                                <button class="flipbook-btn" id="flipbook-fullscreen" title="Toggle Fullscreen">
+                                    <i class="fas fa-expand"></i>
+                                </button>
+                                <div class="flipbook-speed">
+                                    <i class="fas fa-tachometer-alt"></i>
+                                    <input type="range" class="speed-slider" id="flipbook-speed" min="1" max="5" value="3" title="Playback Speed">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--Flipbook code end here -->
+
+                    </div>
+
+                    <!-- File Transfer Tab -->
+                    <div class="tab-pane fade" id="pane-transfer" role="tabpanel">
+
+                        <!-- Nested Tabs for File Transfer -->
+                        <ul class="nav nav-tabs nav-fill mb-3" id="file-transfer-tabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active bg-secondary text-white" id="tab-file-move" data-toggle="pill" href="#pane-file-move" role="tab">
+                                    File Movement
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link  bg-warning text-dark" id="tab-internal" data-toggle="pill" href="#pane-internal" role="tab">
+                                    Internal Movement
+                                </a>
+                            </li>
+
+                        </ul>
+
+                        <div class="tab-content" id="file-transfer-tabs-content">
+                            <!-- Internal Movement Content -->
+                            <div class="tab-pane fade" id="pane-internal" role="tabpanel">
+                                <div class="p-3 border rounded">
+                                    <div class="form-row mb-3">
+                                        <div class="col-md-6">
+                                            <label>Forward To:</label>
+                                            @Html.DropDownList("InternalForwardOfficers", new SelectList(ViewBag.InternalMovementOfficers as List<SelectListItem>, "Value", "Text"), "--Select--", new { @class = "form-control mb-3", id = "ddlForwardToInternal" })
+
+                                            <button class="btn btn-success mt-2" id="btnSendInternal">Send for Internal Movement</button>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <!-- File Movement Content -->
+                            <div class="tab-pane fade show active" id="pane-file-move" role="tabpanel">
+                                <div class="p-3 border rounded">
+                                    <div class="form-row mb-3">
+                                        <div class="col-md-3">
+                                            <label>Establishment Type:</label>
+                                            @Html.DropDownList("Type_", new SelectList(ViewBag.EstTypeList as List<SelectListItem>, "Value", "Text"), "--Select--", new { @class = "form-control mb-3", id = "ddlEstablishmentType" })
+
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label>Department:</label>
+                                            <select id="ddlDepartment" name="Dep_Code" class="form-control mb-3">
+                                                <option value="">--Select--</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label>Section:</label>
+                                            <select name="Sec_Code" id="ddlSection" class="form-control mb-3">
+                                                <option value="">--Select--</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label>Forwarded To:</label>
+                                            <select id="ddlForwardTo" class="form-control mb-3">
+                                                <option value="">--Select--</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div id="divRemark" class="form-row mb-3">
+
+                                        <div class="col-md-3">
+                                            <label>Remark:</label>
+                                            <select name="ddlRemarkType" id="ddlRemarkType" class="form-control mb-3">
+                                                <option value="">Select</option>
+                                                <option value="3">Others</option>
+                                                <option value="1">Administrative Approval</option>
+                                                <option value="4">Administrative And Financial Approval</option>
+                                                <option value="2">Financial Approval</option>
+                                                <option value="5">Direction</option>
+                                                <option value="6">Payment</option>
+                                                <option value="7">Reimbursement</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <textarea id="txtRemark" placeholder="Enter Remark..." rows="3" style="resize:none;" class="form-control"></textarea>
+                                        </div>
+
+
+                                    </div>
+
+                                    <div class="form-row mb-3">
+
+
+                                        @if (ViewBag.IsApprovalAuthority == true && ViewBag.HasAlreadyActioned == false)
+                                        {
+                                            <div class="form-check col-md-12 ml-3 mt-2" id="divCheckApproved">
+                                                <input type="checkbox" class="form-check-input" id="chkApprovedInternal" />
+                                                <label class="form-check-label">Are you sure you want to forward this file as approved?</label>
+                                            </div>
+                                        }
+
+
+
+
+                                        <div class="mt-3">
+                                            <button class="btn btn-primary" id="btnForward">Forward</button>
+                                            <button class="btn btn-warning" id="btnRevert">Revert</button>
+                                            @if (ViewBag.IsApprovalAuthority == true && ViewBag.HasAlreadyActioned == false)
+                                            {
+                                                <button class="btn btn-success" id="btnApprovedRevert">Approved & Revert</button>
+                                            }
+                                            <button class="btn btn-danger" id="btnReset">Reset</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Movement History Tab -->
+                    <div class="tab-pane fade" id="pane-history" role="tabpanel">
+                        <!-- Loader -->
+                        <div id="historyLoader" class="text-center my-5" style="display:none;">
+                            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <p class="mt-3 text-muted">Loading movement history...</p>
+                        </div>
+
+                        <div class="table-responsive" id="historyTableContainer" style="max-height: 500px; overflow-y: auto; display: block;">
+                            <table class="table table-bordered table-striped" id="historyTable">
+                                <thead style="position: sticky; top: 0; background-color: #fff; z-index: 10;">
+                                    <tr>
+                                        <th>S.No</th>
+                                        <th>File Number</th>
+                                        <th>Description</th>
+                                        <th>Sent From</th>
+                                        <th>Sent To</th>
+                                        <th>Sent Date/ Time</th>
+                                        <th>Status</th>
+                                        <th>Remark</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="8" style="text-align:center; color: gray; padding: 40px;">
+                                            <i class="fa fa-inbox" style="font-size: 48px; color: #ccc; display: block; margin-bottom: 10px;"></i>
+                                            No records found
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+</section>
+
+<!-- 🔹 Attachment Modal -->
+<div class="modal fade" id="attachmentModal" tabindex="-1" role="dialog" aria-labelledby="attachmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="attachmentModalLabel"><i class="fa fa-paperclip"></i> Add Documents</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-body">
+                    <!-- Loader -->
+                    <div id="attachmentLoader" class="text-center my-3" style="display:none;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                        <p>Loading documents...</p>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="table-responsive" id="attachmentTableWrapper" style="display:none;">
+                        <table class="table table-bordered table-striped" id="attachmentTable">
+                            <thead style="position: sticky;">
+                                <tr>
+                                    <th><input type="checkbox" id="chkSelectAll" /></th>
+                                    <th>S.No</th>
+                                    <th>Doc No</th>
+                                    <th>Doc Type</th>
+                                    <th>Subject</th>
+                                    <th>Reference No</th>
+                                    <th>Received From</th>
+                                    <th>Purpose</th>
+                                    <th>Created Date/Time</th>
+                                    <th>View Document</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnMergeDocs">Merge/ Attach</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Revert dropdown Modal -->
+<!-- Revert Modal -->
+<div class="modal fade" id="revertModal" role="dialog" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title">Revert File</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Select Employee to Revert</label>
+                    <select id="ddlRevertTo" class="form-control col-10"></select>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" id="btnConfirmRevert" class="btn btn-danger">Confirm Revert</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- jQuery is already loaded in _LayoutNew.cshtml, no need to load again -->
+<!-- Summernote is already loaded in _LayoutNew.cshtml -->
+@*<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">*@
+@*<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>*@
+
+
+
+<script>
+    // Global variable - must be declared outside function
+    var ckEditorInstance;
+
+    // Defer execution until jQuery is loaded
+    window.addEventListener('DOMContentLoaded', function() {
+        // Remove flipbook-active class from body if it exists (in case it got stuck)
+        document.body.classList.remove('flipbook-active');
+
+        // Wait for jQuery to be available
+        var checkJQuery = setInterval(function() {
+            if (typeof jQuery !== 'undefined') {
+                clearInterval(checkJQuery);
+                initializeSummernote();
+            }
+        }, 50);
+    });
+
+    function initializeSummernote() {
+    //ClassicEditor
+    //    .create(document.querySelector('#noteText'), {
+    //        toolbar: [
+    //            'heading',
+    //            '|', 'bold', 'italic', 'underline',
+    //            '|', 'fontColor', 'fontSize', 'fontFamily',
+    //            '|', 'bulletedList', 'numberedList',
+    //            '|', 'link', 'insertTable', 'undo', 'redo'
+    //        ],
+    //        fontFamily: {
+    //            options: [
+    //                'default',
+    //                'Arial, sans-serif',
+    //                'Times New Roman, serif',
+    //                'KrutiDev010'
+    //            ]
+    //        },
+    //        fontSize: {
+    //            options: [10, 12, 14, 'default', 18, 20, 24, 28]
+    //        }
+    //    })
+    //    .then(editor => {
+    //        ckEditorInstance = editor;
+    //    })
+    //    .catch(error => {
+    //        console.error("CKEditor load error:", error);
+    //    });
+
+    $(document).ready(function () {
+        $('#noteText').summernote({
+            height: 220,
+            minHeight: 150,
+            maxHeight: 500,
+            dialogsInBody: true,
+            dialogsFade: true,
+            placeholder: 'Write your noting here...',
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['fontname', ['fontname']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ]
+        });
+
+        // Summernote ke liye getData/setData wrapper
+        // Baaki code mein ckEditorInstance.getData() aur setData() use ho raha hai
+        // Isliye yeh wrapper banaya — koi aur change nahi lagega
+        ckEditorInstance = {
+            getData: function () {
+                return $('#noteText').summernote('code');
+            },
+            setData: function (html) {
+                $('#noteText').summernote('code', html);
+            },
+            model: {
+                change: function () { },
+                document: { selection: null },
+                insertContent: function () { }
+            },
+            data: {
+                processor: { toView: function () { return null; } },
+                toModel: function () { return null; }
+            }
+        };
+
+        // Check for draft on page load
+        checkForDraft();
+    });
+
+    } // End of initializeSummernote function
+
+    // Function to check if draft exists
+    function checkForDraft() {
+        let fileCode = "@ViewBag.FileCode";
+
+        $.ajax({
+            url: '@Url.Action("JsonDraftNoting", "User")',
+            type: "GET",
+            data: { fileCode: fileCode },
+            success: function (res) {
+                console.log("Draft check response:", res);
+
+                // Check multiple response formats
+                let hasDraft = false;
+
+                if (res && res.success && res.data && res.data.length > 0) {
+                    let note = Object.values(res.data[0])[8];
+
+                    if (note && note.trim() !== "") {
+                        hasDraft = true;
+                    }
+                }
+
+                if (hasDraft) {
+                    console.log("Draft found! Showing indicator...");
+                    $("#draftIndicator").fadeIn(500);
+                } else {
+                    console.log("No draft found");
+                }
+            },
+            error: function (xhr, status, error) {
+                console.log("Could not check for draft:", error);
+            }
+        });
+    }
+
+    // Function to load draft noting
+    function loadDraftNoting() {
+        let fileCode = "@ViewBag.FileCode";
+
+        $.ajax({
+            url: '@Url.Action("JsonDraftNoting", "User")',
+            type: "GET",
+            data: { fileCode: fileCode, performedEvent: 'clicked' },
+            success: function (res) {
+                if (res && res.success && res.data && res.data.length > 0) {
+                    if (typeof ckEditorInstance !== 'undefined' && ckEditorInstance) {
+                        ckEditorInstance.setData(Object.values(res.data[0])[8]);
+                    }
+
+                    $("#noteText").next(".note-editor").addClass("draft-highlight");
+                    $("#draftBadgeContainer").html('<span class="draft-badge">Draft Mode</span>');
+                    $("#draftIndicator").fadeOut(300);
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Draft Loaded!',
+                        text: 'Your saved draft has been loaded into the editor.',
+                        confirmButtonColor: '#3085d6'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'No Draft',
+                        text: 'No draft found for this file.',
+                        confirmButtonColor: '#3085d6'
+                    });
+                }
+            },
+            error: function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Unable to load draft. Please try again.',
+                    confirmButtonColor: '#d33'
+                });
+            }
+        });
+    }
+</script>
+
+
+
+
+@*<style>
+        /* Ensure CKEditor container respects card width */
+        .ck-editor {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+    </style>*@
+
+<!-- Flipbook scripts moved to section scripts at the end of the file -->
+
+<script>
+    // Defer execution until jQuery is loaded
+    window.addEventListener('DOMContentLoaded', function() {
+        var checkJQuery2 = setInterval(function() {
+            if (typeof jQuery !== 'undefined') {
+                clearInterval(checkJQuery2);
+                initializeNotingPage();
+            }
+        }, 50);
+    });
+
+    function initializeNotingPage() {
+    $(document).ready(function () {
+
+        var activeTab = '@ViewBag.ActiveTab';
+
+        if (activeTab === "history") {
+            $('#noting-tabs a[href="#pane-history"]').tab('show');
+        }
+        else {
+            $('#noting-tabs a[href="#pane-noting"]').tab('show');
+        }
+
+
+        // Disable enable noting buttons
+
+        var disableButtons = '@ViewBag.DisableButtons'
+
+        if (disableButtons === "ok") {
+            $("#ActionType").hide();               // hide dropdown
+            $("#btnConfirm").hide();               // hide confirm button
+            $("#btnNotingReset").hide();           // hide reset button
+            $("#btnShowDraft").hide();              // hide Draft button
+        }
+
+        var loggedInUser = '@(Session["UserName"] ?? "")'.trim().toLowerCase();
+        var des_code = '@Session["Des_Code"].ToString().Trim()';
+        var isforwarded = '@Session["forwarded"].ToString()';
+
+        if (loggedInUser !== "vcsec_vco") {
+            // Hide internal tab and its content
+            $("#tab-internal").closest("li").hide();
+            $("#pane-internal").removeClass("show active");
+
+            // Show file movement tab and content instead
+            $("#tab-file-move").addClass("active");
+            $("#pane-file-move").addClass("show active");
+
+            // Also hide file movement tab
+            $("#tab-file-move").closest("li").hide();
+        }
+
+        if (des_code === "001" || des_code === "033" || loggedInUser === "vcsec_vco") {
+            $("#btnApprovedRevert, #divCheckApproved").show();
+            $("#divRemark").hide();
+        }
+        else {
+            $("#btnApprovedRevert, #divCheckApproved").hide();
+            $("#divRemark").show();
+        }
+
+        if (isforwarded === "ok") {
+            $("#btnForward").prop("disabled", true);
+            $("#btnRevert").prop("disabled", true);
+            $("#btnApprovedRevert").prop("disabled", true);
+        }
+        else {
+            $("#btnForward").prop("disabled", false);
+            $("#btnRevert").prop("disabled", false);
+            $("#btnApprovedRevert").prop("disabled", false);
+        }
+
+        var docurl = "@ViewBag.MergedDocURL";
+        if (docurl) {
+
+            // strip ../Master/CreatedFile/ part
+            var fileName = docurl.replace("../Master/CreatedFile/", "");
+            var url = "@Url.Content("~/Uploads/CreatedFile/")" + fileName;
+
+            $("#pdfFrame").attr("src", url);
+
+            // store for flipbook use
+            $("#pdfFrame").data("pdf-url", url);
+            //$("#ddlMergedDoc").val(defaultDocId);
+        }
+        else {
+            $("#pdfFrame").attr("src", "");
+        }
+
+        // show flipbook in fullscreen
+        $("#toggleFlipbook").on("click", function () {
+            const pdfViewer = $('#pdfViewer');
+            const flipbookContainer = $('.flipbook-container');
+
+            if (!flipbookContainer.hasClass('active')) {
+                // Show flipbook fullscreen
+                pdfViewer.hide();
+                flipbookContainer.show();
+
+                // Add body class to hide scrollbar
+                $('body').addClass('flipbook-active');
+
+                // Trigger reflow to ensure transition works
+                flipbookContainer[0].offsetHeight;
+
+                setTimeout(() => {
+                    flipbookContainer.addClass("active");
+                }, 50);
+
+                const pdfUrl = $("#pdfFrame").data("pdf-url");
+                console.log('PDF URL:', pdfUrl);
+                console.log('pdfDoc:', pdfDoc);
+                console.log('pdfjsLib available:', typeof pdfjsLib);
+
+                if (pdfUrl && !pdfDoc) {
+                    if (typeof pdfjsLib === 'undefined') {
+                        console.error('pdfjsLib is not loaded!');
+                        Swal.fire("Error", "PDF library not loaded", "error");
+                        return;
+                    }
+
+                    pdfjsLib.getDocument(pdfUrl).promise.then(async function (pdf) {
+                        pdfDoc = pdf;
+                        totalPages = pdf.numPages;
+
+                        // Set initial page indicators to Cover
+                        $('#current-page, #top-current-page').text('Cover');
+                        $('#total-pages, #top-total-pages').text(totalPages);
+
+                        // Hide standalone cover, initialize Turn.js magazine directly
+                        $('#flipbook-cover').hide();
+                        $('#flipbook-magazine').show();
+
+                        // Initialize Turn.js with cover as first page
+                        await initTurnJsMagazine();
+
+                    }).catch(function(error) {
+                        console.error("Error loading PDF:", error);
+                        Swal.fire("Error", "Failed to load PDF document", "error");
+                        $('body').removeClass('flipbook-active');
+                        closeFlipbook();
+                    });
+                } else if (pdfDoc) {
+                    // PDF already loaded, initialize Turn.js directly
+                    $('#current-page, #top-current-page').text('Cover');
+                    $('#total-pages, #top-total-pages').text(totalPages);
+                    $('#flipbook-cover').hide();
+                    $('#flipbook-magazine').show();
+                    initTurnJsMagazine();
+                }
+            } else {
+                closeFlipbook();
+            }
+        });
+
+        // show draft noting in ckeditor
+        $(document).on("click", "#btnShowDraft", function () {
+            let fileCode = "@ViewBag.FileCode";
+
+            $.ajax({
+                url: '@Url.Action("JsonDraftNoting", "User")',
+                type: "GET",
+                data: { fileCode: fileCode },
+                success: function (res) {
+                    if (res && res.success && res.data[0].Note_Desc) {
+
+                        console.log(res);
+
+                        // Load HTML into CKEditor
+                        if (ckEditorInstance) {
+                            ckEditorInstance.setData(res.data[0].Note_Desc);
+                        }
+
+                        // Add highlight + badge
+                        $("#noteText").next(".note-editor").addClass("draft-highlight");
+                        $("#draftBadgeContainer").html('<span class="draft-badge">Draft Mode</span>');
+
+                        // Hide the draft indicator
+                        $("#draftIndicator").fadeOut(300);
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Draft Loaded!',
+                            text: 'Your saved draft has been loaded into the editor.',
+                            confirmButtonColor: '#3085d6'
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'No Draft',
+                            text: 'No draft found for this file.',
+                            confirmButtonColor: '#3085d6'
+                        });
+                    }
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Unable to load draft. Please try again.',
+                        confirmButtonColor: '#d33'
+                    });
+                }
+            });
+    });
+
+
+        // save as final/draft noting
+
+        $(document).on("click", "#btnConfirm", function (e) {
+            e.preventDefault();
+
+            let noteContent = ckEditorInstance.getData();
+            let actionType = $("#ActionType").val();  // draft / final
+
+            if (noteContent.trim() === "") {
+                Swal.fire("Alert!", "Please enter a note before saving!", "warning");
+                return;
+            }
+
+            if (actionType == '') {
+                Swal.fire("Alert!", "Please select an option!", "warning");
+                return;
+            }
+
+            // Disable button and show spinner
+            var $btn = $("#btnConfirm");
+            var originalHtml = $btn.html();
+            $btn.prop('disabled', true);
+            $btn.html('<span class="spinner-border spinner-border-sm mr-2"></span>Saving...');
+            $btn.css({'opacity': '0.7', 'cursor': 'not-allowed'});
+
+            $.ajax({
+
+              url: '@Url.Action("SaveNoting", "User")',
+
+                type: 'POST',
+                data: { noting: noteContent, fileCode: '@ViewBag.FileCode', action: actionType },
+                success: function (res) {
+                    if (res.success) {
+                        Swal.fire("Success!", res.message, "success").then((result) => {
+                            if (result.isConfirmed) {
+                                location.reload();
+                            }
+                        });
+                    } else {
+                        Swal.fire("Error!", res.message, "error");
+                        // Re-enable button on error
+                        $btn.prop('disabled', false);
+                        $btn.html(originalHtml);
+                        $btn.css({'opacity': '', 'cursor': ''});
+                    }
+                },
+                error: function (xhr) {
+                    Swal.fire("Error!", "Something went wrong while saving noting.", "error");
+                    // Re-enable button on error
+                    $btn.prop('disabled', false);
+                    $btn.html(originalHtml);
+                    $btn.css({'opacity': '', 'cursor': ''});
+                }
+            });
+        });
+
+
+        // Forward the file
+
+        $("#btnForward").click(function () {
+
+
+            var esttype = $("#ddlEstablishmentType").val();
+            var dept = $("#ddlDepartment").val();
+            var sec = $("#ddlSection").val();
+            var forwardedTo = $("#ddlForwardTo").val();
+
+            // Validation checks
+            if (!esttype || esttype === "0") {
+                Swal.fire("Validation Error", "Please select Establishment Type", "warning");
+                return;
+            }
+            if (!dept || dept === "0") {
+                Swal.fire("Validation Error", "Please select Department", "warning");
+                return;
+            }
+            if (!sec || sec === "0") {
+                Swal.fire("Validation Error", "Please select Section", "warning");
+                return;
+            }
+            if (!forwardedTo || forwardedTo === "0") {
+                Swal.fire("Validation Error", "Please select an Employee to forward", "warning");
+                return;
+            }
+
+            // Disable button and show spinner
+            var $btn = $("#btnForward");
+            var originalHtml = $btn.html();
+            $btn.prop('disabled', true);
+            $btn.html('<span class="spinner-border spinner-border-sm mr-2"></span>Forwarding...');
+            $btn.css({'opacity': '0.7', 'cursor': 'not-allowed'});
+
+            $.ajax({
+
+                   url: '@Url.Action("ForwardFile", "User")',
+                type: 'POST',
+                data: {
+                    fileCode: '@ViewBag.FileCode',
+                    forwardedTo: $("#ddlForwardTo").val(),
+                    remark: $("#txtRemark").val(),
+                    remarkType: $("#ddlRemarkType").val(),
+                    //selectedRemarkType: $("#ddlRemarkType option:selected").text(),
+                    selectedRemarkType: $("#ddlRemarkType option:selected").text() === "Select" ? "" : $("#ddlRemarkType option:selected").text(),
+                    dept: $("#ddlDepartment").val(),
+                    sec: $("#ddlSection").val(),
+                    isApproved: $("#chkApprovedInternal").is(":checked"),
+                    esttype: $("#ddlEstablishmentType").val()
+                },
+                success: function (res) {
+                    if (res.success) {
+                        Swal.fire("Success!", res.message, "success").then((result) => {
+                            if (result.isConfirmed) {
+                                location.reload();
+                            }
+                        });
+                    } else {
+                        Swal.fire("Error!", res.message, "error");
+                        // Re-enable button on error
+                        $btn.prop('disabled', false);
+                        $btn.html(originalHtml);
+                        $btn.css({'opacity': '', 'cursor': ''});
+                    }
+                },
+                error: function (xhr) {
+                    Swal.fire("Error!", "Something went wrong while forwarding the file", "error");
+                    // Re-enable button on error
+                    $btn.prop('disabled', false);
+                    $btn.html(originalHtml);
+                    $btn.css({'opacity': '', 'cursor': ''});
+                }
+            });
+        });
+
+
+        // On click of revert button show modal containing emp dropdown to revert
+        // When clicking the Revert button
+        $("#btnRevert").click(function () {
+            $.ajax({
+
+   url: '@Url.Action("GetRevertToList", "User")',
+                type: 'POST',
+                data: { fileCode: '@ViewBag.FileCode' },
+                success: function (res) {
+
+                    //console.log(res);
+
+                    var ddl = $("#ddlRevertTo");
+                    ddl.empty();
+
+                    if (res && res.length > 0) {
+                        ddl.append('<option value="">--Select Employee To Revert For--</option>');
+                        $.each(res, function (i, item) {
+                            ddl.append('<option value="' + item.Value + '">' + item.Text + '</option>');
+                        });
+                    } else {
+                        ddl.append('<option value="">--No Record Found--</option>');
+                    }
+
+                    // Show the modal after binding
+                    $("#revertModal").modal("show");
+                },
+                error: function (xhr) {
+                    Swal.fire("Error!", "Something went wrong while fetching revert list.", "error");
+                }
+            });
+        });
+
+
+        // Revert to employee
+        // Confirm revert
+        $("#btnConfirmRevert").click(function () {
+            var revertTo = $("#ddlRevertTo").val();
+            var remark = $('#ddlRemarkType').val();
+            var remarktext = $('#txtRemark').val();
+            //var selectedRemarkText = $("#ddlRemarkType option:selected").text();
+            var selectedRemarkText = $("#ddlRemarkType option:selected").text() === "Select" ? "" : $("#ddlRemarkType option:selected").text();
+
+            if (!revertTo) {
+                Swal.fire("Error!", "Please select employee to revert.", "error");
+                return;
+            }
+
+            // Disable button and show spinner
+            var $btn = $("#btnConfirmRevert");
+            var originalHtml = $btn.html();
+            $btn.prop('disabled', true);
+            $btn.html('<span class="spinner-border spinner-border-sm mr-2"></span>Reverting...');
+            $btn.css({'opacity': '0.7', 'cursor': 'not-allowed'});
+
+            $.ajax({
+
+                 url: '@Url.Action("RevertFile", "User")',
+                type: 'POST',
+                data: {
+                    fileCode: '@ViewBag.FileCode',
+                    revertTo: revertTo,
+                    remark: remark,
+                    remarktext: remarktext,
+                    selectedRemarkText: selectedRemarkText
+                },
+                success: function (res) {
+                    if (res.success) {
+                        Swal.fire("Success!", res.message, "success").then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire("Error!", res.message, "error");
+                        // Re-enable button on error
+                        $btn.prop('disabled', false);
+                        $btn.html(originalHtml);
+                        $btn.css({'opacity': '', 'cursor': ''});
+                    }
+                },
+                error: function (xhr) {
+                    Swal.fire("Error!", "Something went wrong while reverting the file.", "error");
+                    // Re-enable button on error
+                    $btn.prop('disabled', false);
+                    $btn.html(originalHtml);
+                    $btn.css({'opacity': '', 'cursor': ''});
+                }
+            });
+        });
+
+
+        // Approve and revert
+
+        $("#btnApprovedRevert").click(function () {
+            var remark = $('#ddlRemarkType').val();
+            var remarktext = $('#txtRemark').val();
+            //var selectedRemarkText = $("#ddlRemarkType option:selected").text();
+            var selectedRemarkText = $("#ddlRemarkType option:selected").text() === "Select" ? "" : $("#ddlRemarkType option:selected").text();
+
+            var esttype = $("#ddlEstablishmentType").val();
+            var dept = $("#ddlDepartment").val();
+            var sec = $("#ddlSection").val();
+            var forwardedTo = $("#ddlForwardTo").val();
+
+            // Validation checks
+            //if (!esttype || esttype === "0") {
+            //    Swal.fire("Validation Error", "Please select Establishment Type", "warning");
+            //    return;
+            //}
+            //if (!dept || dept === "0") {
+            //    Swal.fire("Validation Error", "Please select Department", "warning");
+            //    return;
+            //}
+            //if (!sec || sec === "0") {
+            //    Swal.fire("Validation Error", "Please select Section", "warning");
+            //    return;
+            //}
+            //if (!forwardedTo || forwardedTo === "0") {
+            //    Swal.fire("Validation Error", "Please select an Employee to forward", "warning");
+            //    return;
+            //}
+
+            // Disable button and show spinner
+            var $btn = $("#btnApprovedRevert");
+            var originalHtml = $btn.html();
+            $btn.prop('disabled', true);
+            $btn.html('<span class="spinner-border spinner-border-sm mr-2"></span>Processing...');
+            $btn.css({'opacity': '0.7', 'cursor': 'not-allowed'});
+
+            $.ajax({
+
+                            url: '@Url.Action("ApproveRevert", "User")',
+                type: 'POST',
+                data: {
+                    fileCode: '@ViewBag.FileCode',
+                    remark: remark,
+                    remarktext: remarktext,
+                    selectedRemarkText: selectedRemarkText
+                },
+                success: function (res) {
+                    if (res.success) {
+                        Swal.fire("Success!", res.message, "success").then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire("Error!", res.message, "error");
+                        // Re-enable button on error
+                        $btn.prop('disabled', false);
+                        $btn.html(originalHtml);
+                        $btn.css({'opacity': '', 'cursor': ''});
+                    }
+                }
+            });
+        });
+
+        // Load PDF in iframe
+        $("#btnLoadPDF").click(function () {
+            var doc = $("#ddlDocuments").val();
+            var page = $("#txtPageNumber").val();
+
+            if (doc) {
+                var pdfUrl = "/Documents/" + doc; // adjust path to your docs
+                if (page) {
+                    pdfUrl += "#page=" + page;
+                }
+                $("#pdfFrame").attr("src", pdfUrl);
+            } else {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No Document Selected',
+                    text: 'Please select a document.',
+                    confirmButtonColor: '#3085d6'
+                });
+            }
+        });
+
+        // When modal opens
+        $("#btnAttachments").on("click", function () {
+            $("#attachmentLoader").show();
+            $("#attachmentTableWrapper").hide();
+            $("#attachmentTable tbody").empty();
+
+            $.ajax({
+
+                 url: '@Url.Action("BindNotingDocuments", "User")',
+                type: 'GET',
+                data: { fileCode: '@ViewBag.FileCode' },
+                success: function (data) {
+                    $("#attachmentLoader").hide();
+                    $("#attachmentTableWrapper").show();
+
+                    if (data.length > 0) {
+                        var rows = '';
+                        $.each(data, function (i, item) {
+                            rows += `
+                            <tr>
+                                <td><input type="checkbox" class="chkDoc" value="${item.DocNo}|${item.DocName}" /></td>
+                                <td>${item.SNo}</td>
+                                <td>${item.DocNo}</td>
+                                <td>${item.DocType}</td>
+                                <td>${item.Subject}</td>
+                                <td>${item.ReferenceNo}</td>
+                                <td>${item.ReceivedFrom}</td>
+                                <td>${item.Purpose}</td>
+                                <td>${item.CreatedDateTime}</td>
+                                <td>
+                                    <a href="@Url.Content("~/Uploads/CreatedFile/")${item.DocName}" target="_blank" class="btn btn-sm btn-primary">
+                                       View
+                                    </a>
+
+                                </td>
+                            </tr>`;
+                        });
+                        $("#attachmentTable tbody").html(rows);
+                    } else {
+                        $("#attachmentTable tbody").html(`
+                        <tr>
+                            <td colspan="10" class="text-center text-muted">No documents found.</td>
+                        </tr>
+                    `);
+                    }
+                },
+                error: function () {
+                    $("#attachmentLoader").hide();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Error fetching documents.',
+                        confirmButtonColor: '#d33'
+                    });
+                }
+            });
+        });
+
+        // Select All checkbox
+        $(document).on("change", "#chkSelectAll", function () {
+            $(".chkDoc").prop("checked", $(this).prop("checked"));
+        });
+
+        $("#btnMergeDocs").click(function () {
+            var selectedDocs = [];
+            $(".chkDoc:checked").each(function () {
+                selectedDocs.push($(this).val());
+            });
+
+            // Disable button and show spinner
+            var $btn = $("#btnMergeDocs");
+            var originalHtml = $btn.html();
+            $btn.prop('disabled', true);
+            $btn.html('<span class="spinner-border spinner-border-sm mr-2"></span>Merging...');
+            $btn.css({'opacity': '0.7', 'cursor': 'not-allowed'});
+
+            $.ajax({
+
+ url: '@Url.Action("MergeDocuments", "User")',
+                type: 'POST',
+                data: {
+                    fileCode: '@ViewBag.FileCode',
+                    selectedDocs: selectedDocs
+                },
+                traditional: true, // needed for sending array
+                success: function (res) {
+                    if (res.success) {
+                        Swal.fire("Success", res.message, "success").then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire("Warning", res.message, "warning");
+                        // Re-enable button on error
+                        $btn.prop('disabled', false);
+                        $btn.html(originalHtml);
+                        $btn.css({'opacity': '', 'cursor': ''});
+                    }
+                },
+                error: function () {
+                    Swal.fire("Error", "Something went wrong!", "error");
+                    // Re-enable button on error
+                    $btn.prop('disabled', false);
+                    $btn.html(originalHtml);
+                    $btn.css({'opacity': '', 'cursor': ''});
+                }
+            });
+        });
+
+
+        $("#ddlMergedDoc").on("change", function () {
+        //var docId = $(this).val();
+        //if (docId !== "0") {
+        //    var url = "/Uploads/CreatedFile/" + docId + ".pdf";
+        //    $("#pdfFrame").attr("src", url);
+        //} else {
+        //    $("#pdfFrame").attr("src", "");
+        //}
+
+
+        var selectedDoc = $(this).val();
+        var selectedText = $("#ddlMergedDoc option:selected").text();
+    var selectedIndex = this.selectedIndex;
+
+
+    // Build full document list
+    var allDocs = [];
+    $("#ddlMergedDoc option").each(function (i, opt) {
+        if ($(opt).val()) { // ignore empty option
+            allDocs.push({
+                docCode: $(opt).val(),
+                docText: $(opt).text(),
+                selectedIndex: i
+            });
+        }
+    });
+
+    // if default document option selected; return
+    if (selectedIndex === 0) {
+        $("#docInfo").html(""); // clear the div
+        return false;
+    }
+
+
+        if (selectedDoc) {
+            $.ajax({
+
+ url: '@Url.Action("GetDocumentDetails", "User")',
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    fileCode: '@ViewBag.FileCode',
+                    docs: allDocs,
+                    selectedIndex: selectedIndex
+                }),
+                //data: { docCode: selectedDoc, docText: selectedText, fileCode: '@ViewBag.FileCode', selectedIndex: selectedIndex },
+                success: function (res) {
+                    if (res.success) {
+                        if (res.redirectUrl) {
+                            window.location.href = res.redirectUrl; // case when index = 0
+                        } else {
+                            //$("#docInfo").html(
+                            //    `<b>${res.totalPages}</b><br/>` +
+                            //    `Doc Name: ${res.docName}<br/>` +
+                            //    `Created By: ${res.createdBy}<br/>` +
+                            //    `<button class="btn btn-sm btn-danger mt-2" id="btnDeleteDoc" data-doccode="${selectedText}">Delete</button>`
+                            //);
+
+                            let htmlContent = `
+                                <b>${res.totalPages}</b><br/>
+                                Doc Name: ${res.docName}<br/>
+                                Created By: ${res.createdBy}<br/>
+                            `;
+
+                            if (res.canDelete)
+                            {
+                                htmlContent += `<button class="btn btn-sm btn-danger mt-2"
+                                        id="btnDeleteDoc"
+                                        data-doccode="${selectedText}">
+                                        Delete
+                                    </button>`;
+                            }
+
+                            $("#docInfo").html(htmlContent);
+
+
+                            var iframe = document.getElementById("pdfViewer");
+                            if (iframe) {
+                                let startPage = res.startPage;
+                                let pdfUrl = `/Uploads/CreatedFile/${res.docName}#page=${startPage}`;
+                            @*let pdfUrl = '@Url.Content("~/Uploads/CreatedFile/")' + res.docName + '#page=' + startPage;*@
+                                iframe.src = pdfUrl; // use .src directly
+                            }
+                        }
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: res.message || "Something went wrong",
+                            confirmButtonColor: '#d33'
+                        });
+                    }
+                }
+            });
+        }
+
+
+});
+
+
+$(document).on("click", "#btnDeleteDoc", function () {
+    var docCode = $(this).data("doccode");
+
+    if (!docCode) { alert("Please select document"); return; }
+
+    var docurl = "@ViewBag.MergedDocURL";
+
+    // strip ../Master/CreatedFile/ part
+    var fileName = docurl.replace("../Master/CreatedFile/", "");
+
+    var fullHtml = $("#docInfo").html();
+    var firstPart = fullHtml.split('<br/>')[0] + '<br/>';
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "This will permanently delete the document!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Disable delete button
+            var $btn = $("#btnDeleteDoc");
+            var originalHtml = $btn.html();
+            $btn.prop('disabled', true);
+            $btn.html('<span class="spinner-border spinner-border-sm mr-2"></span>Deleting...');
+            $btn.css({'opacity': '0.7', 'cursor': 'not-allowed'});
+
+            $.ajax({
+                url: '@Url.Action("DeleteDocument", "User")',
+                type: 'POST',
+                //data: { docCode: docCode, fileCode: '@ViewBag.FileCode', docLists: '@Html.Raw(mergedDocsJson)', mergedFile: fileName, htmlText: firstPart },
+                data: JSON.stringify({
+                    docCode: docCode,
+                    fileCode: '@ViewBag.FileCode',
+                    docLists: @Html.Raw(mergedDocsJson),
+                    mergedFile: fileName,
+                    htmlText: firstPart
+                }),
+                contentType: "application/json; charset=utf-8",
+                success: function (res) {
+                    if (res.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: res.message,
+                            confirmButtonColor: '#28a745',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            // Reload page after user clicks OK
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error!', res.message, 'error');
+                        // Re-enable button on error
+                        $btn.prop('disabled', false);
+                        $btn.html(originalHtml);
+                        $btn.css({'opacity': '', 'cursor': ''});
+                    }
+                },
+                error: function () {
+                    Swal.fire('Error!', 'Something went wrong!', 'error');
+                    // Re-enable button on error
+                    $btn.prop('disabled', false);
+                    $btn.html(originalHtml);
+                    $btn.css({'opacity': '', 'cursor': ''});
+                }
+            });
+        }
+    });
+});
+
+
+// Load file history on page load (for when page opens directly to history tab)
+function loadFileHistory() {
+    // Show loader and hide table
+    $('#historyLoader').show();
+    $('#historyTableContainer').hide();
+
+    $.ajax({
+        url: '@Url.Action("GetFileHistory", "User")',
+        type: 'GET',
+        data: { fileCode: '@ViewBag.FileCode' },
+        success: function (data) {
+            // Hide loader and show table
+            $('#historyLoader').hide();
+            $('#historyTableContainer').show();
+
+            if (data.length > 0) {
+                // Populate table
+                var rows = '';
+                $.each(data, function (i, item) {
+                    rows += `<tr>
+                    <td>${item.SNo}</td>
+                    <td>@ViewBag.FileCode</td>
+                    <td>${item.FileDescription}</td>
+                    <td>${item.SentFrom}</td>
+                    <td>${item.SentTo}</td>
+                    <td>${item.ForwardedDT}</td>
+                    <td>${item.Status}</td>
+                    <td>${item.Remark}</td>
+                </tr>`;
+                });
+                $("#historyTable tbody").html(rows);
+            } else {
+                var rows = `<tr>
+                    <td colspan="8" style="text-align:center; color: gray; padding: 40px;">
+                        <i class="fa fa-inbox" style="font-size: 48px; color: #ccc; display: block; margin-bottom: 10px;"></i>
+                        No history found for this file.
+                    </td>
+                </tr>`;
+                $("#historyTable tbody").html(rows);
+            }
+        },
+        error: function () {
+            // Hide loader and show table on error
+            $('#historyLoader').hide();
+            $('#historyTableContainer').show();
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error fetching data.',
+                confirmButtonColor: '#d33'
+            });
+        }
+    });
+}
+
+// Call on page load
+$(document).ready(function() {
+    loadFileHistory();
+});
+
+
+$('#tab-history').on('click', function (e) {
+    // Reload file history when tab is clicked
+    loadFileHistory();
+});
+
+
+
+// Bind department on estype change
+$('#ddlEstablishmentType').change(function () {
+    var estTypeCode = $(this).val();
+
+    if (estTypeCode) {
+        $.ajax({
+              url: '@Url.Action("GetDepartmentsByEstType", "User")',
+            type: 'POST',
+            data: { estTypeCode: estTypeCode },
+            success: function (data) {
+                var deptDropdown = $('#ddlDepartment');
+                deptDropdown.empty();
+                deptDropdown.append($('<option/>', {
+                    value: '',
+                    text: '--Select--'
+                }));
+
+                $.each(data, function (i, item) {
+                    deptDropdown.append($('<option/>', {
+                        value: item.Value,
+                        text: item.Text
+                    }));
+                });
+            },
+            error: function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error loading departments.',
+                    confirmButtonColor: '#d33'
+                });
+            }
+        });
+    } else {
+        $('#ddlDepartment').empty().append($('<option/>', {
+            value: '',
+            text: '--Select--'
+        }));
+    }
+});
+
+// Bind section on department change
+$('#ddlDepartment').change(function () {
+    var Dep_Code = $(this).val();
+    var EstTypeCode = $('#ddlEstablishmentType').val();
+
+    if (EstTypeCode && Dep_Code) {
+        $.ajax({
+              url: '@Url.Action("GetSectionsByDepartment", "User")',
+            type: 'POST',
+            data: { Dep_Code: Dep_Code, EstTypeCode: EstTypeCode },
+            success: function (data) {
+                var deptDropdown = $('#ddlSection');
+                deptDropdown.empty();
+                deptDropdown.append($('<option/>', {
+                    value: '',
+                    text: '--Select--'
+                }));
+
+                $.each(data, function (i, item) {
+                    deptDropdown.append($('<option/>', {
+                        value: item.Value,
+                        text: item.Text
+                    }));
+                });
+            },
+            error: function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error loading sections.',
+                    confirmButtonColor: '#d33'
+                });
+            }
+        });
+    } else {
+        $('#ddlSection').empty().append($('<option/>', {
+            value: '',
+            text: '--Select--'
+        }));
+    }
+});
+
+// Bind forward to employee on section change
+$('#ddlSection').change(function () {
+    var secCode = $(this).val();
+    var deptCode = $('#ddlDepartment').val();
+
+    if (secCode && deptCode) {
+        $.ajax({
+
+                          url: '@Url.Action("GetForwardToList", "User")',
+
+            type: 'POST',
+            data: { secCode: secCode, deptCode: deptCode },
+            success: function (data) {
+                var forwardDropdown = $('#ddlForwardTo');
+                forwardDropdown.empty();
+                forwardDropdown.append($('<option/>', {
+                    value: '',
+                    text: '--Select--'
+                }));
+
+                $.each(data, function (i, item) {
+                    forwardDropdown.append($('<option/>', {
+                        value: item.Value,
+                        text: item.Text
+                    }));
+                });
+            },
+            error: function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error loading forward-to list.',
+                    confirmButtonColor: '#d33'
+                });
+            }
+        });
+    } else {
+        $('#ddlForwardTo').empty().append($('<option/>', {
+            value: '',
+            text: '--Select--'
+        }));
+    }
+});
+
+// Reset dropdown on reset button click
+$('#btnReset').click(function () {
+    $('#ddlEstablishmentType').val('');
+    resetDropdown('#ddlDepartment');
+    resetDropdown('#ddlSection');
+    resetDropdown('#ddlForwardTo');
+});
+
+        $('#btnNotingReset').click(function () {
+            // reset dropdown to default
+            $("#ActionType").val("");
+
+            // reset CKEditor content
+            if (ckEditorInstance) {
+                ckEditorInstance.setData("");
+            }
+        });
+
+function resetDropdown(dropdownId) {
+    $(dropdownId).empty().append($('<option/>', {
+        value: '',
+        text: 'Select'
+    }));
+}
+
+
+// send for internal movement
+$("#btnSendInternal").click(function () {
+    var forwardTo = $("#ddlForwardToInternal").val();
+    var approved = $("#chkApprovedInternal").is(":checked");
+    var fileCode = "@ViewBag.FileCode";
+
+    if (forwardTo == '') {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Selection Required',
+            text: 'Please select an option',
+            confirmButtonColor: '#3085d6'
+        });
+        return;
+    }
+
+    $.ajax({
+        url: '@Url.Action("SendInternalMovement", "User")',
+        type: 'POST',
+        data: { fileCode: fileCode, forwardTo: forwardTo, approved: approved, docCode: '@docCode' },
+        success: function (res) {
+            if (res.success) {
+
+                // reset the dropdown
+                $('#ddlEstablishmentType').val('');
+                resetDropdown('#ddlDepartment');
+                resetDropdown('#ddlSection');
+                resetDropdown('#ddlForwardTo');
+
+                // disable the buttons
+                $("#btnForward").prop("disabled", true);
+                $("#btnRevert").prop("disabled", true);
+                $("#btnApprovedRevert").prop("disabled", true);
+
+                Swal.fire("Success!", res.message, "success").then(() => {
+                    location.reload();
+                });
+
+            } else {
+                swal("Alert", res.message, "warning");
+            }
+        },
+        error: function () {
+            swal("Error", "Something went wrong.", "error");
+        }
+    });
+});
+
+
+        $(document).on("click", "#btnPrintAttachment", function () {
+            let pdfUrl = $("#pdfFrame").attr("src");
+            if (!pdfUrl) {
+                Swal.fire("No Document", "Please load a document before printing.", "warning");
+                return;
+            }
+            // Open the PDF in new tab with print dialog
+            let printWindow = window.open(pdfUrl, "_blank");
+            printWindow.addEventListener("load", function () {
+                // Wait for images & content to load
+                printWindow.onload = function () {
+                    setTimeout(() => {
+                        printWindow.print();
+                    }, 200); //  0.2 sec delay for image loading
+                };
+
+                // Close tab after printing OR canceling
+                printWindow.onafterprint = function () {
+                    printWindow.close();
+                };
+            });
+        });
+
+
+        $(document).on("click", "#btnPrintNoteSheet", function () {
+    let printContent = "";
+
+    let logoUrl = $("#flipbook-cover img").attr("src");
+    let filedt = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Filedt));
+
+    // 1. Cover Page (full page layout)
+    if (filedt && filedt.length > 0) {
+        let row = filedt[0];
+
+        let coverHtml = `
+            <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100vh; font-family:Arial, sans-serif; padding:40px; box-sizing:border-box;">
+
+                <!-- Logo -->
+                <img src="${logoUrl}" alt="Logo" style="max-width:120px; margin-bottom:20px;">
+
+                <!-- Department & Section -->
+                <h2 style="margin:5px 0; font-size:24px; font-weight:bold; text-align:center;">${row.Dep_Name}</h2>
+                <h3 style="margin:5px 0; font-size:18px; font-weight:normal; color:#444; text-align:center;">${row.Section}</h3>
+                <h3 style="margin:5px 0; font-size:18px; font-weight:normal; color:#444; text-align:center;"><b>File Code: </b>@ViewBag.FileCode</h3>
+
+                <!-- File Details -->
+                <table style="width:100%; margin-top:30px; border-collapse:collapse; font-size:16px;">
+                    <tr>
+
+                        <td style="padding:10px; text-align:left; width:50%;"><strong>File Category:</strong> ${row.FileCat_Name}</td>
+                        <td style="padding:10px; text-align:left; width:50%;"><strong>Sub Category:</strong> ${row.FileSubCat_Name}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:10px; text-align:left;"><strong>Description:</strong> ${row.File_Desc}</td>
+                        <td style="padding:10px; text-align:left;"><strong>Priority:</strong> ${row.DocPrior_Name}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:10px; text-align:left;"><strong>Created By:</strong> ${row.Name}</td>
+                        <td style="padding:10px; text-align:left;"><strong>Date:</strong> ${row.date} / ${row.time}</td>
+                    </tr>
+                </table>
+            </div>
+        `;
+        printContent += `<div style="page-break-after:always;">${coverHtml}</div>`;
+    }
+
+    // 2. Notings
+    $("#notingContainer .note-frame").each(function () {
+        try {
+            let noteHtml = this.contentDocument.body.innerHTML;
+            printContent += `
+                <div style="page-break-after:always; padding:40px; font-family:Arial, sans-serif;">
+                    <h2 style="text-align:center; margin-bottom:20px;">Notings</h2>
+                    ${noteHtml}
+                </div>`;
+        } catch (e) {
+            console.error("Error reading note iframe:", e);
+        }
+    });
+
+    // 3. Movement History
+    let historyHtml = $("#historyTable").clone();
+    historyHtml.find("button, .no-print").remove(); // cleanup
+    printContent += `
+        <div style="padding:40px; font-family:Arial, sans-serif;">
+            <h2 style="text-align:center; margin-bottom:20px;">Movement History</h2>
+            ${historyHtml.prop("outerHTML")}
+        </div>`;
+
+    // Open in new window for printing
+    let printWindow = window.open("", "_blank");
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>Note Sheet Print</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin:0; padding:0; }
+                table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+                th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+                h2 { font-size: 22px; }
+            </style>
+        </head>
+        <body>${printContent}</body>
+        </html>
+    `);
+    printWindow.document.close();
+    //printWindow.focus();
+            //printWindow.print();
+
+            // Wait for images & content to load
+            printWindow.onload = function () {
+                setTimeout(() => {
+                    printWindow.print();
+                }, 200); //  0.2 sec delay for image loading
+            };
+
+            // Close tab after printing OR canceling
+            printWindow.onafterprint = function () {
+                printWindow.close();
+            };
+});
+    });
+    } // End of initializeNotingPage function
+
+</script>
+
+<style>
+    /* Make main tabs full width and bold */
+    .nav-tabs.nav-fill .nav-link {
+        border-radius: 0 !important;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    /* Nested tab styles */
+    #file-transfer-tabs .nav-link {
+        border-radius: 0 !important;
+        font-weight: 600;
+    }
+</style>
+
+@* Flipbook js start from here  *@
+<script>
+    // Global variables for flipbook - must be declared outside function
+    let currentSheet = 0;
+    let totalPages = 0;
+    let pdfDoc = null;
+    let isPlaying = false;
+    let playInterval = null;
+    let playSpeed = 3000;
+    let isAnimating = false;
+    let isGoingForward = true;
+    let zoomLevel = 0.9; // Start at 90% zoom
+    let isFullscreen = false;
+    let turnJsInitialized = false;
+    let renderedPages = {};
+
+    // Wait for PDF.js and Turn.js to load before initializing flipbook
+    window.addEventListener('DOMContentLoaded', function () {
+        var checkLibraries = setInterval(function () {
+            if (typeof pdfjsLib !== 'undefined' && typeof jQuery !== 'undefined' && typeof jQuery.fn.turn !== 'undefined') {
+                clearInterval(checkLibraries);
+                initializeFlipbook();
+            }
+        }, 50);
+    });
+
+    // Global flipbook functions - must be outside initializeFlipbook so they're accessible everywhere
+    function showCover(show) {
+        if (show === undefined) show = true;
+        $("#flipbook-cover").toggle(show);
+    }
+
+    function stopAutoPlay() {
+        isPlaying = false;
+        if (playInterval) clearInterval(playInterval);
+        $('#flipbook-play i').removeClass('fa-pause').addClass('fa-play');
+    }
+
+    function startAutoPlayTurnJs() {
+        isPlaying = true;
+        $('#flipbook-play i').removeClass('fa-play').addClass('fa-pause');
+
+        playInterval = setInterval(() => {
+            const magazine = $('#flipbook-magazine');
+            if (!magazine.turn('is')) {
+                stopAutoPlay();
+                return;
+            }
+
+            const currentPage = magazine.turn('page');
+            const totalPgs = magazine.turn('pages');
+
+            if (currentPage >= totalPgs) {
+                stopAutoPlay();
+                return;
+            }
+            magazine.turn('next');
+        }, playSpeed);
+    }
+
+    function closeFlipbook() {
+        stopAutoPlay();
+        const flipbookContainer = $('.flipbook-container');
+        flipbookContainer.removeClass('active');
+
+        // Remove body class to restore scrollbar
+        $('body').removeClass('flipbook-active');
+
+        // Destroy Turn.js instance
+        const magazine = $('#flipbook-magazine');
+        if (magazine.turn('is')) {
+            magazine.turn('destroy');
+            turnJsInitialized = false;
+        }
+
+        setTimeout(() => {
+            flipbookContainer.hide();
+            $('#pdfViewer').show();
+            magazine.hide();
+
+            // Reset page indicators to cover
+            $('#current-page, #top-current-page').text('Cover');
+            $('#total-pages, #top-total-pages').text(totalPages);
+
+            renderedPages = {}; // Clear cache
+        }, 400);
+    }
+
+    function goToPageTurnJs(page) {
+        const magazine = $('#flipbook-magazine');
+        if (magazine.turn('is')) {
+            magazine.turn('page', page);
+            updateFlipbookNavTurnJs();
+        }
+    }
+
+    // Render a single page for Turn.js - GLOBAL function
+    async function renderPageForTurnJs(pageNum) {
+        console.log('renderPageForTurnJs called for page', pageNum);
+        console.log('pdfDoc:', pdfDoc);
+
+        if (renderedPages[pageNum]) {
+            console.log('Returning cached page', pageNum);
+            // Clone canvas properly with content
+            const originalCanvas = renderedPages[pageNum];
+            const clonedCanvas = document.createElement('canvas');
+            clonedCanvas.width = originalCanvas.width;
+            clonedCanvas.height = originalCanvas.height;
+            const ctx = clonedCanvas.getContext('2d');
+            ctx.drawImage(originalCanvas, 0, 0);
+            return clonedCanvas;
+        }
+
+        try {
+            const canvas = document.createElement('canvas');
+            const pdfPage = await pdfDoc.getPage(pageNum);
+            const viewport = pdfPage.getViewport({ scale: 1.5 });
+
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+
+            console.log('Rendering page', pageNum, 'with dimensions', canvas.width, 'x', canvas.height);
+
+            await pdfPage.render({
+                canvasContext: canvas.getContext('2d'),
+                viewport: viewport
+            }).promise;
+
+            console.log('Page', pageNum, 'rendered successfully');
+            renderedPages[pageNum] = canvas;
+
+            // Return a proper clone with content
+            const clonedCanvas = document.createElement('canvas');
+            clonedCanvas.width = canvas.width;
+            clonedCanvas.height = canvas.height;
+            const ctx = clonedCanvas.getContext('2d');
+            ctx.drawImage(canvas, 0, 0);
+            return clonedCanvas;
+        } catch (error) {
+            console.error('Error in renderPageForTurnJs for page', pageNum, ':', error);
+            throw error;
+        }
+    }
+
+    // Add page to Turn.js magazine - GLOBAL function
+    async function addPageToMagazine(page, magazine) {
+        console.log('addPageToMagazine called for page', page);
+
+        // Create page element with Turn.js expected structure
+        const pageElement = $('<div />');
+
+        // Render the page
+        try {
+            const canvas = await renderPageForTurnJs(page);
+            console.log('Canvas received for page', page, ':', canvas);
+
+            // Directly append canvas to page element
+            pageElement.append(canvas);
+
+            // Add gradient overlay for realistic book effect
+            const gradient = $('<div class="gradient"></div>');
+            pageElement.append(gradient);
+
+            // Add inline styles to ensure visibility
+            pageElement.css({
+                'width': '100%',
+                'height': '100%',
+                'background': 'white',
+                'display': 'flex',
+                'align-items': 'center',
+                'justify-content': 'center',
+                'position': 'relative'
+            });
+
+            canvas.style.maxWidth = '100%';
+            canvas.style.maxHeight = '100%';
+            canvas.style.display = 'block';
+
+            console.log('Canvas appended to page element for page', page);
+        } catch (error) {
+            console.error('Error rendering page:', page, error);
+            pageElement.html('<div style="padding: 20px; color: red;">Error loading page ' + page + '</div>');
+        }
+
+        return pageElement;
+    }
+
+    // Initialize Turn.js magazine - GLOBAL function
+    async function initTurnJsMagazine() {
+        if (turnJsInitialized) {
+            // If already initialized, just show it and go to page 1
+            $('#flipbook-magazine').show();
+            const magazine = $('#flipbook-magazine');
+            magazine.turn('page', 1);
+            updatePageIndicatorTurnJs(1);
+            updateFlipbookNavTurnJs();
+            return;
+        }
+
+        console.log('initTurnJsMagazine called');
+        console.log('$.fn.turn available:', typeof $.fn.turn);
+        console.log('pdfDoc loaded:', pdfDoc !== null);
+        console.log('totalPages:', totalPages);
+
+        if (typeof $.fn.turn === 'undefined') {
+            console.error('Turn.js is not loaded!');
+            alert('Turn.js library is not available. Cannot initialize flipbook.');
+            return;
+        }
+
+        if (!pdfDoc || totalPages === 0) {
+            console.error('PDF document not loaded yet!');
+            alert('Please wait for the PDF to load before opening the flipbook.');
+            return;
+        }
+
+        // Show loader and hide magazine during initialization
+        const loader = $('#flipbook-loader');
+        const magazine = $('#flipbook-magazine');
+        const container = $('.magazine-viewport .container');
+
+        loader.show();
+        magazine.css('opacity', '0');
+        container.css('opacity', '0');
+
+        // Calculate responsive dimensions based on viewport
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight - 100; // Account for controls
+        const aspectRatio = 1.6; // Book aspect ratio (width / height) - wider book
+
+        let containerWidth, containerHeight;
+
+        // Calculate dimensions to fit viewport while maintaining aspect ratio
+        const maxWidth = viewportWidth * 0.95; // 95% of viewport width - much wider
+        const maxHeight = viewportHeight * 0.68; // 68% of viewport height - decreased height more
+
+        if (maxWidth / maxHeight > aspectRatio) {
+            // Height is the limiting factor
+            containerHeight = maxHeight;
+            containerWidth = containerHeight * aspectRatio;
+        } else {
+            // Width is the limiting factor
+            containerWidth = maxWidth;
+            containerHeight = containerWidth / aspectRatio;
+        }
+
+        // Ensure reasonable size for book appearance
+        if (containerWidth < 1100) {
+            containerWidth = 1100;
+            containerHeight = containerWidth / aspectRatio;
+        }
+
+        console.log('Magazine element:', magazine.length);
+        console.log('Calculated dimensions:', Math.round(containerWidth), 'x', Math.round(containerHeight));
+        console.log('Viewport:', viewportWidth, 'x', viewportHeight);
+
+        magazine.empty();
+        magazine.css({
+            width: Math.round(containerWidth),
+            height: Math.round(containerHeight)
+        });
+
+        try {
+            // FIRST: Create hard cover front page (page 1)
+            console.log('Creating hard cover front page as page 1...');
+            const coverContent = $('#flipbook-cover .cover-content').clone();
+            const hardCoverFront = $('<div />').addClass('hard-cover-front');
+
+            // Add hard cover styling with enhanced texture
+            hardCoverFront.css({
+                'background': 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+                'color': 'white',
+                'position': 'relative',
+                'overflow': 'hidden',
+                'display': 'flex',
+                'align-items': 'center',
+                'justify-content': 'center',
+                'box-shadow': 'inset -5px 0 15px rgba(0,0,0,0.4), 5px 0 20px rgba(0,0,0,0.5)',
+                'border-right': '4px solid rgba(0,0,0,0.3)'
+            });
+
+            // Add enhanced texture overlay
+            const texture = $('<div />').css({
+                'position': 'absolute',
+                'top': '0',
+                'left': '0',
+                'width': '100%',
+                'height': '100%',
+                'background-image': 'repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255,255,255,0.05) 2px, rgba(255,255,255,0.05) 4px), repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.05) 2px, rgba(255,255,255,0.05) 4px)',
+                'pointer-events': 'none',
+                'z-index': '1'
+            });
+
+            hardCoverFront.append(texture);
+            coverContent.css({ 'position': 'relative', 'z-index': '2' });
+            hardCoverFront.append(coverContent);
+            magazine.append(hardCoverFront);
+            console.log('Hard cover front page added as page 1');
+
+            // SECOND: Create blank page (page 2 - left side after cover opens)
+            console.log('Creating blank page as page 2...');
+            const blankPage = $('<div />').addClass('blank-page');
+            blankPage.css({
+                'background': '#fefefe',
+                'position': 'relative',
+                'box-shadow': 'inset 5px 0 10px rgba(0,0,0,0.1)',
+                'border-left': '1px solid rgba(0,0,0,0.1)'
+            });
+            magazine.append(blankPage);
+            console.log('Blank page added as page 2');
+
+            // THIRD: Create all PDF page elements (starting from page 3)
+            console.log('Creating PDF page elements...');
+            for (let i = 1; i <= totalPages; i++) {
+                console.log('Creating PDF page', i, 'as Turn.js page', i + 2);
+                const pageElement = await addPageToMagazine(i, magazine);
+                pageElement.attr('data-page', i + 2); // PDF page 1 becomes Turn.js page 3
+                magazine.append(pageElement);
+                console.log('PDF page', i, 'added to DOM as Turn.js page', i + 2);
+            }
+
+            // FOURTH: Create blank page before back cover (page after last PDF)
+            console.log('Creating blank page before back cover...');
+            const blankPageEnd = $('<div />').addClass('blank-page');
+            blankPageEnd.css({
+                'background': '#fefefe',
+                'position': 'relative',
+                'box-shadow': 'inset -5px 0 10px rgba(0,0,0,0.1)',
+                'border-right': '1px solid rgba(0,0,0,0.1)'
+            });
+            magazine.append(blankPageEnd);
+            console.log('Blank page before back cover added');
+
+            // FIFTH: Add another blank page to make back cover appear on left (even page)
+            console.log('Creating second blank page...');
+            const blankPageEnd2 = $('<div />').addClass('blank-page');
+            blankPageEnd2.css({
+                'background': '#fefefe',
+                'position': 'relative',
+                'box-shadow': 'inset 5px 0 10px rgba(0,0,0,0.1)',
+                'border-left': '1px solid rgba(0,0,0,0.1)'
+            });
+            magazine.append(blankPageEnd2);
+            console.log('Second blank page added');
+
+            // SIXTH: Create hard cover back page (last page - will be on left/even side)
+            console.log('Creating hard cover back page...');
+            const hardCoverBack = $('<div />').addClass('hard-cover-back');
+            hardCoverBack.css({
+                'background': 'linear-gradient(135deg, #3b82f6 0%, #1e3a8a 100%)',
+                'position': 'relative',
+                'overflow': 'hidden',
+                'box-shadow': 'inset 5px 0 15px rgba(0,0,0,0.4), -5px 0 20px rgba(0,0,0,0.5)',
+                'border-left': '4px solid rgba(0,0,0,0.3)'
+            });
+
+            // Add texture to back cover
+            const backTexture = $('<div />').css({
+                'position': 'absolute',
+                'top': '0',
+                'left': '0',
+                'width': '100%',
+                'height': '100%',
+                'background-image': 'repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255,255,255,0.05) 2px, rgba(255,255,255,0.05) 4px), repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.05) 2px, rgba(255,255,255,0.05) 4px)',
+                'pointer-events': 'none'
+            });
+            hardCoverBack.append(backTexture);
+            magazine.append(hardCoverBack);
+            console.log('Hard cover back page added as last page');
+
+            console.log('All pages added to DOM, now initializing Turn.js...');
+
+            // THIRD: Initialize Turn.js with all pages
+            magazine.turn({
+                width: Math.round(containerWidth),
+                height: Math.round(containerHeight),
+                autoCenter: true,
+                elevation: 50,
+                gradients: true,
+                acceleration: true,
+                duration: 1000,
+                page: 1, // Start at cover page
+                display: 'double', // Use double page mode
+                when: {
+                    turning: function (event, page, view) {
+                        updatePageIndicatorTurnJs(page, view);
+                    },
+                    turned: function (event, page, view) {
+                        updatePageIndicatorTurnJs(page, view);
+                        updateFlipbookNavTurnJs();
+                    }
+                }
+            });
+
+            console.log('Turn.js initialized successfully with', magazine.turn('pages'), 'pages');
+            turnJsInitialized = true;
+
+            // Set initial page indicator
+            updatePageIndicatorTurnJs(1);
+            updateFlipbookNavTurnJs();
+
+            // Force Turn.js to center the book on page 1 (cover)
+            magazine.turn('page', 1);
+            magazine.turn('center');
+
+            // Hide loader and fade in magazine after initialization
+            setTimeout(() => {
+                loader.fadeOut(300);
+                // Set initial transform with zoom
+                container.css({
+                    'opacity': '1',
+                    'transform': 'translate(-50%, -50%) scale(0.9)',
+                    'transform-origin': 'center center'
+                });
+                magazine.css('opacity', '1');
+                // Force center to trigger autoCenter
+                setTimeout(() => {
+                    magazine.turn('center');
+                }, 100);
+                console.log('Flipbook initialization complete - loader hidden, magazine visible');
+            }, 300);
+
+        } catch (error) {
+            console.error('Error initializing Turn.js:', error);
+            loader.hide();
+        }
+    }
+
+    // Update page indicator for Turn.js - GLOBAL function
+    function updatePageIndicatorTurnJs(page, view) {
+        const magazine = $('#flipbook-magazine');
+
+        if (!view) {
+            if (magazine.turn('is')) {
+                view = magazine.turn('view');
+                page = magazine.turn('page');
+            }
+        }
+
+        let currentPageText = '';
+        let showTotal = false;
+        const totalTurnPages = magazine.turn('pages');
+
+        // Structure: Page 1=front cover, 2=blank, 3-15=PDF(13 pages), 16-17=blank pages, 18=back cover
+        if (page === 1 || (view && view[0] === 1)) {
+            // Front cover - don't show page numbers
+            currentPageText = '';
+            showTotal = false;
+        } else if (page === totalTurnPages || (view && view.includes(totalTurnPages))) {
+            // Back cover - don't show page numbers
+            currentPageText = '';
+            showTotal = false;
+        } else if (page === 2 || (view && view.includes(2) && !view.includes(3))) {
+            // First blank page alone - don't show numbers
+            currentPageText = '';
+            showTotal = false;
+        } else if ((page >= totalTurnPages - 2 && page < totalTurnPages) ||
+            (view && (view.includes(totalTurnPages - 1) || view.includes(totalTurnPages - 2)) && !view.some(p => p >= 3 && p <= 15))) {
+            // Last blank pages alone - don't show numbers
+            currentPageText = '';
+            showTotal = false;
+        } else {
+            // For PDF pages (pages 3 to 15), subtract 2 to get actual PDF page number
+            showTotal = true;
+            if (view && view.length === 2 && view[0] > 0 && view[1] > 0) {
+                const leftPage = view[0] >= 3 && view[0] <= 15 ? view[0] - 2 : null;
+                const rightPage = view[1] >= 3 && view[1] <= 15 ? view[1] - 2 : null;
+
+                if (leftPage && rightPage) {
+                    currentPageText = leftPage + '-' + rightPage;
+                } else if (leftPage) {
+                    currentPageText = leftPage + '';
+                } else if (rightPage) {
+                    currentPageText = rightPage + '';
+                } else {
+                    currentPageText = '';
+                    showTotal = false;
+                }
+            } else if (view && view.length === 1) {
+                const pageNum = view[0] >= 3 && view[0] <= 15 ? view[0] - 2 : null;
+                if (pageNum) {
+                    currentPageText = pageNum + '';
+                } else {
+                    currentPageText = '';
+                    showTotal = false;
+                }
+            } else {
+                const pageNum = page >= 3 && page <= 15 ? page - 2 : null;
+                if (pageNum) {
+                    currentPageText = pageNum + '';
+                } else {
+                    currentPageText = '';
+                    showTotal = false;
+                }
+            }
+        }
+
+        if (showTotal && currentPageText) {
+            $('#current-page').text(currentPageText);
+            $('#total-pages').text(totalPages);
+            $('#top-current-page').text(currentPageText);
+            $('#top-total-pages').text(totalPages);
+        } else {
+            $('#current-page').text('');
+            $('#total-pages').text('');
+            $('#top-current-page').text('');
+            $('#top-total-pages').text('');
+        }
+    }
+
+    // Update navigation buttons for Turn.js - GLOBAL function
+    function updateFlipbookNavTurnJs() {
+        const magazine = $('#flipbook-magazine');
+        if (!magazine.turn('is')) return;
+
+        const currentPage = magazine.turn('page');
+        const totalPgs = magazine.turn('pages');
+
+        $('#flipbook-prev, #flipbook-first').prop('disabled', currentPage === 1);
+        $('#flipbook-next, #flipbook-last').prop('disabled', currentPage >= totalPgs);
+    }
+
+    function initializeFlipbook() {
+        // Configure PDF.js
+        if (typeof pdfjsLib !== 'undefined') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
+        }
+
+        $(document).ready(function () {
+
+            // Close button
+            $('#flipbook-close').click(closeFlipbook);
+
+            // Navigation buttons for Turn.js
+            $('#flipbook-first').click(() => {
+                stopAutoPlay();
+                const magazine = $('#flipbook-magazine');
+                if (magazine.turn('is')) {
+                    magazine.turn('page', 1); // Go to cover page
+                    updateFlipbookNavTurnJs();
+                }
+            });
+
+            $('#flipbook-prev').click(() => {
+                stopAutoPlay();
+                const magazine = $('#flipbook-magazine');
+                if (magazine.turn('is')) {
+                    magazine.turn('previous');
+                    updateFlipbookNavTurnJs();
+                }
+            });
+
+            $('#flipbook-next').click(() => {
+                stopAutoPlay();
+                const magazine = $('#flipbook-magazine');
+                if (magazine.turn('is')) {
+                    magazine.turn('next');
+                    updateFlipbookNavTurnJs();
+                }
+            });
+
+            $('#flipbook-last').click(() => {
+                stopAutoPlay();
+                const magazine = $('#flipbook-magazine');
+                if (magazine.turn('is')) {
+                    const totalPgs = magazine.turn('pages');
+                    magazine.turn('page', totalPgs);
+                    updateFlipbookNavTurnJs();
+                }
+            });
+
+            // Play/Pause button
+            $('#flipbook-play').click(function () {
+                if (isPlaying) {
+                    stopAutoPlay();
+                } else {
+                    startAutoPlayTurnJs();
+                }
+            });
+
+            // Speed slider
+            $('#flipbook-speed').on('input', function () {
+                const speed = $(this).val();
+                playSpeed = 6000 - (speed * 1000);
+                if (isPlaying) {
+                    stopAutoPlay();
+                    startAutoPlay();
+                }
+            });
+
+            // Zoom In button
+            $('#flipbook-zoom-in').click(function () {
+                if (zoomLevel < 1.5) {
+                    zoomLevel += 0.1;
+                    $('.magazine-viewport .container').css({
+                        'transform': `translate(-50%, -50%) scale(${zoomLevel})`,
+                        'transform-origin': 'center center'
+                    });
+                }
+            });
+
+            // Zoom Out button
+            $('#flipbook-zoom-out').click(function () {
+                if (zoomLevel > 0.5) {
+                    zoomLevel -= 0.1;
+                    $('.magazine-viewport .container').css({
+                        'transform': `translate(-50%, -50%) scale(${zoomLevel})`,
+                        'transform-origin': 'center center'
+                    });
+                }
+            });
+
+            // Fullscreen toggle
+            $('#flipbook-fullscreen').click(function () {
+                const container = document.querySelector('.flipbook-container');
+
+                if (!isFullscreen) {
+                    // Enter fullscreen
+                    if (container.requestFullscreen) {
+                        container.requestFullscreen();
+                    } else if (container.webkitRequestFullscreen) {
+                        container.webkitRequestFullscreen();
+                    } else if (container.msRequestFullscreen) {
+                        container.msRequestFullscreen();
+                    }
+                    $(this).find('i').removeClass('fa-expand').addClass('fa-compress');
+                    isFullscreen = true;
+                } else {
+                    // Exit fullscreen
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    } else if (document.msExitFullscreen) {
+                        document.msExitFullscreen();
+                    }
+                    $(this).find('i').removeClass('fa-compress').addClass('fa-expand');
+                    isFullscreen = false;
+                }
+            });
+
+            // Listen for fullscreen change events
+            $(document).on('fullscreenchange webkitfullscreenchange mozfullscreenchange msfullscreenchange', function () {
+                if (!document.fullscreenElement && !document.webkitFullscreenElement &&
+                    !document.mozFullScreenElement && !document.msFullscreenElement) {
+                    $('#flipbook-fullscreen i').removeClass('fa-compress').addClass('fa-expand');
+                    isFullscreen = false;
+                }
+            });
+
+            // ESC key to close
+            $(document).keyup(function (e) {
+                if (e.key === "Escape" && $('.flipbook-container').hasClass('active')) {
+                    closeFlipbook();
+                }
+            });
+
+        });
+
+        // On load: hide cover/page containers
+        $(document).ready(function () {
+            $('#flipbook-cover').show();
+            $('#flipbook-pages').hide();
+            $('#flipbook-magazine').hide();
+            currentSheet = 0;
+        });
+    } // End of initializeFlipbook function
+
+</script>
+
+
+@*Flipbook js end here*@
+<script>
+    // Wait for jQuery before initializing button handlers
+    window.addEventListener('DOMContentLoaded', function() {
+        var checkJQuery3 = setInterval(function() {
+            if (typeof jQuery !== 'undefined') {
+                clearInterval(checkJQuery3);
+                initializeButtonHandlers();
+            }
+        }, 50);
+    });
+
+    function initializeButtonHandlers() {
+$('#btnAddReference').click(function () {
+    var docId = $('#ddlMergedDoc').val();
+    var pageNo = $('#txtPageNumber').val();
+
+    var fullHtml = $("#docInfo").html();
+
+    // split on <br> or <br/>
+    var parts = fullHtml.split(/<br\s*\/?>/);
+
+    // First line (strip tags like <b>)
+    var totalPages = parts[0].replace(/<[^>]+>/g, '').trim();
+
+    // Second line -> docName
+    var docName = parts[1].replace("Doc Name:", "").trim();
+
+    //console.log("Pages123:", totalPages, "DocName123:", docName);
+
+    var selectedText = $("#ddlMergedDoc option:selected").text();
+
+    if (!docId || docId === "0") {
+        Swal.fire({
+            icon: 'warning',
+            title: 'No Document Selected',
+            text: 'Please select a document.',
+            confirmButtonColor: '#3085d6'
+        });
+        return;
+    }
+
+    if (!pageNo || pageNo <= 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Invalid Page Number',
+            text: 'Please enter a valid page number.',
+            confirmButtonColor: '#3085d6'
+        });
+        return;
+    }
+
+    $.ajax({
+        url: '@Url.Action("AddPageReference", "User")',
+        type: 'POST',
+        data: { docId: docId, pageNo: pageNo, fileCode: '@ViewBag.FileCode', totalPages: totalPages, docName: docName, docText: selectedText },
+        success: function (res) {
+            //if (res.success && res.link) {
+            //    ckEditorInstance.model.change(writer => {
+            //        const viewFragment = ckEditorInstance.data.processor.toView(res.link);
+            //        const modelFragment = ckEditorInstance.data.toModel(viewFragment);
+            //        ckEditorInstance.model.insertContent(modelFragment, ckEditorInstance.model.document.selection);
+            //    });
+            if (res.success && res.link) {
+                // ✅ Summernote mein HTML insert karo
+                $('#noteText').summernote('pasteHTML', res.link);
+                Swal.fire("Success", "Page reference added to noting.", "success");
+                Swal.fire("Success", "Page reference added to noting.", "success");
+            }
+            else {
+                Swal.fire("Error", res.message || "Could not add reference.", "error");
+                }
+            },
+        error: function () {
+                Swal.fire("Error", "Something went wrong while adding reference.", "error");
+            }
+        });
+});
+
+    function showPDF(docId, pageNo) {
+        var url = '/User/ViewPDF?docId=' + docId + '&page=' + pageNo;
+        $('#pdfFrame').attr('src', url).show();
+    }
+    } // End of initializeButtonHandlers function
+</script>

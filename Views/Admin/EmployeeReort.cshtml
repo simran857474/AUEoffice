@@ -1,0 +1,148 @@
+﻿@model List<Eoffice.Models.ModelEmployeeReport>
+
+@{
+    ViewBag.Title = "EmployeeReort";
+    Layout = "~/Views/Shared/_LayoutNew.cshtml";
+}
+
+<!-- PAGE HEADER -->
+@*<div class="app-page-title app-page-title-simple">
+    <div class="page-title-wrapper">
+        <div class="page-title-heading">
+            <div>
+                <div class="page-title-head center-elem">
+                    <span class="d-inline-block pr-2">
+                        <i class="lnr-apartment opacity-6"></i>
+                    </span>
+                    <span class="d-inline-block">Employee Report</span>
+                </div>
+               
+            </div>
+        </div>
+    </div>
+</div>*@
+
+<section class="content">
+    <div class="container-fluid">
+        <!-- EMPLOYEE LIST TABLE -->
+        <div id="accordion24" class="accordion-wrapper mb-3">
+            <div class="main-card mb-3 card">
+                <div id="headingtwentyfour" class="card-header">
+                    <button type="button" data-toggle="collapse" data-target="#collapseOne24" aria-expanded="true" class="text-left m-0 p-0 btn btn-link btn-block">
+                        <h5 class="m-0 p-0 card-title">Employee Report List <i class="float-right pe-7s-angle-down"></i></h5>
+                    </button>
+                </div>
+                <div data-parent="#accordion24" id="collapseOne24" class="collapse show">
+                    <div class="card-body">
+
+                        <div class="form-row align-items-end">
+                            <div class="col-md-4">
+                                <div class="position-relative form-group">
+                                    <label for="exampleSelect" class="">Establishment Type</label>
+
+
+
+                                    @Html.DropDownList("Est_Type", new SelectList(ViewBag.EstTypeList as List<SelectListItem>, "Value", "Text"), "Select", new { @class = "form-control", id = "Est_Type" })
+
+
+
+                                    @Html.ValidationMessage("Est_Type", "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <button class="ml-2 btn btn-primary" id="btnSubmit" >Search</button>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12" id="divDetails" >
+                                <div class="">
+                                    <table style="width: 100%;" id="scr-vtr-dynamic" class="table table-striped table-bordered nowrap table-hover text-center">
+                                        <thead>
+                                            <tr>
+                                                <th>S.No</th>
+                                                <th>EmpCode</th>
+                                                <th>EmpName</th>
+                                                <th>Mob No</th>
+                                                <th>Email</th>
+                                                <th>Est type</th>
+                                                <th>Department</th>
+                                                <th>Section</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model != null && Model.Count > 0)
+                                            {
+                                                int i = 1;
+                                                foreach (var item in Model)
+                                                {
+                                                    <tr>
+                                                        <td>@i</td>
+                                                        <td>@item.Emp_Code</td>
+                                                        <td>@item.Emp_Name</td>
+                                                        <td>@item.Contact_No</td>
+                                                        <td>@item.Email</td>
+                                                        <td>@item.Type_</td>
+                                                        <td>@item.Dep_Code</td>
+                                                        <td>@item.Sec_Code</td>
+                                                    </tr>
+                                                    i++;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <tr><td colspan="8">No data found.</td></tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+</section>
+
+        <script src="~/Scripts/jquery-3.7.1.min.js"></script>
+        <script>
+        $(document).ready(function () {
+
+            table = $('#scr-vtr-dynamic').DataTable();
+
+            $("#btnSubmit").click(function () {
+                var estType = $("#Est_Type").val();
+
+                $.ajax({
+                    url: '@Url.Action("GetEmployeeReportByEstType", "Admin")',
+                    type: "GET",
+                    data: { EstType: estType },
+                    success: function (data) {
+                        // Clear old data
+                        table.clear().draw();
+
+                        if (Array.isArray(data) && data.length > 0) {
+                            for (var i = 0; i < data.length; i++) {
+                                table.row.add([
+                                    (i + 1),
+                                    data[i].Emp_Code,
+                                    data[i].Emp_Name,
+                                    data[i].Contact_No,
+                                    data[i].Email,
+                                    data[i].Type_,
+                                    data[i].Dep_Code,
+                                    data[i].Sec_Code
+                                ]).draw(false);
+                            }
+                        }
+
+                    },
+                    error: function () {
+                        alert("Failed to load data.");
+                    }
+                });
+            });
+        });
+        </script>
+

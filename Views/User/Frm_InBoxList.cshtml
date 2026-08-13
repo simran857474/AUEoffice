@@ -1,0 +1,296 @@
+﻿@model System.Data.DataSet
+@{
+    ViewBag.Title = "Frm_InBoxList";
+    Layout = "~/Views/Shared/_LayoutNew.cshtml";
+}
+<section class="content">
+    <div class="container-fluid">
+
+        @*<div id="accordion23" class="accordion-wrapper mb-3">
+            <div class="main-card mb-3 card">
+                <div id="headingtwentythree" class="card-header">
+                    <button type="button" data-toggle="collapse" data-target="#collapsetwentythree" aria-expanded="true" aria-controls="collapsetwentythree" class="text-left m-0 p-0 btn btn-link btn-block">
+                        <h5 class="m-0 p-0 card-title">InBox Files<i class="float-right pe-7s-angle-down"></i></h5>
+
+                    </button>
+                </div>
+                <div data-parent="#accordion3" id="collapseOne3" aria-labelledby="headingthree" class="collapse show">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Select Section</label>
+                                @Html.DropDownList("Sec_Code", new SelectList(ViewBag.Sections as List<SelectListItem>, "Value", "Text"), "Select", new { @class = "form-control", id = "Sec_Code" })
+
+
+                            </div>
+                            <div class="col-md-6">
+                                <label>Select Financial Year</label>
+                                @Html.DropDownList("FinYear", new SelectList(ViewBag.FinancialYear as List<SelectListItem>, "Value", "Text"), new { @class = "form-control", id = "Fin_Year" })
+                            </div>
+
+                            <div class="row">
+                                <button type="submit" class="btn btn-primary" style="margin-top:30px;margin-left:50%" id="btnSearch">Search</button>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                </div>
+            </div>
+        </div>*@
+
+
+        <div id="accordionSearch" class="accordion-wrapper mb-3">
+            <div class="main-card mb-3 card">
+                <div class="card-header">
+                    <h5 class="m-0 p-0 card-title">Search Files</h5>
+                </div>
+                <div class="card-body">
+
+                    <!-- 🔹 Button Group -->
+                    <div class="btn-group mb-3">
+                        <button type="button" class="btn btn-outline-primary" id="btnSearchFinYear">Search by Financial Year</button>
+                        <button type="button" class="btn btn-outline-success" id="btnSearchSection">Search by Section</button>
+                    </div>
+
+                    <!-- 🔹 Financial Year Search -->
+                    <div id="searchFinYear" class="search-box" style="display:none;">
+                        <label>Select Financial Year</label>
+                        @Html.DropDownList("FinYear", new SelectList(ViewBag.FinancialYear as List<SelectListItem>, "Value", "Text"),
+                                           new { @class = "form-control", id = "Fin_Year" })
+                        <button type="button" class="btn btn-primary mt-2" id="btnFinYearSearch">Search</button>
+                    </div>
+
+                    <!-- 🔹 Section Search -->
+                    <div id="searchSection" class="search-box" style="display:none;">
+                        <label>Select Section</label>
+                        @Html.DropDownList("Sec_Code", new SelectList(ViewBag.Sections as List<SelectListItem>, "Value", "Text"),
+                                           new { @class = "form-control", id = "Sec_Code" })
+                        <button type="button" class="btn btn-success mt-2" id="btnSectionSearch">Search</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+        <div id="accordiontwentyfour" class="accordion-wrapper mb-3">
+            <div class="main-card mb-3 card">
+                <div id="headingtwentyfour" class="card-header">
+                    <button type="button" data-toggle="collapse" data-target="#collapsetwentyfour" aria-expanded="true" aria-controls="collapsetwentyfour" class="text-left m-0 p-0 btn btn-link btn-block">
+                        <h5 class="m-0 p-0 card-title"> List<i class="float-right pe-7s-angle-down"></i></h5>
+                    </button>
+                </div>
+                <div data-parent="#accordiontwentyfour" id="collapsetwentyfour" aria-labelledby="headingtwentyfour" class="collapse show">
+
+                    <div class="card-body">
+                        <!-- Loader -->
+                        <div id="searchLoader" class="text-center my-5" style="display:none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000;">
+                            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <p class="mt-3 text-muted">Searching files...</p>
+                        </div>
+                        
+                        <div class="row" id="tableContainer">
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12" id="divDetails">
+                                <div class="">
+
+                                    <table style="width: 100%; " id="scr-vtr-dynamic" class="example1 table table-striped table-bordered nowrap table-hover text-left">
+                                        <thead class="text-left">
+                                            <tr class="text-left">
+                                                <th>S.No</th>
+                                                <th class="text-left">File Number</th>
+                                                <th class="text-left">Description</th>
+                                                <th class="text-left">Category</th>
+                                                <th class="text-left">Sub Category</th>
+                                                <th class="text-left">Created By Section</th>
+                                                <th class="text-left">Sent From</th>
+                                                <th class="text-left">Sent To</th>
+                                                <th class="text-left">Sending Date/Time</th>
+                                                <th>Priority</th>
+                                                <th>Status</th>
+                                                <th>Remarks</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model != null && Model.Tables.Count > 0 && Model.Tables[0].Rows.Count > 0)
+                                            {
+                                                int i = 1;
+                                                foreach (System.Data.DataRow row in Model.Tables[0].Rows)
+                                                {
+                                                    <tr>
+                                                        <td>@i</td>
+                                                        @*<td> <a href="@Url.Action("Noting_Page", "User", new { fileCode = row["File_Code"] })"> @row["File_Code"] </a> </td>*@
+                                                        <td> <a href="@Url.Action("OpenFile", "User", new { fileCode = row["File_Code"], rowId = row["Row_ID"] })"> @row["File_Code"] </a></td>
+                                                        <td style="white-space: normal !important; word-wrap: break-word; min-width: 300px; "> @row["File_Desc"]</td>
+                                                        <td>@row["FileCat_Name"]</td>
+                                                        <td>@row["FileSubCat_Name"]</td>
+                                                        <td>@row["Sec_Name"]</td>
+                                                        <td>@row["F_From"]</td>
+                                                        <td>@row["F_To"]</td>
+                                                        <td>@row["sent_dt"]</td>
+                                                        <td>@row["DocPrior_Name"]</td>
+                                                        <td>@row["File_status"]</td>
+                                                        <td>@row["Remark"]</td>
+
+                                                        @*<td>
+                                                            @Html.ActionLink("Edit", "Department", "Admin", new { DepCode = item.Dep_Code }, new { @class = "btn btn-sm btn-warning" })
+                                                            @Html.ActionLink("Delete", "DeleteDepartment", "Admin", new { DepCode = item.Dep_Code }, new { @class = "btn btn-sm btn-danger", onclick = "return confirm('Are you sure you want to delete this department?');" })
+                                                        </td>*@
+                                                    </tr>
+                                                    i++;
+                                                }
+                                            }
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+<script src="~/Scripts/jquery-3.7.1.min.js"></script>
+<script>
+    $(document).ready(function () {
+        //var table = $('#scr-vtr-dynamic').DataTable({
+        //    responsive: true
+        //});
+
+        // Hide all search boxes initially
+        $(".search-box").hide();
+
+        // Show Financial Year box
+        $("#btnSearchFinYear").click(function () {
+            $(".search-box").hide();
+            $("#searchFinYear").show();
+        });
+
+        // Show Section box
+        $("#btnSearchSection").click(function () {
+            $(".search-box").hide();
+            $("#searchSection").show();
+        });
+
+        $("#btnSectionSearch").click(function (e) {
+            e.preventDefault();
+
+            var secCode = $("#Sec_Code").val();
+            //var finYear = $("#Fin_Year").val();
+            var finYear = $("#Fin_Year option:selected").text();
+
+            // Show loader and hide table
+            $('#searchLoader').show();
+            $('#tableContainer').css('opacity', '0.3');
+            $('#btnSectionSearch').prop('disabled', true);
+
+            $.ajax({
+                url: '@Url.Action("GetInboxFiles", "User")',
+                type: 'POST',
+                data: { secCode: secCode, finYear: finYear },
+                success: function (res) {
+                    // Hide loader and show table
+                    $('#searchLoader').hide();
+                    $('#tableContainer').css('opacity', '1');
+                    $('#btnSectionSearch').prop('disabled', false);
+
+                    table.clear().draw();
+
+                    $.each(res.data, function (i, item) {
+                        table.row.add([
+                            item.SNo,
+                            `<a href="@Url.Action("Noting_Page", "User")?fileCode=${item.File_Code}&rowId=${item.Row_ID}">${item.File_Code}</a>`,
+                            item.File_Desc,
+                            item.FileCat_Name,
+                            item.FileSubCat_Name,
+                            item.Sec_Name,
+                            item.F_From,
+                            item.F_To,
+                            item.Sent_Dt,
+                            item.DocPrior_Name,
+                            item.File_status,
+                            item.Remark
+                        ]).draw(false);
+                    });
+                },
+                error: function () {
+                    // Hide loader on error
+                    $('#searchLoader').hide();
+                    $('#tableContainer').css('opacity', '1');
+                    $('#btnSectionSearch').prop('disabled', false);
+                    alert('Error loading files.');
+                }
+            });
+        });
+
+        $("#btnFinYearSearch").click(function () {
+            var finYear = $("#Fin_Year option:selected").text();
+
+            // Show loader and hide table
+            $('#searchLoader').show();
+            $('#tableContainer').css('opacity', '0.3');
+            $('#btnFinYearSearch').prop('disabled', true);
+
+            $.ajax({
+                url: '@Url.Action("SearchByFinYear", "User")',
+                type: 'POST',
+                data: { finYear: finYear },
+                success: function (res) {
+                    // Hide loader and show table
+                    $('#searchLoader').hide();
+                    $('#tableContainer').css('opacity', '1');
+                    $('#btnFinYearSearch').prop('disabled', false);
+
+                    if (res.success) {
+
+                        table.clear().draw();
+
+                        $.each(res.data, function (i, item) {
+                            table.row.add([
+                                item.SNo,
+                                `<a href="@Url.Action("Noting_Page", "User")?fileCode=${item.File_Code}&rowId=${item.Row_ID}">${item.File_Code}</a>`,
+                                item.File_Desc,
+                                item.FileCat_Name,
+                                item.FileSubCat_Name,
+                                item.Sec_Name,
+                                item.F_From,
+                                item.F_To,
+                                item.Sent_Dt,
+                                item.DocPrior_Name,
+                                item.File_status,
+                                item.Remark
+                            ]).draw(false);
+                        });
+
+                        // Example coloring logic:
+                        res.data.forEach(function (item) {
+                            if (item.Cb_Flag === "1" || item.Cb_Flag === "-1") {
+                                // green bg + gray text
+                                table.row.css("background-color", "#C5FFBC");   // light green
+                                table.row.find("td:gt(0)").css("color", "gray"); // gray text except first cell
+                            } else {
+                                // red bg + black text
+                                table.row.css("background-color", "#FDD6D0");   // light red
+                                table.row.addClass("quadrat");                  // same class as ASPX
+                                table.row.find("td:gt(0)").css("color", "black"); // black text except first cell
+                            }
+                        });
+                    } else {
+                        alert("Error: " + res.message);
+                    }
+                },
+                error: function () {
+                    // Hide loader on error
+                    $('#searchLoader').hide();
+                    $('#tableContainer').css('opacity', '1');
+                    $('#btnFinYearSearch').prop('disabled', false);
+                    alert('Error loading files.');
+                }
+            });
+        });
+    });
+</script>

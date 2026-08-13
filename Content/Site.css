@@ -1,0 +1,138 @@
+﻿body {
+    /*padding-top: 50px;*/
+    padding-bottom: 20px;
+}
+
+/* Set padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Override the default bootstrap behavior where horizontal description lists 
+   will truncate terms that are too long to fit in the left column 
+*/
+.dl-horizontal dt {
+    white-space: normal;
+}
+
+/* Set width on the form input elements since they're 100% wide by default */
+input,
+select,
+textarea {
+    max-width: 280px;
+}
+/* content in header css*/
+.app-header__center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 10;
+}
+
+.university-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: #800000;
+    text-shadow: 1px 1px 2px #aaa;
+}
+/*card color css*/
+.bg-muted-lavender {
+    background: linear-gradient(135deg, #a18cd1, #6f6cb2); /* soft purple-gray */
+    color: white;
+}
+.bg-elegant-olive {
+    background: linear-gradient(135deg, #a8e063, #56ab2f); /* green with a natural tone */
+    color: white;
+}
+.bg-soft-steel {
+    background: linear-gradient(135deg, #6a82fb, #5c6bc0); /* bluish, cool */
+    color: white;
+}
+.bg-coral-rose {
+    background: linear-gradient(135deg, #f78ca0, #f9748f);
+    color: white;
+}
+
+/* DataTable styling fixes */
+.dataTables_wrapper .dt-buttons {
+    margin-right: 10px;
+}
+
+.dataTables_filter input {
+    width: auto;
+    margin-left: 5px;
+    display: inline-block;
+}
+
+@media (max-width: 768px) {
+    .dataTables_wrapper .row {
+        flex-direction: column;
+    }
+
+    .dataTables_wrapper .col-md-6 {
+        width: 100%;
+        margin-bottom: 10px;
+        text-align: left !important;
+    }
+
+    .dataTables_filter {
+        text-align: left !important;
+    }
+}
+
+
+/* Header background */
+
+
+
+
+/* Button Click Prevention Styles */
+.btn-disabled-processing {
+    pointer-events: none;
+    position: relative;
+}
+
+.btn-disabled-processing:hover {
+    cursor: not-allowed !important;
+}
+
+/* Spinner animation */
+@keyframes spinner-border {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner-border {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    vertical-align: text-bottom;
+    border: 0.15em solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spinner-border 0.75s linear infinite;
+}
+
+.spinner-border-sm {
+    width: 0.875rem;
+    height: 0.875rem;
+    border-width: 0.125em;
+}
+
+/* Ensure spinner has proper spacing */
+.spinner-border.mr-2 {
+    margin-right: 0.5rem;
+}
+
+/* Additional visual feedback for disabled buttons */
+button[disabled].btn-disabled-processing,
+input[disabled].btn-disabled-processing {
+    opacity: 0.7 !important;
+    cursor: not-allowed !important;
+}

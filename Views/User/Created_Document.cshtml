@@ -1,0 +1,97 @@
+﻿@model System.Data.DataTable
+
+@{
+    ViewBag.Title = "Created_Document";
+    Layout = "~/Views/Shared/_LayoutNew.cshtml";
+}
+
+<section class="content">
+    <div class="container-fluid">
+
+
+        <div id="accordiontwenty5" class="accordion-wrapper mb-3">
+            <div class="main-card mb-3 card">
+                <div id="headingtwenty5" class="card-header">
+                    <button type="button" data-toggle="collapse" data-target="#collapsetwenty5" aria-expanded="true" aria-controls="collapsetwenty5" class="text-left m-0 p-0 btn btn-link btn-block">
+                        <h5 class="m-0 p-0 card-title">Created Document<i class="float-right pe-7s-angle-down"></i></h5>
+                    </button>
+                </div>
+                <div data-parent="#accordiontwenty5" id="collapsetwenty5" aria-labelledby="headingtwenty5" class="collapse show">
+
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12" id="divDetails">
+                                <div class="">
+
+                                    <table style="width: 100%; " id="scr-vtr-dynamic" class="example1 table table-striped table-bordered nowrap table-hover text-left">
+                                        <thead>
+                                            <tr>
+                                                <th>S.No</th>
+                                                <th class="text-left">Document / Receipt No</th>
+                                                <th class="text-left">Subject</th>
+                                                <th class="text-left">Purpose</th>
+                                                <th class="text-left">Received Date</th>
+                                                <th class="text-left">Created Date/Time</th>
+                                                <th class="text-left">Status</th>
+                                                <th class="text-left">Document</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model != null && Model.Rows.Count > 0)
+                                            {
+                                                int i = 1;
+                                                foreach (System.Data.DataRow row in Model.Rows)
+                                                {
+                                                    <tr>
+                                                        <td>@i</td>
+                                                        <td>@*<a href="@Url.Action("Noting_Page", "User", new { fileCode = row["File_Code"] })">*@ @row["Doc_Code"]@*</a>*@ </td>
+                                                        <td style="white-space: normal !important; word-wrap: break-word; min-width: 300px; ">@row["Doc_Desc"]</td>
+                                                        <td>@row["Purpose_desc"]</td>
+                                                        <td>
+                                                            @(row["recieved_dt"] != DBNull.Value
+                                                            ? Convert.ToDateTime(row["recieved_dt"]).ToString("dd/MM/yyyy")
+                                                            : "")
+                                                        </td>
+                                                        <td>@row["Created_DT"]</td>
+                                                        <td>@(row["Merged"].ToString() == "Y" ? row["File_Code"] : "Available")</td>
+                                                        <td>
+                                                            @if (!string.IsNullOrEmpty(row["Doc_Upload"]?.ToString()))
+                                                            {
+                                                                @*<a href="@Url.Content("~/Uploads/CreatedFile/" + row["Doc_Upload"])" target="_blank" title="Open Document">
+
+                <i class="fa fa-file" aria-hidden="true"></i>
+            </a>*@
+                                                            <a href="@Url.Content("~/Uploads/CreatedFile/" + row["Doc_Upload"])" target="_blank">
+                                                                <i class="fa fa-file"></i>
+                                                            </a>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span>No File</span>
+                                                            }
+
+                                                        </td>
+                                                        @*<td>@row[""]</td>*@
+
+                                                        @*<td>
+                                                                @Html.ActionLink("Edit", "Department", "Admin", new { DepCode = item.Dep_Code }, new { @class = "btn btn-sm btn-warning" })
+                                                                @Html.ActionLink("Delete", "DeleteDepartment", "Admin", new { DepCode = item.Dep_Code }, new { @class = "btn btn-sm btn-danger", onclick = "return confirm('Are you sure you want to delete this department?');" })
+                                                            </td>*@
+                                                    </tr>
+                                                    i++;
+                                                }
+                                            }
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+

@@ -1,0 +1,660 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_LayoutNew.cshtml";
+}
+
+<style>
+    #piechart, #barchart, #donutchart {
+        width: 100%;
+        height: 500px;
+    }
+</style>
+
+<div class="tabs-animation">
+
+    <div id="accordion1" class="accordion-wrapper mb-3">
+        <div class="card">
+            <div id="headingOne" class="card-header">
+                <button type="button" data-toggle="collapse" data-target="#collapseOne2" aria-expanded="true" aria-controls="collapseOne2" class="text-left m-0 p-0 btn btn-link btn-block">
+                    <h5 class="m-0 p-0 card-title">Total Pending Replies<i class="float-right pe-7s-angle-down"></i></h5>
+
+                </button>
+            </div>
+            <div data-parent="#accordion1" id="collapseOne2" aria-labelledby="headingOne" class="collapse show">
+                <div class="card-body">
+                    <div class="media">
+
+                        <div class="media-body">
+
+
+                            <div class="mt-2">
+
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <a href="#" style="text-decoration-line:none;" id="PendingWritCasesLink">
+                                            <div class="card mb-3 widget-chart widget-chart2 bg-primary text-left">
+
+                                                <div class="widget-chart-content text-white">
+                                                    <div class="widget-chart-flex">
+                                                        <div class="widget-title">InBox</div>
+                                                    </div>
+                                                    <div class="widget-chart-flex">
+                                                        <div class="widget-numbers">
+                                                            0
+                                                        </div>
+                                                        <div class="widget-description ml-auto opacity-7">
+                                                            <i class="pe-7s-note2" style="font-size:xxx-large;"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <a href="#" style="text-decoration-line:none;" id="PendingWritCasesLink">
+                                            <div class="card mb-3 widget-chart widget-chart2 bg-info text-left" style="background: linear-gradient(to bottom right, #f75892, #693059) !important; ">
+
+                                                <div class="widget-chart-content text-white">
+                                                    <div class="widget-chart-flex">
+                                                        <div class="widget-title">OutBox</div>
+                                                    </div>
+                                                    <div class="widget-chart-flex">
+                                                        <div class="widget-numbers">
+                                                            0
+                                                        </div>
+                                                        <div class="widget-description ml-auto opacity-7">
+                                                            <i class="pe-7s-note2" style="font-size:xxx-large;"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <a href="#" style="text-decoration-line:none;" id="PendingContemptCasesLink">
+                                            <div class="card mb-3 widget-chart widget-chart2 bg-focus text-left" style="background: linear-gradient(45deg, #FF8C00, #ef4100) !important;">
+                                                <div class="widget-chart-content text-white">
+                                                    <div class="widget-chart-flex">
+                                                        <div class="widget-title">Opened Files</div>
+
+                                                    </div>
+                                                    <div class="widget-chart-flex">
+                                                        <div class="widget-numbers">
+                                                            0
+                                                        </div>
+                                                        <div class="widget-description ml-auto text-white">
+                                                            <i class="pe-7s-note2" style="font-size:xxx-large;"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <a href="#" style="text-decoration-line:none;" id="PendingArbitrationCasesLink">
+                                            <div class="card mb-3 widget-chart widget-chart2 bg-vicious-stance text-left" style="background: linear-gradient(to top, #0ba360 0%, #3cba92 100%) !important;">
+                                                <div class="widget-chart-content text-white">
+                                                    <div class="widget-chart-flex">
+                                                        <div class="widget-title"> Return Files</div>
+
+                                                    </div>
+                                                    <div class="widget-chart-flex">
+                                                        <div class="widget-numbers text-white">0</div>
+                                                        <div class="widget-description ml-auto text-white">
+                                                            <i class="pe-7s-note2" style="font-size:xxx-large;"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-4">
+
+                                        <a href="" style="text-decoration-line:none;" id="PendingCommercialCasesLink">
+                                            <div class="card mb-3 widget-chart widget-chart2 bg-slick-carbon text-left" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;">
+                                                <div class="widget-chart-content text-white">
+                                                    <div class="widget-chart-flex">
+                                                        <div class="widget-title">Approved Files </div>
+                                                    </div>
+                                                    <div class="widget-chart-flex">
+                                                        <div class="widget-numbers text-white">0</div>
+                                                        <div class="widget-description ml-auto text-white">
+                                                            <i class="pe-7s-note2" style="font-size:xxx-large;"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-4">
+
+                                        <a href="#" style="text-decoration-line:none;" id="PendingNGTLink">
+                                            <div class="card mb-3 widget-chart widget-chart2 bg-info text-left" style="background: linear-gradient(343deg, #9c023a 36%, #e34141 100%) !important ">
+                                                <div class="widget-chart-content text-white">
+                                                    <div class="widget-chart-flex">
+                                                        <div class="widget-title">Call Backed Files</div>
+
+                                                    </div>
+                                                    <div class="widget-chart-flex">
+                                                        <div class="widget-numbers text-white">0</div>
+                                                        <div class="widget-description ml-auto text-white">
+                                                            <i class="pe-7s-note2" style="font-size:xxx-large;"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div id="headingOne" class="card-header">
+        <button type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne" class="text-left m-0 p-0 btn btn-link btn-block">
+            <h5 class="m-0 p-0 card-title">Cases Reply Status<i class="float-right pe-7s-angle-down"></i></h5>
+        </button>
+    </div>
+    <div data-parent="#accordion" id="collapseOne" aria-labelledby="headingOne" class="collapse show">
+        <div class="card-body">
+            <div class="media">
+
+                <div class="media-body">
+
+
+                    <div class="mt-2">
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <a href="/Law/SummaryCaseList?RegisteredOnint=2025" style="text-decoration-line:none;" id="TotalCasesLink">
+                                    <div class="card mb-3 widget-chart widget-chart2 bg-primary text-left" style="background: linear-gradient(to top, #1e3c72 0%, #1e3c72 1%, #2a5298 100%) !important;">
+
+                                        <div class="widget-chart-content text-white">
+                                            <div class="widget-chart-flex">
+                                                <div class="widget-title">HAndOver Files</div>
+                                            </div>
+                                            <div class="widget-chart-flex">
+                                                <div class="widget-numbers">
+                                                    47
+                                                </div>
+                                                <div class="widget-description ml-auto opacity-7">
+                                                    <i class="pe-7s-note2" style="font-size:xxx-large;"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-4">
+                                <a href="/Law/CaseReplyList?CaseStatus=Pending&amp;&amp;RegisteredOnint=2025" style="text-decoration-line:none;" id="PendingCasesLink">
+                                    <div class="card mb-3 widget-chart widget-chart2 bg-info text-left" style="background: linear-gradient(343deg, #d89401 36%, #e5b534 100%) !important">
+
+                                        <div class="widget-chart-content text-white">
+                                            <div class="widget-chart-flex">
+                                                <div class="widget-title">HandOver File</div>
+                                            </div>
+                                            <div class="widget-chart-flex">
+                                                <div class="widget-numbers">0</div>
+                                                <div class="widget-description ml-auto opcity-5">
+                                                    <i class="pe-7s-note2" style="font-size:xxx-large;"></i>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-4">
+                                <a href="/Law/CaseReplyList?CaseStatus=Closed&amp;&amp;RegisteredOnint=2025" style="text-decoration-line:none;" id="CloseCasesLink">
+                                    <div class="card mb-3 widget-chart widget-chart2 bg-night-sky text-left" style="background:linear-gradient(to bottom right, #088c53, #26b97a) !important">
+                                        <div class="widget-chart-content text-white">
+                                            <div class="widget-chart-flex">
+                                                <div class="widget-title">Created Docuement</div>
+
+                                            </div>
+                                            <div class="widget-chart-flex">
+                                                <div class="widget-numbers">
+                                                    19
+                                                </div>
+                                                <div class="widget-description ml-auto text-white">
+                                                    <i class="pe-7s-note2" style="font-size:xxx-large;"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-4">
+                                <a href="/Law/CaseReplyList?CaseStatus=Defaulter&amp;&amp;RegisteredOnint=2025" style="text-decoration-line:none;" id="DefaulterCasesLink">
+                                    <div class="card mb-3 widget-chart widget-chart2 bg-night-sky text-left" style="background: linear-gradient(343deg, #9c023a 36%, #e34141 100%) !important">
+                                        <div class="widget-chart-content text-white">
+                                            <div class="widget-chart-flex">
+                                                <div class="widget-title">Created Files</div>
+                                            </div>
+                                            <div class="widget-chart-flex">
+                                                <div class="widget-numbers">
+                                                    28
+                                                </div>
+                                                <div class="widget-description ml-auto text-white">
+                                                    <i class="pe-7s-note2" style="font-size:xxx-large;"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-4">
+                                <a href="/Law/CaseReplyList?CaseStatus=NearToDeadLine&amp;&amp;RegisteredOnint=2025" style="text-decoration-line:none;" id="NearToDeadLineCasesLink">
+                                    <div class="card mb-3 widget-chart widget-chart2 bg-night-sky text-left" style="background: linear-gradient(343deg, #42868f 36%, #79b9d8 100%) !important">
+                                        <div class="widget-chart-content text-white">
+                                            <div class="widget-chart-flex">
+                                                <div class="widget-title">Files History</div>
+                                            </div>
+                                            <div class="widget-chart-flex">
+                                                <div class="widget-numbers">
+                                                    0
+                                                </div>
+                                                <div class="widget-description ml-auto text-white">
+                                                    <i class="pe-7s-note2" style="font-size:xxx-large;"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+        </div>
+
+
+
+    </div>
+
+</div>
+<br />
+    <div class="tab-content">
+        <div class="tab-pane tabs-animation fade show active" id="tab-content-0" role="tabpanel">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="main-card mb-3 card">
+                        <div class="card-body">
+                            <h4 class="text-center menu-header-title pt-2 text-primary">
+
+                                Pie Chart
+                            </h4>
+                            <div id="piechart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="main-card mb-3 card">
+                        <div class="card-body">
+                            <h4 class="text-center menu-header-title pt-2 text-primary">
+
+                                Donut Chart
+                            </h4>
+                            <div id="donutchart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="main-card mb-3 card">
+                        <div class="card-body">
+                            <h4 class="text-center menu-header-title pt-2 text-primary">
+                                Bar Chart
+                            </h4>
+                            <div id="barchart"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="app-drawer-overlay d-none animated fadeIn"></div>
+    <script type="text/javascript" src="~/themeassets/demo.dashboardpack.com/architectui-html-pro/assets/scripts/main.d810cf0ae7f39f28f336.js"></script>
+
+    <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/percent.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/themes/Responsive.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/xy.js"></script>
+
+    <script>
+        am5.ready(function () {
+
+            // Create root element
+            // https://www.amcharts.com/docs/v5/getting-started/#Root_element
+            var root = am5.Root.new("barchart");
+
+            // Set themes
+            // https://www.amcharts.com/docs/v5/concepts/themes/
+            root.setThemes([
+                am5themes_Animated.new(root)
+            ]);
+
+            // hide amcharts logo
+            root._logo.dispose();
+
+            // Create chart
+            // https://www.amcharts.com/docs/v5/charts/xy-chart/
+            var chart = root.container.children.push(am5xy.XYChart.new(root, {
+                panX: true,
+                panY: true,
+                wheelX: "panX",
+                wheelY: "zoomX",
+                pinchZoomX: true,
+                paddingLeft: 0,
+                paddingRight: 1
+            }));
+
+            // Add cursor
+            // https://www.amcharts.com/docs/v5/charts/xy-chart/cursor/
+            var cursor = chart.set("cursor", am5xy.XYCursor.new(root, {}));
+            cursor.lineY.set("visible", false);
+
+
+            // Create axes
+            // https://www.amcharts.com/docs/v5/charts/xy-chart/axes/
+            var xRenderer = am5xy.AxisRendererX.new(root, {
+                minGridDistance: 30,
+                minorGridEnabled: true
+            });
+
+            xRenderer.labels.template.setAll({
+                rotation: -90,
+                centerY: am5.p50,
+                centerX: am5.p100,
+                paddingRight: 15
+            });
+
+            xRenderer.grid.template.setAll({
+                location: 1
+            })
+
+            var xAxis = chart.xAxes.push(am5xy.CategoryAxis.new(root, {
+                maxDeviation: 0.3,
+                categoryField: "country",
+                renderer: xRenderer,
+                tooltip: am5.Tooltip.new(root, {})
+            }));
+
+            var yRenderer = am5xy.AxisRendererY.new(root, {
+                strokeOpacity: 0.1
+            })
+
+            var yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
+                maxDeviation: 0.3,
+                renderer: yRenderer
+            }));
+
+            // Add legend
+            var legend = chart.children.push(am5.Legend.new(root, {
+                centerX: am5.p50,
+                x: am5.p50,
+
+            }));
+
+            // Make legend markers circular
+            legend.markerRectangles.template.setAll({
+                cornerRadiusTL: 10,
+                cornerRadiusTR: 10,
+                cornerRadiusBL: 10,
+                cornerRadiusBR: 10
+            });
+
+            // Create series
+            // https://www.amcharts.com/docs/v5/charts/xy-chart/series/
+            var series = chart.series.push(am5xy.ColumnSeries.new(root, {
+                name: "Series 1",
+                xAxis: xAxis,
+                yAxis: yAxis,
+                valueYField: "value",
+                sequencedInterpolation: true,
+                categoryXField: "country",
+                tooltip: am5.Tooltip.new(root, {
+                    labelText: "{valueY}"
+                })
+            }));
+
+            series.columns.template.setAll({ cornerRadiusTL: 5, cornerRadiusTR: 5, strokeOpacity: 0 });
+            series.columns.template.adapters.add("fill", function (fill, target) {
+                return chart.get("colors").getIndex(series.columns.indexOf(target));
+            });
+
+            series.columns.template.adapters.add("stroke", function (stroke, target) {
+                return chart.get("colors").getIndex(series.columns.indexOf(target));
+            });
+
+
+            // Set data
+            var data = [{
+                country: "USA",
+                value: 2025
+            }, {
+                country: "China",
+                value: 1882
+            }, {
+                country: "Japan",
+                value: 1809
+            }, {
+                country: "Germany",
+                value: 1322
+            }, {
+                country: "UK",
+                value: 1122
+            }, {
+                country: "France",
+                value: 1114
+            }, {
+                country: "India",
+                value: 984
+            }, {
+                country: "Spain",
+                value: 711
+            }, {
+                country: "Netherlands",
+                value: 665
+            }, {
+                country: "South Korea",
+                value: 443
+            }, {
+                country: "Canada",
+                value: 441
+            }];
+
+            xAxis.data.setAll(data);
+            series.data.setAll(data);
+
+
+            // Make stuff animate on load
+            // https://www.amcharts.com/docs/v5/concepts/animations/
+            series.appear(1000);
+            chart.appear(1000, 100);
+
+        }); // end am5.ready()
+
+
+        am5.ready(function () {
+
+            // Create root element
+            // https://www.amcharts.com/docs/v5/getting-started/#Root_element
+            var root = am5.Root.new("piechart");
+
+            // Set themes
+            // https://www.amcharts.com/docs/v5/concepts/themes/
+            root.setThemes([
+                am5themes_Animated.new(root)
+            ]);
+
+            // hide amcharts logo
+            root._logo.dispose();
+
+            // Create chart
+            // https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/
+            var chart = root.container.children.push(
+                am5percent.PieChart.new(root, {
+                    endAngle: 270,
+                    radius: am5.percent(55)
+                })
+            );
+
+            // Create series
+            // https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/#Series
+            var series = chart.series.push(
+                am5percent.PieSeries.new(root, {
+                    valueField: "value",
+                    categoryField: "category",
+                    endAngle: 270
+                })
+            );
+
+            series.states.create("hidden", {
+                endAngle: -90
+            });
+
+            // Set data
+            // https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/#Setting_data
+            series.data.setAll([{
+                category: "Lithuania",
+                value: 501.9
+            }, {
+                category: "Czechia",
+                value: 301.9
+            }, {
+                category: "Ireland",
+                value: 201.1
+            }, {
+                category: "Germany",
+                value: 165.8
+            }, {
+                category: "Australia",
+                value: 139.9
+            }, {
+                category: "Austria",
+                value: 128.3
+            }, {
+                category: "UK",
+                value: 99
+            }]);
+
+            // Set custom colors for each slice
+            series.slices.each(function (slice, index) {
+                var colors = ["#d30000", "#ffcf00", "#F18B44", "#A6009D", "#009640", "#18898D", "#B64678"];
+                var sliceColor = colors[index % colors.length];
+                slice.set("fill", am5.color(sliceColor));
+
+            });
+
+            // Create legend
+            // https://www.amcharts.com/docs/v5/charts/percent-charts/legend-percent-series/
+            var legend = chart.children.push(am5.Legend.new(root, {
+                centerX: am5.percent(50),
+                x: am5.percent(50),
+                centerY: am5.percent(50),
+                y: am5.percent(90)
+            }));
+
+            legend.data.setAll(series.dataItems);
+            legend.markerRectangles.template.setAll({
+                cornerRadiusTL: 10,
+                cornerRadiusTR: 10,
+                cornerRadiusBL: 10,
+                cornerRadiusBR: 10
+            });
+
+            series.appear(1000, 100);
+
+        }); // end am5.ready()
+
+        am5.ready(function () {
+
+            // Create root element
+            // https://www.amcharts.com/docs/v5/getting-started/#Root_element
+            var root = am5.Root.new("donutchart");
+
+
+            // Set themes
+            // https://www.amcharts.com/docs/v5/concepts/themes/
+            root.setThemes([
+                am5themes_Animated.new(root)
+            ]);
+
+            // hide amcharts logo
+            root._logo.dispose();
+
+            // Create chart
+            // https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/
+            var chart = root.container.children.push(am5percent.PieChart.new(root, {
+                layout: root.verticalLayout,
+                innerRadius: am5.percent(50),
+                radius: am5.percent(60)
+            }));
+
+
+            // Create series
+            // https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/#Series
+            var series = chart.series.push(am5percent.PieSeries.new(root, {
+                valueField: "value",
+                categoryField: "category",
+                alignLabels: false
+            }));
+
+            series.labels.template.setAll({
+                textType: "circular",
+                centerX: 0,
+                centerY: 0
+            });
+
+
+            // Set data
+            // https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/#Setting_data
+            series.data.setAll([
+                { value: 10, category: "One" },
+                { value: 9, category: "Two" },
+                { value: 6, category: "Three" },
+                { value: 5, category: "Four" },
+                { value: 4, category: "Five" },
+                { value: 3, category: "Six" },
+                { value: 1, category: "Seven" },
+            ]);
+
+
+            // Create legend
+            // https://www.amcharts.com/docs/v5/charts/percent-charts/legend-percent-series/
+            var legend = chart.children.push(am5.Legend.new(root, {
+                centerX: am5.percent(50),
+                x: am5.percent(50),
+                marginTop: 15,
+                marginBottom: 15,
+            }));
+
+            legend.data.setAll(series.dataItems);
+
+
+            // Play initial series animation
+            // https://www.amcharts.com/docs/v5/concepts/animations/#Animation_of_series
+            series.appear(1000, 100);
+
+        }); // end am5.ready()
+
+    </script>

@@ -1,0 +1,219 @@
+﻿@model List<Eoffice.Models.ModelConstituentCollege>
+@{
+    ViewBag.Title = "ConstituentCollege";
+    Layout = "~/Views/Shared/_LayoutNew.cshtml";
+}
+
+@{
+    var editClg = ViewBag.EditConstituentCollege as Eoffice.Models.ModelConstituentCollege;
+    bool isEdit = editClg != null;
+}
+@*<div class="app-page-title app-page-title-simple">
+    <div class="page-title-wrapper">
+        <div class="page-title-heading">
+            <div>
+                <div class="page-title-head center-elem">
+                    <span class="d-inline-block pr-2">
+                        <i class="lnr-apartment opacity-6"></i>
+                    </span>
+                    <span class="d-inline-block">Constituent College/Institute Master </span>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>*@
+
+<section class="content">
+    <div class="container-fluid">
+        <div id="accordion17" class="accordion-wrapper mb-3">
+            <div class="main-card mb-3 card">
+                <div id="headingseventeen" class="card-header">
+                    <button type="button" data-toggle="collapse" data-target="#collapseOne17" aria-expanded="true" aria-controls="collapseOne17" class="text-left m-0 p-0 btn btn-link btn-block">
+                        <h5 class="m-0 p-0 card-title">Add Constituent College/Institute<i class="float-right pe-7s-angle-down"></i></h5>
+
+                    </button>
+                </div>
+                <div data-parent="#accordion17" id="collapseOne17" aria-labelledby="headingseventeen" class="collapse @(isEdit ? "show" : "")">
+
+                    <div class="card-body">
+                        @using (Html.BeginForm(isEdit ? "EditConstituentCollege" : "ConstituentCollege", "Admin", FormMethod.Post, new { id = "constituentcollegeForm" }))
+                        {
+                            <input type="hidden" name="College_ID" value="@(isEdit ? editClg.College_ID : "")" />
+                            <div class="form-row">
+                                <div class="col-md-4">
+                                    <div class="position-relative form-group">
+                                        <label for="exampleCollege/Institute111" class="">College/Institute Name</label>
+                                        <input name="College_Name" id="College_Name" placeholder="Enter Document Type  Name" type="Text" class="form-control" value="@(isEdit ? editClg.College_Name : "")">
+                                        <span id="CollegenameError" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="position-relative form-group">
+                                        <label for="examplePrincipal111" class="">Principal Name </label>
+                                        <input name="Principal_Name" id="Principal_Name" placeholder="Enter Short Document Type Name" type="Text" class="form-control" value="@(isEdit ? editClg.Principal_Name : "")">
+                                        <span id="PrincipalNameError" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="position-relative form-group">
+                                        <label for="exampleCollege/InstituteAddress111" class=""> Constituent College/Institute Address</label>
+                                        <input name="College_Add" id="College_Add" placeholder="Enter Short Document Type Name" type="Text" class="form-control" value="@(isEdit ? editClg.College_Add : "")">
+                                        <span id="CollegeAddError" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-md-4">
+                                    <input type="submit" class="mt-2 ml-2 btn btn-primary" value="@(isEdit ? "Update" : "Submit")" />
+                                    <input type="reset" class="mt-2 ml-2 btn btn-success" value="Reset" />
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <br />
+                </div>
+            </div>
+        </div>
+
+
+        <div id="accordion18" class="accordion-wrapper mb-3">
+            <div class="main-card mb-3 card">
+                <div id="headingeighteen" class="card-header">
+                    <button type="button" data-toggle="collapse" data-target="#collapseOne18" aria-expanded="true" aria-controls="collapseOne18" class="text-left m-0 p-0 btn btn-link btn-block">
+                        <h5 class="m-0 p-0 card-title"> Constituent College/Institute List<i class="float-right pe-7s-angle-down"></i></h5>
+
+                    </button>
+                </div>
+                <div data-parent="#accordion18" id="collapseOne18" aria-labelledby="headingeighteen" class="collapse show">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12" id="divDetails">
+                                <div class="">
+
+                                    <table style="width: 100%;" id="scr-vtr-dynamic" class="example1 table table-striped table-bordered nowrap table-hover text-center">
+                                        <thead>
+                                            <tr>
+                                                <th>S.No</th>
+                                                <th>CollegeName</th>
+                                                <th>Principal Name</th>
+                                                <th>College/Institute Address</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model != null && Model.Count > 0)
+                                            {
+                                                int i = 1;
+                                                foreach (var item in Model)
+                                                {
+                                                    <tr>
+                                                        <td>@i</td>
+                                                        <td>@item.College_Name</td>
+                                                        <td>@item.Principal_Name</td>
+                                                        <td>@item.College_Add</td>
+                                                        <td>@(item.Status.Trim() == "0" ? "Active" : "InActive")</td>
+                                                        <td>
+                                                            @Html.ActionLink("Edit", "ConstituentCollege", "Admin", new { College_ID = item.College_ID }, new { @class = "btn btn-sm btn-warning" })
+                                                            @Html.ActionLink("Delete", "DeleteConstituentCollege", "Admin", new { College_ID = item.College_ID }, new { @class = "btn btn-sm btn-danger", onclick = "return confirm('Are you sure you want to delete this row?');" })
+                                                        </td>
+                                                    </tr>
+                                                    i++;
+                                                }
+
+                                            }
+                                            else
+                                            {
+                                                <tr>
+                                                    <td colspan="6">No records found</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        
+    </div>
+</section>
+
+
+
+
+
+@section Scripts {
+
+    <script src="~/Scripts/jquery-3.7.1.min.js"></script>
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(function () {
+            // Validation code (your existing validate code) here...
+
+            // SweetAlert notification from TempData
+            var message = '@TempData["Message"]';
+            var messageType = '@TempData["MessageType"]'; // e.g. "success", "error", "warning"
+
+            if (message) {
+                Swal.fire({
+                    icon: messageType || 'info', // default to info
+                    title: messageType === 'success' ? 'Success' : (messageType === 'error' ? 'Error' : 'Notice'),
+                    text: message,
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+            $("#constituentcollegeForm").validate({
+                errorClass: "text-danger",
+                validClass: "is-valid",
+                errorElement: "span",
+
+                rules: {
+                    College_Name: { required: true },
+                    Principal_Name: { required: true },
+                    College_Add: { required: true },
+
+                },
+                messages: {
+                    College_Name: { required: "Please enter College_Name" },
+                    Principal_Name: { required: "Please enter Principal_Name" },
+                    College_Add: { required: "Please enter College_Add" },
+                },
+                highlight: function (element) {
+                    $(element).removeClass("is-valid").addClass("error");
+                },
+                unhighlight: function (element) {
+                    $(element).removeClass("error").addClass("is-valid");
+                },
+                errorPlacement: function (error, element) {
+                    error.insertAfter(element);
+                },
+                submitHandler: function (form) {
+                    // Disable button and show spinner
+                    var $btn = $('#constituentcollegeForm input[type="submit"]');
+                    var originalVal = $btn.val();
+                    $btn.prop('disabled', true);
+                    $btn.val('Processing...');
+                    $btn.css({ 'opacity': '0.7', 'cursor': 'not-allowed' });
+                    form.submit();
+                }
+            });
+
+    </script>
+}
+
+
+
+
+
+

@@ -1,0 +1,54 @@
+CREATE PROCEDURE sp_GetFileSubCategories
+    @FileCat_Code NVARCHAR(50)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF EXISTS (SELECT 1 FROM M_FileSubCat WHERE FileCat_Code = @FileCat_Code)
+    BEGIN
+        SELECT FileSubCat_Code, FileSubCat_Name 
+        FROM M_FileSubCat 
+        WHERE FileCat_Code = @FileCat_Code;
+    END
+    ELSE
+    BEGIN
+        SELECT FileSubCat_Code, FileSubCat_Name 
+        FROM M_FileSubCat 
+        WHERE FileCat_Code = 'N00409';
+    END
+END
+
+--------------------------------------------------------------------------------
+
+CREATE PROCEDURE usp_GetDepartmentName
+    @DepCode NVARCHAR(50)
+AS
+BEGIN
+    SELECT 
+        Dep_Code, 
+        (CONVERT(NVARCHAR, Dep_Name) + ' | ' + short_name) AS Dep_Name 
+    FROM 
+        M_Department 
+    WHERE 
+        Dep_Code = @DepCode
+    ORDER BY 
+        Dep_Name;
+END
+-------------------------------------------------------------------------------------
+CREATE PROCEDURE usp_GetSectionName
+    @DepCode NVARCHAR(50),
+    @SecCode NVARCHAR(50)
+AS
+BEGIN
+    SELECT 
+        sec_code, 
+        (CONVERT(NVARCHAR, Sec_Name) + ' | ' + Shrt_Name) AS Sec_Name, 
+        Dep_Code 
+    FROM 
+        M_Section 
+    WHERE 
+        Dep_Code = @DepCode AND 
+        sec_code = @SecCode 
+    ORDER BY 
+        Sec_Name;
+END

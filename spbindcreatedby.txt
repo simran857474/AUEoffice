@@ -1,0 +1,24 @@
+BindCreatedByEmployee() - BAL
+
+
+CREATE PROCEDURE USP_GetAdminReportUsers
+    @SecCode NVARCHAR(50),
+    @DeptCode NVARCHAR(50),
+    @LoginName NVARCHAR(100)
+AS
+BEGIN
+    SELECT DISTINCT 
+        mu.LoginName,
+        et.Emp_Code,
+        (ISNULL(e.Emp_Name,'Not Found') + ' | ' + ISNULL(mg.Shrt_Name,'Empty')) AS name
+    FROM EmployerDepartment et
+    INNER JOIN M_Employee e ON e.Emp_Code = et.Emp_Code
+    INNER JOIN M_Department dep ON dep.Dep_Code = et.Est_deptCode
+    INNER JOIN M_Section ms ON ms.Sec_Code = et.Est_secCode
+    LEFT JOIN Utility_MUser mu ON mu.EmpID = et.Emp_Code
+    LEFT JOIN M_Designation mg ON mg.Des_Code = et.Est_desigCode
+    WHERE et.Est_secCode = @SecCode
+      AND et.Est_deptCode = @DeptCode
+      AND ISNULL(mu.LoginName,'') <> @LoginName
+      AND e.Emp_Code <> '001';
+END;

@@ -1,0 +1,13 @@
+alter proc proc_get_section_head  
+@Est_deptCode nvarchar(100),  
+@Est_secCode nvarchar(100),  
+@Emp_Code nvarchar(200)  
+as  
+begin  
+select e.Emp_Code,e.Emp_Name +' | '+ ed.Est_secName as Emp_Name,b.LoginName,ed.Est_deptCode,ed.Est_deptName,ed.Est_secCode,ed.Est_secName   
+from EmployerDepartment ed inner join M_Employee e on ed.Emp_Code=e.Emp_Code left join Utility_MUser b on b.EmpID=e.Emp_Code   
+where ed.Est_typeCode='3' and ed.Emp_Code<>'001' and b.LoginName is not null and Est_deptCode=@Est_deptCode --and Est_secCode=@Est_secCode  
+and ed.Emp_Code not in (select Emp_Code from EmployerDepartment where Est_typeCode='3'
+and Est_deptCode=@Est_deptCode  and Est_secCode=@Est_secCode and Emp_Code=@Emp_Code)  
+order by Emp_Code  
+end 

@@ -1,0 +1,554 @@
+﻿@model List<Eoffice.Models.ModelEmployeeTransfer>
+@{
+    ViewBag.Title = "EmployeeTransfer";
+    Layout = "~/Views/Shared/_LayoutNew.cshtml";
+    var editemptrans = ViewBag.EditEmployeeTransfer as Eoffice.Models.ModelEmployeeTransfer;
+    bool isEdit = editemptrans != null;
+}
+
+@*<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Employee Transfer</h1>
+            </div>
+
+        </div>
+    </div>
+</div>*@
+
+<section class="content">
+    <div class="container-fluid">
+
+        <!-- Search Form -->
+        <div id="accordion21" class="accordion-wrapper mb-3">
+            <div class="main-card mb-3 card">
+                <div id="headingtwentyone" class="card-header">
+                    <button type="button" data-toggle="collapse" data-target="#collapseOne21" aria-expanded="true" class="text-left m-0 p-0 btn btn-link btn-block">
+                        <h5 class="m-0 p-0 card-title">Employee Transfer <i class="float-right pe-7s-angle-down"></i></h5>
+                    </button>
+                </div>
+                <div id="collapseOne21" class="collapse show" data-parent="#accordion21">
+                    <div class="card-body">
+                        <form id="empSearchForm">
+                            <div class="form-row">
+                                <div class="col-md-4">
+                                    <div class="position-relative form-group">
+                                        <label for="userid">Enter Emp_ID / Login Name</label>
+                                        <input name="UserId" id="userid" placeholder="Enter Emp_Id" type="text" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-md-4">
+                                    <input type="submit" class="mt-2 ml-2 btn btn-primary" />
+                                    <input type="reset" class="mt-2 ml-2 btn btn-success" value="Reset" />
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employee Transfer List -->
+
+        <div id="transferAccordionWrapper" style="display: none;">
+            <div id="accordion22" class="accordion-wrapper mb-3">
+                <div class="main-card mb-3 card">
+                    <div id="headingtwentytwo" class="card-header">
+                        <button type="button" data-toggle="collapse" data-target="#collapseOne22" class="text-left m-0 p-0 btn btn-link btn-block">
+                            <h5 class="m-0 p-0 card-title">Employee Transfer List <i class="float-right pe-7s-angle-down"></i></h5>
+                        </button>
+                    </div>
+                    <div id="collapseOne22" class="collapse show" data-parent="#accordion22">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="EmployeeDetails" class=" table table-striped table-bordered nowrap table-hover text-center">
+                                    <thead>
+                                        <tr>
+                                            <th>S.No</th>
+                                            <th>EmpCode</th>
+                                            <th>EmpName</th>
+                                            <th>Est Type</th>
+                                            <th>Department</th>
+                                            <th>Section</th>
+                                            <th>Designation</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="accordion24" class="accordion-wrapper mb-3">
+            <div class="main-card mb-3 card">
+                <div id="headingtwentyfour" class="card-header">
+                    <button type="button" data-toggle="collapse" data-target="#collapseOne24" aria-expanded="true" class="text-left m-0 p-0 btn btn-link btn-block">
+                        <h5 class="m-0 p-0 card-title">Employee Report List <i class="float-right pe-7s-angle-down"></i></h5>
+                    </button>
+                </div>
+                <div data-parent="#accordion24" id="collapseOne24" class="collapse show">
+                    <div class="card-body">
+
+
+
+                        <div class="row mt-3">
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12" id="divDetails">
+                                <div class="table-responsive">
+                                    <table style="width: 100%;" id="scr-vtr-dynamic" class="table table-striped table-bordered nowrap table-hover text-center">
+                                        <thead>
+                                            <tr>
+                                                <th>S.No</th>
+                                                <th>Emp Code</th>
+                                                <th>Emp Name</th>
+                                                <th>Login Name</th>
+                                                <th>Est type</th>
+                                                <th>Department</th>
+                                                <th>Section</th>
+                                                <th>Designation</th>
+                                                <th>Old Est type</th>
+                                                <th>Old Department</th>
+                                                <th>Old Section</th>
+                                                <th>Old Designation</th>
+                                                <th>Order Date</th>
+                                                <th>Order</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model != null && Model.Any())
+                                            {
+                                                int i = 1;
+                                                foreach (var item in Model)
+                                                {
+                                                    <tr>
+                                                        <td>@i</td>
+                                                        <td>@item.Emp_Code</td>
+                                                        <td>@item.Emp_Name</td>
+                                                        <th>@item.Login_Name</th>
+                                                        <td>@item.Est_Type</td>
+                                                        <td>@item.Department</td>
+                                                        <td>@item.Section</td>
+                                                        <td>@item.Designation</td>
+                                                        <td>@item.Old_Est_Type</td>
+                                                        <td>@item.Old_Department</td>
+                                                        <td>@item.Old_Section</td>
+                                                        <td>@item.Old_Designation</td>
+                                                        <td>@item.Transfer_From_Dt</td>
+                                                        <td>
+                                                            @if (!string.IsNullOrEmpty(item.Order_File_Name))
+                                                            {
+                                                                <a href="@Url.Content("~/Uploads/TransferOrders/" + item.Order_File_Name)" target="_blank">View Order</a>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span>N/A</span>
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                    i++;
+                                                }
+                                            }
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</section>
+
+<!-- Transfer Form Modal -->
+<div class="modal" id="transferModal" role="dialog" tabindex="-1" aria-labelledby="transferModalLabel">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="post" action="/Admin/EmployeeTransfer" enctype="multipart/form-data" id="transferForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="transferModalLabel">Transfer Employee</h5>
+                    <button type="button" class="close" id="btncross" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+
+                    <input type="hidden" id="hiddenRowId" name="Row_ID" />
+                    <input type="hidden" id="hiddenEmpCode" name="Emp_Code" />
+                    <input type="hidden" name="Est_Type" id="Est_Type" />
+                    <input type="hidden" name="Department" id="Department" />
+                    <input type="hidden" name="Section" id="Section" />
+                    <input type="hidden" name="Designation" id="Designation" />
+
+                    <div class="form-row">
+                        <div class="col-md-4">
+                            <div class="position-relative form-group">
+                                <label>Transfer Est_Type</label>
+                                @Html.DropDownList("Est_typeCode", new SelectList(ViewBag.EstTypeList as List<SelectListItem>, "Value", "Text"), "Select", new { @class = "form-control", id = "Est_typeCode" })
+
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="position-relative form-group">
+                                <label>Transfer to Department</label>
+                                <select id="ddlDepartment" name="Est_deptCode" class="form-control">
+                                    <option value="">Select Department</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="position-relative form-group">
+                                <label>Transfer to Section</label>
+                                <select name="Est_secCode" id="ddlSection" class="form-control">
+                                    <option value="">Select Section</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="col-md-4">
+                            <div class="position-relative form-group">
+                                <label for="exampleSelect" class="">Designation</label>
+                                @Html.DropDownList("Est_desigCode", new SelectList(ViewBag.DesignationList as List<SelectListItem>, "Value", "Text"), "Select", new { @class = "form-control", id = "Est_desigCode" })
+
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="position-relative form-group">
+                                <label for="OrderFile" class="">Upload Order File</label>
+                                <input type="file" name="OrderFile" id="OrderFile" class="form-control-file">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="position-relative form-group">
+                                <label for="OrderDate" class="">Order Date</label>
+                                <input type="date" name="OrderDate" id="OrderDate" class="form-control" />
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/jquery-3.7.1.min.js"></script>
+
+<script>
+    $(document).on('click', '.open-transfer-modal', function () {
+        const rowId = $(this).data('rowid');
+        const empCode = $(this).data('empcode');
+
+        $('#hiddenRowId').val(rowId);
+        $('#hiddenEmpCode').val(empCode);
+
+
+        $('#transferModal').modal('show');
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        var table = $('#scr-vtr-dynamic').DataTable();
+
+        $.ajax({
+            url: '@Url.Action("GetEmployeeTransferList", "Admin")',
+            type: "GET",
+            success: function (data) {
+                // Clear old data
+                table.clear().draw();
+
+                if (Array.isArray(data) && data.length > 0) {
+                    for (var i = 0; i < data.length; i++) {
+
+                        let orderLink = '';
+
+                        if (data[i].Order_File_Name && data[i].Order_File_Name !== "") {
+                            const filePath = '/Uploads/OrderFiles/' + data[i].Order_File_Name;
+                            orderLink = `<a href="${filePath}" target="_blank" class="btn btn-sm btn-info">View</a>`;
+                        } else {
+                            orderLink = '<span class="text-muted">N/A</span>';
+                        }
+
+                        table.row.add([
+                            (i + 1),
+                            data[i].Emp_Code,
+                            data[i].Emp_Name,
+                            data[i].Login_Name,
+                            data[i].Est_Type,
+                            data[i].Department,
+                            data[i].Section,
+                            data[i].Designation,
+                            data[i].Old_Est_Type,
+                            data[i].Old_Department,
+                            data[i].Old_Section,
+                            data[i].Old_Designation,
+                            data[i].Transfer_From_Dt,
+                            orderLink
+                        ]).draw(false);
+                    }
+                }
+
+            },
+            error: function () {
+                alert("Failed to load data.");
+            }
+        });
+
+        $('#Est_typeCode').change(function () {
+            var estTypeCode = $(this).val();
+
+            if (estTypeCode) {
+                $.ajax({
+                    
+                     url: '@Url.Action("GetDepartmentsByEstType", "Admin")',
+                    type: 'POST',
+                    data: { estTypeCode: estTypeCode },
+                    success: function (data) {
+                        var deptDropdown = $('#ddlDepartment');
+                        deptDropdown.empty();
+                        deptDropdown.append($('<option/>', {
+                            value: '',
+                            text: 'Select Department'
+                        }));
+
+                        $.each(data, function (i, item) {
+                            deptDropdown.append($('<option/>', {
+                                value: item.Value,
+                                text: item.Text
+                            }));
+                        });
+                    },
+                    error: function () {
+                        alert('Error loading departments.');
+                    }
+                });
+            } else {
+                $('#ddlDepartment').empty().append($('<option/>', {
+                    value: '',
+                    text: 'Select Department'
+                }));
+            }
+        });
+
+
+        $('#ddlDepartment').change(function () {
+            var Dep_Code = $(this).val();
+            var EstTypeCode = $('#Est_typeCode').val();
+
+            if (EstTypeCode && Dep_Code) {
+                $.ajax({
+                   
+                      url: '@Url.Action("GetSectionsByDepartment", "Admin")',
+                    type: 'POST',
+                    data: { Dep_Code: Dep_Code, EstTypeCode: EstTypeCode },
+                    success: function (data) {
+                        var deptDropdown = $('#ddlSection');
+                        deptDropdown.empty();
+                        deptDropdown.append($('<option/>', {
+                            value: '',
+                            text: 'Select Section'
+                        }));
+
+                        $.each(data, function (i, item) {
+                            deptDropdown.append($('<option/>', {
+                                value: item.Value,
+                                text: item.Text
+                            }));
+                        });
+                    },
+                    error: function () {
+                        alert('Error loading sections.');
+                    }
+                });
+            } else {
+                $('#ddlSection').empty().append($('<option/>', {
+                    value: '',
+                    text: 'Select Section'
+                }));
+            }
+        });
+
+        $('#transferForm').submit(function (e) {
+
+            let isValid = true;
+            let errorMessage = "";
+
+            // Validate Est_Type
+            if ($('#Est_typeCode').val() === "" || $('#Est_typeCode').val() === null) {
+                isValid = false;
+                errorMessage += "Please select Establishment Type.\n";
+            }
+
+            // Validate Department
+            if ($('#ddlDepartment').val() === "" || $('#ddlDepartment').val() === null) {
+                isValid = false;
+                errorMessage += "Please select Department.\n";
+            }
+
+            // Validate Section
+            if ($('#ddlSection').val() === "" || $('#ddlSection').val() === null) {
+                isValid = false;
+                errorMessage += "Please select Section.\n";
+            }
+
+            // Validate Designation
+            if ($('#Est_desigCode').val() === "" || $('#Est_desigCode').val() === null) {
+                isValid = false;
+                errorMessage += "Please select Designation.\n";
+            }
+
+            // Validate OrderFile
+            if ($('#OrderFile').val() === "" || $('#OrderFile').val() === null) {
+                isValid = false;
+                errorMessage += "Please upload Order File.\n";
+            }
+
+            // Validate OrderDate
+            if ($('#OrderDate').val() === "" || $('#OrderDate').val() === null) {
+                isValid = false;
+                errorMessage += "Please select Order Date.\n";
+            }
+
+            if (!isValid) {
+                e.preventDefault(); // Stop form submit
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Validation Error',
+                    text: errorMessage.replace(/\n/g, ' '), // show nicely
+                });
+                return false;
+            }
+
+            // Disable button and show spinner
+            var $btn = $('#transferForm button[type="submit"]');
+            var originalHtml = $btn.html();
+            $btn.prop('disabled', true);
+            $btn.html('<span class="spinner-border spinner-border-sm mr-2"></span>Processing...');
+            $btn.css({'opacity': '0.7', 'cursor': 'not-allowed'});
+
+            // Get selected text from each dropdown
+            const estTypeName = $('#Est_typeCode option:selected').text();
+            const departmentName = $('#ddlDepartment option:selected').text();
+            const sectionName = $('#ddlSection option:selected').text();
+            const designationName = $('#Est_desigCode option:selected').text();
+
+
+
+            // Set values to hidden fields
+            $('#Est_Type').val(estTypeName);
+            $('#Department').val(departmentName);
+            $('#Section').val(sectionName);
+            $('#Designation').val(designationName);
+        });
+
+
+    });
+
+
+
+
+
+    $('#empSearchForm').on('submit', function (e) {
+        e.preventDefault();
+        const empId = $('#userid').val().trim();
+
+        if (!empId) {
+            alert("Please enter Emp_ID");
+            return;
+        }
+        $('#txtempcode').val(empId);
+
+        $.ajax({
+            type: 'POST',
+           
+              url: '@Url.Action("GetEmployeeTransferById", "Admin")',
+            data: { empCode: empId },
+            success: function (response) {
+                populateTable(response);
+            },
+            error: function () {
+                alert("Error retrieving data.");
+                $('#transferAccordionWrapper').hide();
+            }
+        });
+    });
+
+    function populateTable(data) {
+        const tbody = $('#EmployeeDetails tbody');
+        tbody.empty();
+
+        if (data.length === 0) {
+            tbody.append('<tr><td colspan="8">No records found.</td></tr>');
+
+            $('#transferAccordionWrapper').hide();
+
+            return;
+        }
+
+        $('#transferAccordionWrapper').show();
+
+        //console.log(data);
+
+        data.forEach((item, index) => {
+            const row = `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${item.Emp_Code}</td>
+                <td>${item.Emp_Name}</td>
+                <td>${item.Est_Type}</td>
+                <td>${item.Department}</td>
+                <td>${item.Section}</td>
+                <td>${item.Designation}</td>
+                <td>
+                    <button class="btn btn-sm btn-primary open-transfer-modal"
+                            data-rowid="${item.Row_ID}"
+                            data-empcode="${item.Emp_Code}">
+                        Change Section
+                    </button>
+                </td>
+
+            </tr>
+        `;
+            tbody.append(row);
+        });
+    }
+
+</script>
+<script>
+  $(document).ready(function () {
+      var message = '@TempData["insertmsg"]';
+      if (message) {
+          switch (message) {
+              case 'Success':
+                  Swal.fire('Success', 'Employee Transfer Successful', 'success');
+                  break;
+              case 'Error':
+                  Swal.fire('Error', 'An error occurred', 'error');
+                  break;
+          }
+      }
+  });
+</script>
+@*<script src="~/Scripts/jquery-3.7.1.min.js"></script>*@
+@*<script>
+  //$(document).ready(function () {
+      var message = '@TempData["insertmsg"]';
+      if (message) {
+          switch (message) {
+            </script>*@
