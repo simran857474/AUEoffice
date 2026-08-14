@@ -30,7 +30,7 @@
                         <div class="card-body table-responsive p-0">
                             @if (received != null && received.Rows.Count > 0) //If we have received files (data is not empty), then show them in a table.
                             {
-                                <table class="table table-hover table-condensed table-head-fixed">
+                                <table class="table table-striped table-bordered table-hover example1">
                                     <thead>
                                         <tr>
                                             <th>
@@ -169,7 +169,7 @@
             contentType: "application/json; charset=utf-8",
             //headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
             data: JSON.stringify({ remark: remark, files: files }),
-            success: function (data) {  //If the controller says “success,” show a green popup and reload the page.
+            success: function (data) {  //If the controller says �success,� show a green popup and reload the page.
                 if (data.success) {
                     Swal.fire("Success!", data.message, "success").then((result) => {
                         if (result.isConfirmed) {

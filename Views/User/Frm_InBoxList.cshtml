@@ -1,4 +1,4 @@
-﻿@model System.Data.DataSet
+@model System.Data.DataSet
 @{
     ViewBag.Title = "Frm_InBoxList";
     Layout = "~/Views/Shared/_LayoutNew.cshtml";
@@ -46,26 +46,45 @@
                 </div>
                 <div class="card-body">
 
-                    <!-- 🔹 Button Group -->
-                    <div class="btn-group mb-3">
-                        <button type="button" class="btn btn-outline-primary" id="btnSearchFinYear">Search by Financial Year</button>
-                        <button type="button" class="btn btn-outline-success" id="btnSearchSection">Search by Section</button>
-                    </div>
+                    <!-- 🔹 Nav tabs -->
+                    <ul class="nav nav-tabs mb-3" id="searchTabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="tabFinYear-tab" data-toggle="tab" href="#searchFinYear" role="tab" aria-controls="searchFinYear" aria-selected="true">Search by Financial Year</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="tabSection-tab" data-toggle="tab" href="#searchSection" role="tab" aria-controls="searchSection" aria-selected="false">Search by Section</a>
+                        </li>
+                    </ul>
 
-                    <!-- 🔹 Financial Year Search -->
-                    <div id="searchFinYear" class="search-box" style="display:none;">
-                        <label>Select Financial Year</label>
-                        @Html.DropDownList("FinYear", new SelectList(ViewBag.FinancialYear as List<SelectListItem>, "Value", "Text"),
-                                           new { @class = "form-control", id = "Fin_Year" })
-                        <button type="button" class="btn btn-primary mt-2" id="btnFinYearSearch">Search</button>
-                    </div>
+                    <!-- 🔹 Tab panes -->
+                    <div class="tab-content" id="searchTabsContent">
+                        <!-- 🔹 Financial Year Search -->
+                        <div class="tab-pane fade show active" id="searchFinYear" role="tabpanel" aria-labelledby="tabFinYear-tab">
+                            <div class="d-flex align-items-end mb-3">
+                                <div class=" mr-3">
+                                    <label>Select Financial Year</label>
+                                    @Html.DropDownList("FinYear", new SelectList(ViewBag.FinancialYear as List<SelectListItem>, "Value", "Text"),
+                                                       new { @class = "form-control", id = "Fin_Year" })
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-primary" id="btnFinYearSearch">Search</button>
+                                </div>
+                            </div>
+                        </div>
 
-                    <!-- 🔹 Section Search -->
-                    <div id="searchSection" class="search-box" style="display:none;">
-                        <label>Select Section</label>
-                        @Html.DropDownList("Sec_Code", new SelectList(ViewBag.Sections as List<SelectListItem>, "Value", "Text"),
-                                           new { @class = "form-control", id = "Sec_Code" })
-                        <button type="button" class="btn btn-success mt-2" id="btnSectionSearch">Search</button>
+                        <!-- 🔹 Section Search -->
+                        <div class="tab-pane fade" id="searchSection" role="tabpanel" aria-labelledby="tabSection-tab">
+                            <div class="d-flex align-items-end mb-3">
+                                <div class=" mr-3">
+                                    <label>Select Section</label>
+                                    @Html.DropDownList("Sec_Code", new SelectList(ViewBag.Sections as List<SelectListItem>, "Value", "Text"),
+                                                       new { @class = "form-control", id = "Sec_Code" })
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-success" id="btnSectionSearch">Search</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                 </div>
@@ -95,7 +114,7 @@
                             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12" id="divDetails">
                                 <div class="">
 
-                                    <table style="width: 100%; " id="scr-vtr-dynamic" class="example1 table table-striped table-bordered nowrap table-hover text-left">
+                                    <table style="width: 100%; " id="scr-vtr-dynamic" class="example1 table table-striped table-bordered  table-hover text-left">
                                         <thead class="text-left">
                                             <tr class="text-left">
                                                 <th>S.No</th>
@@ -161,20 +180,7 @@
         //    responsive: true
         //});
 
-        // Hide all search boxes initially
-        $(".search-box").hide();
 
-        // Show Financial Year box
-        $("#btnSearchFinYear").click(function () {
-            $(".search-box").hide();
-            $("#searchFinYear").show();
-        });
-
-        // Show Section box
-        $("#btnSearchSection").click(function () {
-            $(".search-box").hide();
-            $("#searchSection").show();
-        });
 
         $("#btnSectionSearch").click(function (e) {
             e.preventDefault();

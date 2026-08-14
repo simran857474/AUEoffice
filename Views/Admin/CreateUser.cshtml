@@ -1,4 +1,4 @@
-﻿@model List<Eoffice.Models.ModelUser>
+@model List<Eoffice.Models.ModelUser>
 @{
     ViewBag.Title = "CreateUser";
     Layout = "~/Views/Shared/_LayoutNew.cshtml";
@@ -138,7 +138,7 @@
                 <div class="row">
                     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12" id="divDetails" >
                         <div class="">
-                            <table style="width:100%" id="scr-vtr-dynamic" class="example1 table table-striped table-bordered nowrap table-hover text-center">
+                            <table style="width:100%" id="scr-vtr-dynamic" class="example1 table table-striped table-bordered  table-hover text-center">
                                 <thead>
                                     <tr>
                                         <th>S.No</th>
@@ -691,17 +691,17 @@
                         ddl.append(`<option value="${item.Value}">${item.Text}</option>`);
                     });
 
-                    // ✅ STEP 1: Try to set selected value
+                    // ? STEP 1: Try to set selected value
                     if (selected && ddl.find(`option[value="${selected}"]`).length > 0) {
                         ddl.val(selected);
                     }
                     else {
-                        // ✅ STEP 2: If no valid selected value
+                        // ? STEP 2: If no valid selected value
                         if (ddl.find('option').length > 1) {
                             // Select first option after default
                             ddl.prop('selectedIndex', 1);
                         } else {
-                            // Only default exists → keep default
+                            // Only default exists ? keep default
                             ddl.prop('selectedIndex', 0);
                         }
                     }

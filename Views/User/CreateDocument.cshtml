@@ -1,4 +1,4 @@
-﻿@model List<Eoffice.Models.ModelAddDocument>
+@model List<Eoffice.Models.ModelAddDocument>
 
 @{
     ViewBag.Title = "CreateDocument";
@@ -53,7 +53,7 @@
     }
 
     .custom-card-bg {
-        background-image: url('/Content/Images/bg-img.jpg'); /* ✅ Replace with your image path */
+        background-image: url('/Content/Images/bg-img.jpg'); /* ? Replace with your image path */
         background-size: cover;
         background-repeat: no-repeat;
         background-position: center;
@@ -86,10 +86,10 @@
                             <!-- Left Side: CKEditor + Generate PDF -->
                             <div class="col-md-6 p-4 border-end d-flex flex-column">
                                 <label for="editor" class="form-label fw-bold">Document Editor</label>
-                                <div id="editorContainer" class="flex-grow-1">
+                                <div id="editorContainer" class="">
                                     <textarea id="editor" name="editor" class="form-control" rows="15"></textarea>
                                 </div>
-                                <div id="pdfPreviewContainer" class="flex-grow-1" style="display:none;">
+                                <div id="pdfPreviewContainer" class="" style="display:none;">
                                     <iframe id="pdfPreview" style="width:100%; height:100%;" frameborder="0"></iframe>
                                 </div>
 
@@ -283,7 +283,7 @@
                             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12" id="divDetails">
                                 <div class="">
 
-                                    <table style="width: 100%; " id="scr-vtr-dynamic" class="example1 table table-striped table-bordered nowrap table-hover text-left">
+                                    <table style="width: 100%; " id="scr-vtr-dynamic" class="example1 table table-striped table-bordered  table-hover text-left">
                                         <thead>
                                             <tr>
                                                 <th>S.No</th>
@@ -473,7 +473,7 @@
 
         //    // Trigger validation manually
         //    if (!form.valid()) {
-        //        e.preventDefault(); // 🚨 STOP form submission
+        //        e.preventDefault(); // ?? STOP form submission
         //        return false;
         //    }
 
@@ -502,14 +502,14 @@
         $('#letter_dt').attr('max', today);
         $('#recieved_dt').attr('max', today);
 
-        // ✅ Custom validation method for max date
+        // ? Custom validation method for max date
         $.validator.addMethod("maxDate", function (value, element) {
             if (!value) return true; // Allow empty values
             const now = new Date().toISOString().split("T")[0];
             return value <= now;
         }, "Date cannot be in the future.");
 
-        // ✅ Custom validation method for file extension
+        // ? Custom validation method for file extension
         $.validator.addMethod("pdfOnly", function (value, element) {
             if (element.files.length === 0) return true; // If no file, let required handle it
             var extension = value.split('.').pop().toLowerCase();
@@ -523,7 +523,7 @@
             return fileSize <= param;
         }, "File size must be less than 100 MB.");
 
-        // ✅ Initialize jQuery Validation
+        // ? Initialize jQuery Validation
         var validator = $("#DocumentForm").validate({
             ignore: [],
             onsubmit: false, // Disable automatic validation on submit
@@ -584,7 +584,7 @@
             }
         });
 
-        // ✅ Handle submit button click manually
+        // ? Handle submit button click manually
         $('#btnSubmitForm').on('click', function (e) {
             e.preventDefault();
             e.stopImmediatePropagation();
@@ -614,14 +614,14 @@
             return false;
         });
 
-        // ✅ File change handler INSIDE document.ready
+        // ? File change handler INSIDE document.ready
         $('#Doc_File').on('change', function (e) {
             // Only validate this field, don't submit
             $(this).valid();
             
             const file = e.target.files[0];
             if (file && file.type === "application/pdf") {
-                // ✅ Check file size (100 MB)
+                // ? Check file size (100 MB)
                 if (file.size > 104857600) {
                     alert("File size must be less than 100 MB.");
                     $(this).val('');

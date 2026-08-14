@@ -1,4 +1,4 @@
-﻿@model System.Data.DataTable
+@model System.Data.DataTable
 @{
     ViewBag.Title = "OpenedFiles";
     Layout = "~/Views/Shared/_LayoutNew.cshtml";
@@ -39,50 +39,61 @@
                 </div>
                 <div class="card-body">
 
-                    <!-- 🔹 Button Group -->
-                    <!--<div class="btn-group mb-3">
-                        <button type="button" class="btn btn-outline-primary" id="btnSearchOthers">Search by Est, Department, Section, Created By</button>
-                        <button type="button" class="btn btn-outline-success" id="btnSearchFileNo">Search by File No</button>
-                    </div>-->
-                    <!-- 🔹 Financial Year Search -->
-                    <div id="searchOthers" class="search-box" style="display:none;">
-                        <div class="form-row">
-                            <div class="col-md-3">
-                                <label>Establishment Type</label>
-                                @Html.DropDownList("EstType", new SelectList(ViewBag.EstTypeList as List<SelectListItem>, "Value", "Text"), "Select", new { @class = "form-control", id = "EstType" })
+                    <!-- 🔹 Nav tabs -->
+                    <ul class="nav nav-tabs mb-3" id="searchTabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="tabOthers-tab" data-toggle="tab" href="#searchOthers" role="tab" aria-controls="searchOthers" aria-selected="true">Search by Department/Section</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="tabFileNo-tab" data-toggle="tab" href="#searchFileNo" role="tab" aria-controls="searchFileNo" aria-selected="false">Search by File No</a>
+                        </li>
+                    </ul>
 
-                            </div>
-                            <div class="col-md-3">
-                                <label>Department</label>
-                                <select id="ddlDepartment" name="EstDep" class="form-control">
-                                    <option value="">Select</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label>Section</label>
-                                <select name="EstSec" id="ddlSection" class="form-control">
-                                    <option value="">Select</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label>Created By</label>
-                                <select name="EmpID" id="ddlEmployee" class="form-control">
-                                    <option value="">Select</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-3">
-                                <button type="button" class="btn btn-info mt-4" id="btnOthersSearch">Search</button>
+                    <!-- 🔹 Tab panes -->
+                    <div class="tab-content" id="searchTabsContent">
+                        <!--  Department/Section Search -->
+                        <div class="tab-pane fade show active" id="searchOthers" role="tabpanel" aria-labelledby="tabOthers-tab">
+                            <div class="form-row align-items-end mb-3">
+                                <div class="col-md-3">
+                                    <label>Establishment Type</label>
+                                    @Html.DropDownList("EstType", new SelectList(ViewBag.EstTypeList as List<SelectListItem>, "Value", "Text"), "Select", new { @class = "form-control", id = "EstType" })
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Department</label>
+                                    <select id="ddlDepartment" name="EstDep" class="form-control">
+                                        <option value="">Select</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Section</label>
+                                    <select name="EstSec" id="ddlSection" class="form-control">
+                                        <option value="">Select</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label>Created By</label>
+                                    <select name="EmpID" id="ddlEmployee" class="form-control">
+                                        <option value="">Select</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-info w-100" id="btnOthersSearch">Search</button>
+                                </div>
                             </div>
                         </div>
 
-                    </div>
-
-                    <!-- 🔹 Section Search -->
-                    <div id="searchFileNo" class="search-box" style="display:none;">
-                        <label>File No</label>
-                        <input type="text" id="txtFileNo" class="form-control" placeholder="Enter File Number" />
-                        <button type="button" class="btn btn-info mt-2" id="btnFileNoSearch">Search</button>
+                        <!-- 🔹 Section Search -->
+                        <div class="tab-pane fade" id="searchFileNo" role="tabpanel" aria-labelledby="tabFileNo-tab">
+                            <div class="d-flex align-items-end mb-3">
+                                <div class=" mr-3">
+                                    <label>File No</label>
+                                    <input type="text" id="txtFileNo" class="form-control" placeholder="Enter File Number" />
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-info" id="btnFileNoSearch">Search</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                 </div>
@@ -116,7 +127,7 @@
                                         </div>
                                     </div>
 
-                                    <table style="width: 100%; " id="scr-vtr-dynamic" class="example1 table table-striped table-bordered nowrap table-hover text-left">
+                                    <table style="width: 100%; " id="scr-vtr-dynamic" class="example1 table table-striped table-bordered  table-hover text-left">
                                         <thead>
                                             <tr>
                                                 <th>S.No</th>
@@ -178,24 +189,7 @@
 
 <script>
 
-    $(document).ready(function () {
-        // Hide all search boxes initially
-        $(".search-box").hide();
 
-        $("#searchOthers").show();
-
-        // Show Financial Year box
-        //$("#btnSearchOthers").click(function () {
-        //    $(".search-box").hide();
-        //    $("#searchOthers").show();
-        //});
-
-        //// Show Section box
-        //$("#btnSearchFileNo").click(function () {
-        //    $(".search-box").hide();
-        //    $("#searchFileNo").show();
-        //});
-    });
 
     $('#EstType').change(function () {
         var estTypeCode = $(this).val();
