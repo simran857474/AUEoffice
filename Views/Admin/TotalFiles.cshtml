@@ -473,12 +473,15 @@
 
      var finYear = $("#Fin_Year option:selected").text();
 
+      $("#attachmentLoader").show();
 
       $.ajax({
           url: '@Url.Action("TotalFilesSearchByFinYear", "Admin")',
           type: 'POST',
           data: { finYear: finYear },
           success: function (res) {
+              $("#attachmentLoader").hide();
+              
               table.clear().draw();
               $.each(res.data, function (i, item) {
                   table.row.add([
@@ -495,6 +498,9 @@
                       `<i class="fa fa-file text-danger" style="cursor:pointer" title="View Attached Document" onclick="viewAttachedDocument('${item.File_Code}')"></i>`
                   ]).draw(false);
               });
+          },
+          error: function() {
+              $("#attachmentLoader").hide();
           }
       });
  });
@@ -533,6 +539,9 @@
                         //item.file_Remark
                     ]).draw(false);
                 });
+            },
+            error: function() {
+                $("#attachmentLoader").hide();
             }
         });
     });

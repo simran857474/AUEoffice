@@ -1730,7 +1730,8 @@ namespace Eoffice.BAL
 
         public DataTable GetFilteredAdminReport(string estType, string deptCode, string secCode, string empCode, string finYear, string ParamType)
         {
-            return dal.GetFilteredAdminReport(estType, deptCode, secCode, empCode, finYear, ParamType);
+            DataTable dt = dal.GetFilteredAdminReport(estType, deptCode, secCode, empCode, finYear, ParamType);
+            return DataSetEncryptionHelper.DecryptDataTable(dt);
         }
 
 
