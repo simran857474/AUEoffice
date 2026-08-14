@@ -2155,9 +2155,6 @@
     <Content Include="theme\plugins\toastr\toastr.min.js" />
     <Content Include="theme\plugins\uplot\uPlot.iife.min.js" />
     <Content Include="theme\plugins\uplot\uPlot.min.css" />
-    <Content Include="Uploads\alterempproc.txt" />
-    <Content Include="Uploads\alterproc.txt" />
-    <Content Include="Uploads\alterprocsandindexes.txt" />
     <Content Include="Uploads\flipbook\Flipbook.aspx" />
     <Content Include="Uploads\flipbook\flipbook\2.10.377\pdf.min.js" />
     <Content Include="Uploads\flipbook\flipbook\2.10.377\pdf.worker.min.js" />
@@ -2180,11 +2177,6 @@
     <Content Include="Uploads\flipbook\flipbook\js\zoom.min.js" />
     <Content Include="Uploads\flipbook\flipbook\pdf.js" />
     <Content Include="Uploads\flipbook\flipbook\turn.js" />
-    <Content Include="Uploads\HC_EofficeScript%2813-04-2026%29.sql" />
-    <Content Include="Uploads\onlyschemascript_eofficelive_Au.sql" />
-    <Content Include="Uploads\RFIDLibrary_MSSQL_Schema.sql" />
-    <Content Include="Uploads\rfid_library_er_diagram_red_yellow.html" />
-    <Content Include="Uploads\scriptandalterrproc.txt" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -2623,10 +2615,6 @@
     <Content Include="Views\Shared\_LayoutAdmin.cshtml" />
     <Content Include="Uploads\flipbook\flipbook\pdf\merged.pdf" />
     <Content Include="Uploads\flipbook\Web.config" />
-    <Content Include="Uploads\CCMS Guideline 2.1.pdf" />
-    <Content Include="Uploads\eOffice_Live_backup_2026_08_01_100030_5548288.rar" />
-    <Content Include="Uploads\eoffice_data.xlsx" />
-    <Content Include="Uploads\testing pointeoffice %2813082026%29.docx" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="css\" />
