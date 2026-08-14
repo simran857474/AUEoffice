@@ -2296,6 +2296,7 @@
     <Content Include="Views\Shared\_LayoutAdmin.cshtml" />
     <Content Include="Uploads\flipbook\flipbook\pdf\merged.pdf" />
     <Content Include="Uploads\flipbook\Web.config" />
+    <Content Include="Uploads\After submit final noting and attached doc if we will.docx" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="css\" />
