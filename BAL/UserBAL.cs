@@ -2081,7 +2081,8 @@ namespace Eoffice.BAL
         public DataTable GetReceivedFiles(string docCode, string forwardedBy)
         {
             docCode = DeterministicEncryptionHelper.Encrypt(docCode);
-            return dal.GetReceivedFiles(docCode, forwardedBy);
+            DataTable dt = dal.GetReceivedFiles(docCode, forwardedBy);
+            return DataSetEncryptionHelper.DecryptDataTable(dt);
         }
 
 
