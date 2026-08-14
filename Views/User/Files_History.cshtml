@@ -1,4 +1,4 @@
-﻿@model System.Data.DataTable
+@model System.Data.DataTable
 
 @{
     ViewBag.Title = "Files_History";
@@ -25,34 +25,64 @@
                     <h5 class="m-0 p-0">Search Files</h5>
                 </div>
                 <div class="card-body">
-                    <div class="btn-group mb-3">
-                        <button type="button" class="btn btn-outline-primary" id="btnSearchFinYear">Search by Financial Year</button>
-                        <button type="button" class="btn btn-outline-success" id="btnSearchDate">Search by Date</button>
-                        <button type="button" class="btn btn-outline-info" id="btnSearchFileNo">Search by File No</button>
-                    </div>
+                    <!-- 🔹 Nav tabs -->
+                    <ul class="nav nav-tabs mb-3" id="searchTabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="tabFinYear-tab" data-toggle="tab" href="#searchFinYear" role="tab" aria-controls="searchFinYear" aria-selected="true">Search by Financial Year</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="tabDate-tab" data-toggle="tab" href="#searchDate" role="tab" aria-controls="searchDate" aria-selected="false">Search by Date</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="tabFileNo-tab" data-toggle="tab" href="#searchFileNo" role="tab" aria-controls="searchFileNo" aria-selected="false">Search by File No</a>
+                        </li>
+                    </ul>
 
-                    <!--  Financial Year Search -->
-                    <div id="searchFinYear" class="search-box" style="display:none;">
-                        <label>Select Financial Year</label>
-                        @Html.DropDownList("FinYear", new SelectList(ViewBag.FinancialYear as List<SelectListItem>, "Value", "Text"),
-                         new { @class = "form-control", id = "Fin_Year" })
-                        <button type="button" class="btn btn-primary mt-2" id="btnFinYearSearch">Search</button>
-                    </div>
+                    <!-- 🔹 Tab panes -->
+                    <div class="tab-content" id="searchTabsContent">
+                        <!--  Financial Year Search -->
+                        <div class="tab-pane fade show active" id="searchFinYear" role="tabpanel" aria-labelledby="tabFinYear-tab">
+                            <div class="d-flex align-items-end mb-3">
+                                <div class=" mr-3">
+                                    <label>Select Financial Year</label>
+                                    @Html.DropDownList("FinYear", new SelectList(ViewBag.FinancialYear as List<SelectListItem>, "Value", "Text"),
+                                     new { @class = "form-control", id = "Fin_Year" })
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-primary" id="btnFinYearSearch">Search</button>
+                                </div>
+                            </div>
+                        </div>
 
-                    <!--  Date Range Search -->
-                    <div id="searchDate" class="search-box" style="display:none;">
-                        <label>From Date</label>
-                        <input type="date" id="FromDate" class="form-control" />
-                        <label class="mt-2">To Date</label>
-                        <input type="date" id="ToDate" class="form-control" />
-                        <button type="button" class="btn btn-success mt-2" id="btnDateSearch">Search</button>
-                    </div>
+                        <!--  Date Range Search -->
+                        <div class="tab-pane fade" id="searchDate" role="tabpanel" aria-labelledby="tabDate-tab">
+                            <div class="d-flex align-items-end mb-3">
+                                <div class=" mr-3">
+                                    <label>From Date</label>
+                                    <input type="date" id="FromDate" class="form-control" />
+                                </div>
+                                <div class=" mr-3">
+                                    <label>To Date</label>
+                                    <input type="date" id="ToDate" class="form-control" />
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-success" id="btnDateSearch">Search</button>
+                                </div>
+                            </div>
+                        </div>
 
-                    <!--  File No Search -->
-                    <div id="searchFileNo" class="search-box" style="display:none;">
-                        <label>File No</label>
-                        <input type="text" id="txtFileNo" class="form-control" placeholder="Enter File Number" />
-                        <button type="button" class="btn btn-info mt-2" id="btnFileNoSearch">Search</button>
+                        <!--  File No Search -->
+                        <div class="tab-pane fade" id="searchFileNo" role="tabpanel" aria-labelledby="tabFileNo-tab">
+                            <div class="d-flex align-items-end mb-3">
+                                <div class=" mr-3">
+                                    <label>File No</label>
+                                    <input type="text" id="txtFileNo" class="form-control" placeholder="Enter File Number" />
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-info" id="btnFileNoSearch">Search</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -108,7 +138,7 @@
 
                                     <img src="~/theme/dist/img/logo-inverse.png" alt="Department Logo" class="department-logo" style="display:none;"/>
 
-                                    <table style="width: 100%;" id="scr-vtr-dynamic" class="example1 table table-striped table-bordered nowrap table-hover text-left">
+                                    <table style="width: 100%;" id="scr-vtr-dynamic" class="example1 table table-striped table-bordered  table-hover text-left">
                                         <thead>
                                             <tr>
                                                 <th>S.No</th>
@@ -276,21 +306,7 @@ $(document).on("click", ".history-icon", function () {
     });
 });
 
-    // Toggle search sections
-    $("#btnSearchFinYear").click(function () {
-        $(".search-box").hide();
-        $("#searchFinYear").show();
-    });
 
-    $("#btnSearchDate").click(function () {
-        $(".search-box").hide();
-        $("#searchDate").show();
-    });
-
-    $("#btnSearchFileNo").click(function () {
-        $(".search-box").hide();
-        $("#searchFileNo").show();
-    });
 
     // Different Search Button Clicks
     $("#btnFinYearSearch").click(function () {

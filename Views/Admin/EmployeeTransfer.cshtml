@@ -1,4 +1,4 @@
-﻿@model List<Eoffice.Models.ModelEmployeeTransfer>
+@model List<Eoffice.Models.ModelEmployeeTransfer>
 @{
     ViewBag.Title = "EmployeeTransfer";
     Layout = "~/Views/Shared/_LayoutNew.cshtml";
@@ -30,22 +30,30 @@
                 </div>
                 <div id="collapseOne21" class="collapse show" data-parent="#accordion21">
                     <div class="card-body">
-                        <form id="empSearchForm">
-                            <div class="form-row">
-                                <div class="col-md-4">
-                                    <div class="position-relative form-group">
+                    <!-- 🔹 Nav tabs -->
+                    <ul class="nav nav-tabs mb-3" id="searchTabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="tabEmpID-tab" data-toggle="tab" href="#searchEmpID" role="tab" aria-controls="searchEmpID" aria-selected="true">Search by Emp ID / Login Name</a>
+                        </li>
+                    </ul>
+
+                    <!-- 🔹 Tab panes -->
+                    <div class="tab-content" id="searchTabsContent">
+                        <div class="tab-pane fade show active" id="searchEmpID" role="tabpanel" aria-labelledby="tabEmpID-tab">
+                            <form id="empSearchForm">
+                                <div class="d-flex align-items-end mb-3">
+                                    <div class=" mr-3">
                                         <label for="userid">Enter Emp_ID / Login Name</label>
                                         <input name="UserId" id="userid" placeholder="Enter Emp_Id" type="text" class="form-control" />
                                     </div>
+                                    <div>
+                                        <input type="submit" class="btn btn-primary mr-2" value="Search" />
+                                        <input type="reset" class="btn btn-success" value="Reset" />
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="col-md-4">
-                                    <input type="submit" class="mt-2 ml-2 btn btn-primary" />
-                                    <input type="reset" class="mt-2 ml-2 btn btn-success" value="Reset" />
-                                </div>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
+                    </div>
                     </div>
                 </div>
             </div>
@@ -64,7 +72,7 @@
                     <div id="collapseOne22" class="collapse show" data-parent="#accordion22">
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table id="EmployeeDetails" class=" table table-striped table-bordered nowrap table-hover text-center">
+                                <table id="EmployeeDetails" class=" table table-striped table-bordered  table-hover text-center">
                                     <thead>
                                         <tr>
                                             <th>S.No</th>
@@ -102,7 +110,7 @@
                         <div class="row mt-3">
                             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12" id="divDetails">
                                 <div class="table-responsive">
-                                    <table style="width: 100%;" id="scr-vtr-dynamic" class="table table-striped table-bordered nowrap table-hover text-center">
+                                    <table style="width: 100%;" id="scr-vtr-dynamic" class="table table-striped table-bordered  table-hover text-center">
                                         <thead>
                                             <tr>
                                                 <th>S.No</th>
