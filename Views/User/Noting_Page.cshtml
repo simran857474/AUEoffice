@@ -2841,6 +2841,7 @@ function loadFileHistory() {
             if (response && response.debug) {
                 console.log('=== Debug Info ===');
                 console.log('FileCode:', response.debug.fileCode);
+                console.log('Encrypted FileCode:', response.debug.encryptedFileCode);
                 console.log('Row Count:', response.debug.rowCount);
                 console.log('Converted Count:', response.debug.convertedCount);
                 console.log('Columns:', response.debug.columns);

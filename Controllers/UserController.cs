@@ -574,6 +574,7 @@ namespace Eoffice.Controllers
                         debug = new
                         {
                             fileCode = fileCode,
+                            encryptedFileCode = DeterministicEncryptionHelper.Encrypt(fileCode),
                             rowCount = 0,
                             columns = dt.Columns.Cast<DataColumn>().Select(c => c.ColumnName).ToList(),
                             message = "No rows returned from database"
@@ -1066,6 +1067,7 @@ namespace Eoffice.Controllers
                         debug = new
                         {
                             fileCode = fileCode,
+                            encryptedFileCode = DeterministicEncryptionHelper.Encrypt(fileCode),
                             rowCount = 0,
                             columns = dt.Columns.Cast<DataColumn>().Select(c => c.ColumnName).ToList(),
                             message = "No rows returned from database"
