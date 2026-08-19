@@ -2814,34 +2814,67 @@ function loadFileHistory() {
     $('#historyLoader').show();
     $('#historyTableContainer').hide();
 
+    var fileCode = '@ViewBag.FileCode';
+    console.log('=== File History Debug ===');
+    console.log('Loading history for fileCode:', fileCode);
+
+    if (!fileCode) {
+        console.error('No fileCode provided');
+        $('#historyLoader').hide();
+        $('#historyTableContainer').show();
+        return;
+    }
+
     $.ajax({
         url: '@Url.Action("GetFileHistory", "User")',
         type: 'GET',
-        data: { fileCode: '@ViewBag.FileCode' },
-        success: function (data) {
+        data: { fileCode: fileCode },
+        success: function (response) {
             // Hide loader and show table
             $('#historyLoader').hide();
             $('#historyTableContainer').show();
 
-            console.log(data);
+            console.log('=== Ajax Success ===');
+            console.log('Full Response:', response);
+            
+            // Check if response has debug info (new format)
+            if (response && response.debug) {
+                console.log('=== Debug Info ===');
+                console.log('FileCode:', response.debug.fileCode);
+                console.log('Row Count:', response.debug.rowCount);
+                console.log('Converted Count:', response.debug.convertedCount);
+                console.log('Columns:', response.debug.columns);
+                console.log('Message:', response.debug.message);
+                console.log('Error:', response.debug.error);
+                console.log('Stack Trace:', response.debug.stackTrace);
+            }
 
-            if (data.length > 0) {
+            // Get data array (support both old and new format)
+            var data = response.data || response;
+            
+            console.log('Data:', data);
+            console.log('Data length:', data ? data.length : 0);
+
+            if (data && data.length > 0) {
                 // Populate table
                 var rows = '';
                 $.each(data, function (i, item) {
+                    console.log(`Record ${i}:`, item);
                     rows += `<tr>
-                    <td>${item.SNo}</td>
-                    <td>@ViewBag.FileCode</td>
-                    <td>${item.FileDescription}</td>
-                    <td>${item.SentFrom}</td>
-                    <td>${item.SentTo}</td>
-                    <td>${item.ForwardedDT}</td>
-                    <td>${item.Status}</td>
-                    <td>${item.Remark}</td>
+                    <td>${item.SNo || ''}</td>
+                    <td>${fileCode}</td>
+                    <td>${item.FileDescription || ''}</td>
+                    <td>${item.SentFrom || ''}</td>
+                    <td>${item.SentTo || ''}</td>
+                    <td>${item.ForwardedDT || ''}</td>
+                    <td>${item.Status || ''}</td>
+                    <td>${item.Remark || ''}</td>
                 </tr>`;
                 });
                 $("#historyTable tbody").html(rows);
+                console.log('Table populated with', data.length, 'rows');
             } else {
+                console.warn('No history data returned');
                 var rows = `<tr>
                     <td colspan="8" style="text-align:center; color: gray; padding: 40px;">
                         <i class="fa fa-inbox" style="font-size: 48px; color: #ccc; display: block; margin-bottom: 10px;"></i>
@@ -2851,17 +2884,30 @@ function loadFileHistory() {
                 $("#historyTable tbody").html(rows);
             }
         },
-        error: function () {
+        error: function (xhr, status, error) {
             // Hide loader and show table on error
             $('#historyLoader').hide();
             $('#historyTableContainer').show();
 
-            console.log(data);
+            console.error('=== Ajax Error ===');
+            console.error('Error:', error);
+            console.error('Status:', status);
+            console.error('XHR Status:', xhr.status);
+            console.error('Response Text:', xhr.responseText);
+
+            // Show empty state
+            var rows = `<tr>
+                <td colspan="8" style="text-align:center; color: red; padding: 40px;">
+                    <i class="fa fa-exclamation-triangle" style="font-size: 48px; color: #dc3545; display: block; margin-bottom: 10px;"></i>
+                    Error loading history. Please try again.
+                </td>
+            </tr>`;
+            $("#historyTable tbody").html(rows);
 
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'Error fetching data.',
+                text: 'Error fetching file movement history: ' + error,
                 confirmButtonColor: '#d33'
             });
         }

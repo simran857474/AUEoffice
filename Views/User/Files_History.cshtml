@@ -255,8 +255,24 @@ $(document).on("click", ".history-icon", function () {
         url: '@Url.Action("GetOutBoxFileHistory", "User")',
         type: 'GET',
         data: { fileCode: fileCode },
-        success: function (data) {
-            if (data.length > 0) {
+        success: function (response) {
+            console.log('=== Files_History GetOutBoxFileHistory Response ===');
+            console.log('Full Response:', response);
+            
+            // Check if response has debug info (new format)
+            if (response && response.debug) {
+                console.log('=== Debug Info ===');
+                console.log('FileCode:', response.debug.fileCode);
+                console.log('Row Count:', response.debug.rowCount);
+                console.log('Converted Count:', response.debug.convertedCount);
+                console.log('Columns:', response.debug.columns);
+                console.log('Error:', response.debug.error);
+            }
+
+            // Get data array (support both old and new format)
+            var data = response.data || response;
+            
+            if (data && data.length > 0) {
                 // Show file name & section name
                 var fileDetails = `<strong>File No:</strong> ${data[0].FileName} <br/>
                                    <strong>File Created Section:</strong> ${data[0].SectionName}`;
@@ -278,6 +294,8 @@ $(document).on("click", ".history-icon", function () {
                 // Show modal
                 $("#modal-lg").modal("show");
             } else {
+                console.warn('No history data returned');
+                
                 Swal.fire({
                     icon: 'info',
                     title: 'No History',
@@ -296,6 +314,7 @@ $(document).on("click", ".history-icon", function () {
             }
         },
         error: function () {
+            console.error('Error fetching file history');
             Swal.fire({
                 icon: 'error',
                 title: 'Error',

@@ -553,26 +553,88 @@ namespace Eoffice.Controllers
         [HttpGet]
         public JsonResult GetOutBoxFileHistory(string fileCode)
         {
-            var dt = new DataTable();
-
-            if (!string.IsNullOrWhiteSpace(fileCode))
+            try
             {
-                dt = bal.GetOutBoxFileHistory(fileCode);
+                var dt = new DataTable();
+
+                if (!string.IsNullOrWhiteSpace(fileCode))
+                {
+                    // BAL layer already encrypts the fileCode, don't encrypt here
+                    dt = bal.GetOutBoxFileHistory(fileCode);
+                }
+
+                // Check if DataTable has rows
+                if (dt.Rows.Count == 0)
+                {
+                    // Return diagnostic info for empty result
+                    return Json(new 
+                    { 
+                        success = false,
+                        data = new List<object>(),
+                        debug = new
+                        {
+                            fileCode = fileCode,
+                            rowCount = 0,
+                            columns = dt.Columns.Cast<DataColumn>().Select(c => c.ColumnName).ToList(),
+                            message = "No rows returned from database"
+                        }
+                    }, JsonRequestBehavior.AllowGet);
+                }
+
+                // Convert DataTable to List<object> with better error handling
+                var dataList = new List<object>();
+                
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    var row = dt.Rows[i];
+                    try
+                    {
+                        dataList.Add(new
+                        {
+                            SNo = i + 1,
+                            ForwardedFrom = row.Table.Columns.Contains("from_f") && row["from_f"] != DBNull.Value ? row["from_f"].ToString() : "",
+                            ForwardedTo = row.Table.Columns.Contains("Emp_Name") && row["Emp_Name"] != DBNull.Value ? row["Emp_Name"].ToString() : "",
+                            Date = row.Table.Columns.Contains("forwarded_DT") && row["forwarded_DT"] != DBNull.Value ? row["forwarded_DT"].ToString() : "",
+                            Action = row.Table.Columns.Contains("Doc_status") && row["Doc_status"] != DBNull.Value ? row["Doc_status"].ToString() : "",
+                            FileName = row.Table.Columns.Contains("File_Code") && row["File_Code"] != DBNull.Value ? row["File_Code"].ToString() : "",
+                            SectionName = row.Table.Columns.Contains("Sec_Name") && row["Sec_Name"] != DBNull.Value ? row["Sec_Name"].ToString() : ""
+                        });
+                    }
+                    catch (Exception rowEx)
+                    {
+                        // Skip problematic row but continue processing
+                        continue;
+                    }
+                }
+
+                return Json(new
+                {
+                    success = true,
+                    data = dataList,
+                    debug = new
+                    {
+                        fileCode = fileCode,
+                        rowCount = dt.Rows.Count,
+                        convertedCount = dataList.Count,
+                        columns = dt.Columns.Cast<DataColumn>().Select(c => c.ColumnName).ToList()
+                    }
+                }, JsonRequestBehavior.AllowGet);
             }
-
-            // Convert DataTable to List<object>
-            var data = dt.AsEnumerable().Select((row, index) => new
+            catch (Exception ex)
             {
-                SNo = index + 1,
-                ForwardedFrom = row["from_f"].ToString(),
-                ForwardedTo = row["Emp_Name"].ToString(),
-                Date = row["forwarded_DT"].ToString(),
-                Action = row["Doc_status"].ToString(),
-                FileName = row["File_Code"].ToString(),
-                SectionName = row["Sec_Name"].ToString()
-            }).ToList();
-
-            return Json(data, JsonRequestBehavior.AllowGet);
+                // Return error info to browser
+                return Json(new
+                {
+                    success = false,
+                    data = new List<object>(),
+                    debug = new
+                    {
+                        error = ex.Message,
+                        stackTrace = ex.StackTrace,
+                        innerError = ex.InnerException?.Message
+                    }
+                }, JsonRequestBehavior.AllowGet);
+            }
         }
 
 
@@ -983,27 +1045,89 @@ namespace Eoffice.Controllers
         [HttpGet]
         public JsonResult GetFileHistory(string fileCode)
         {
-            var dt = new DataTable();
-
-            if (!string.IsNullOrWhiteSpace(fileCode))
+            try
             {
-                dt = bal.GetOutBoxFileHistory(fileCode);
+                var dt = new DataTable();
+
+                if (!string.IsNullOrWhiteSpace(fileCode))
+                {
+                    // BAL layer already encrypts the fileCode, don't encrypt here
+                    dt = bal.GetOutBoxFileHistory(fileCode);
+                }
+
+                // Check if DataTable has rows
+                if (dt.Rows.Count == 0)
+                {
+                    // Return diagnostic info for empty result
+                    return Json(new 
+                    { 
+                        success = false,
+                        data = new List<object>(),
+                        debug = new
+                        {
+                            fileCode = fileCode,
+                            rowCount = 0,
+                            columns = dt.Columns.Cast<DataColumn>().Select(c => c.ColumnName).ToList(),
+                            message = "No rows returned from database"
+                        }
+                    }, JsonRequestBehavior.AllowGet);
+                }
+
+                // Convert DataTable to List<object> with NULL handling and better error handling
+                var dataList = new List<object>();
+                
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    var row = dt.Rows[i];
+                    try
+                    {
+                        dataList.Add(new
+                        {
+                            SNo = i + 1,
+                            FileDescription = row.Table.Columns.Contains("File_Desc") && row["File_Desc"] != DBNull.Value ? row["File_Desc"].ToString() : "",
+                            SentFrom = row.Table.Columns.Contains("from_f") && row["from_f"] != DBNull.Value ? row["from_f"].ToString() : "",
+                            SentTo = row.Table.Columns.Contains("Emp_Name") && row["Emp_Name"] != DBNull.Value ? row["Emp_Name"].ToString() : "",
+                            ForwardedDT = row.Table.Columns.Contains("forwarded_DT") && row["forwarded_DT"] != DBNull.Value ? row["forwarded_DT"].ToString() : "",
+                            ActionDate = row.Table.Columns.Contains("Action_Date") && row["Action_Date"] != DBNull.Value ? row["Action_Date"].ToString() : "",
+                            Status = row.Table.Columns.Contains("Doc_status") && row["Doc_status"] != DBNull.Value ? row["Doc_status"].ToString() : "",
+                            Remark = row.Table.Columns.Contains("Remark") && row["Remark"] != DBNull.Value ? row["Remark"].ToString() : ""
+                        });
+                    }
+                    catch (Exception rowEx)
+                    {
+                        // Skip problematic row but continue processing
+                        continue;
+                    }
+                }
+
+                return Json(new
+                {
+                    success = true,
+                    data = dataList,
+                    debug = new
+                    {
+                        fileCode = fileCode,
+                        rowCount = dt.Rows.Count,
+                        convertedCount = dataList.Count,
+                        columns = dt.Columns.Cast<DataColumn>().Select(c => c.ColumnName).ToList()
+                    }
+                }, JsonRequestBehavior.AllowGet);
             }
-
-            // Convert DataTable to List<object>
-            var data = dt.AsEnumerable().Select((row, index) => new
+            catch (Exception ex)
             {
-                SNo = index + 1,
-                FileDescription = row["File_Desc"].ToString(),
-                SentFrom = row["from_f"].ToString(),
-                SentTo = row["Emp_Name"].ToString(),
-                ForwardedDT = row["forwarded_DT"].ToString(),
-                ActionDate = row["Action_Date"].ToString(),
-                Status = row["Doc_status"].ToString(),
-                Remark = row["Remark"].ToString()
-            }).ToList();
-
-            return Json(data, JsonRequestBehavior.AllowGet);
+                // Return error info to browser
+                return Json(new
+                {
+                    success = false,
+                    data = new List<object>(),
+                    debug = new
+                    {
+                        error = ex.Message,
+                        stackTrace = ex.StackTrace,
+                        innerError = ex.InnerException?.Message
+                    }
+                }, JsonRequestBehavior.AllowGet);
+            }
         }
 
         [HttpGet]
