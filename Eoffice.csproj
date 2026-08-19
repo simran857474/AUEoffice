@@ -2158,6 +2158,7 @@
     <Content Include="Uploads\alterempproc.txt" />
     <Content Include="Uploads\alterproc.txt" />
     <Content Include="Uploads\alterprocsandindexes.txt" />
+    <Content Include="Uploads\FileMovementproc.txt" />
     <Content Include="Uploads\flipbook\Flipbook.aspx" />
     <Content Include="Uploads\flipbook\flipbook\2.10.377\pdf.min.js" />
     <Content Include="Uploads\flipbook\flipbook\2.10.377\pdf.worker.min.js" />

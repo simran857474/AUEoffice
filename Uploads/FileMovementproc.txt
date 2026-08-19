@@ -1,0 +1,241 @@
+USE [AU_eOffice_Live]
+GO
+/****** Object:  StoredProcedure [dbo].[USP_FileMovement]    Script Date: 19-08-2026 00:33:29 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER ProcEDURE [dbo].[USP_FileMovement]       -- exec USP_FileMovement 'Dft', 'DEAN-COMM/NDC/DP/4/105/2026', 'dean_com'                                                                                                                           
+  @ParamType VARCHAR(5) = 0                                                                                                                                  
+ ,@File_Code nvarchar(max) = NULL                                                                                                                                  
+ ,@Forwarded_From nvarchar(50) = NULL                                                                                                                                  
+ ,@Forwarded_To nvarchar(50) = NULL                                                                                                                                  
+ ,@msg varchar(100) = NULL OUTPUT                                                                                                                                  
+AS                                                                                                                                  
+BEGIN                                                                                                                                  
+ SET NOCOUNT ON;                                                                                                                                  
+ IF(@ParamType = 'M')                                                                                                                                  
+ BEGIN                                                                                                                                  
+    SELECT distinct  a.File_Code,a.File_Desc,a.File_Lang,a.File_LaterRef,a.File_Section,a.File_Title,a.File_Remark,                                                    
+    (select top 1 Doc_Upload from M_Document where  File_Code=d.File_Code and Created_By =d.forwarded_From) as   Doc_Upload,                                                                                                                          
+    a.Est_secName Sec_Name,d.Row_ID, d.File_Code,d.Remark,d.Priority,d.Sign_File,                                                                                                                                
+    --e.Emp_Name +' ('+isnull((select est_secname from EmployerDepartment where id=(select  ED_RowID from Utility_MUser where LoginName=d.forwarded_From )),'')+')' as from_f,  
+  e.Emp_Name +' ('+isnull((select est_secname from EmployerDepartment where id=d.From_ED_RowID),'')+')' as from_f,   
+    (select top 1 Row_ID from T_Noting where File_Code=d.File_Code and Emp_Code=(select EmpID  from Utility_MUser where LoginName=d.forwarded_From )) as noteID,                                                    
+    --tn.Row_ID as noteID,                   
+    --case when a.revert_emp is not null then 'Vice Chancellor (Office Of The Vice Chancellor)' else                  
+ case isnull(f.Emp_Name,'')   when '' then '<span style="color:red">Called Back</span>' else                   
+ --f.Emp_Name +' ('+isnull((select est_secname from EmployerDepartment where id=(select  ED_RowID from Utility_MUser where LoginName=d.forwarded_To )),'')+')' end as Emp_Name,   
+ f.Emp_Name +' ('+isnull((select est_secname from EmployerDepartment where id=d.To_ED_RowID ),'')+')' end as Emp_Name,                  
+    case d.Status_Flag when '0' then 'Open' when '1' then 'Closed' when '2' then 'In-Progress' when '-1' then 'Return'                                                                                                                                 
+    when '3' then 'Dispatched' when '4' then 'Correcting this' when '-5' then 'Approved'  when '6' then 'Handover' End as Doc_status,d.Status_Flag,  
+ case isnull(d.forwarded_DT,'')   when '' then format(d.CB_Date,'dd/MM/yyyy HH:mm:s tt')  else   
+ format(d.forwarded_DT,'dd/MM/yyyy HH:mm:s tt') end as forwarded_DT, d.forwarded_From, d.forwarded_To,d.Action_Date,b.DocType_Name,e.Emp_Name as _f,                                
+    case a.Active when 1 then 'Active' when '0' then 'Reject' end as ActiveStatus,d.Remark                             
+    FROM  M_File as a inner join M_DocType as b on b.DocType_Code= a.DocType_Code                                           
+    --left join  M_Section as c  on c.Sec_Code= a.File_Section                                      
+    inner join T_File as d  on d.File_Code= a.File_Code                                                                                                                                   
+    left join  M_Employee as e on e.Emp_Code=(select EmpID  from Utility_MUser where LoginName=d.forwarded_From )                                                  
+    --left join M_Department as g on g.Dep_Code=a.Dep_Code                                                                                                                                  
+    left join  M_Employee as f on f.Emp_Code=(select EmpID  from Utility_MUser where LoginName=d.forwarded_To )                                                                  
+    --left  join T_Noting  tn  on  tn.t_file_rowid=d.Row_ID                            
+ where d.Status_Flag in(1,2,-1,3,4,-5,6) and d.File_Code=@File_Code and a.Active='1' order by d.Row_ID desc                                
+ END                                                         
+                                                                                                                         
+ IF(@ParamType = 'RET')                                                                                                                                  
+ BEGIN                                                                                                          
+    SELECT distinct a.File_Code,a.File_Desc,a.File_Lang,a.File_LaterRef,a.File_Section,a.File_Title,a.File_Remark,a.File_Code,a.Created_By, a.Est_secName Sec_Name,d.Row_ID,                                                                                   
+            
+    d.File_Code,d.Remark,d.Priority,d.Sign_File,d.Action_Date,                                                                                                         
+    case d.Status_Flag when '0' then 'Open' when '1' then 'Closed' when '2' then 'In-Progress' when '-1' then 'Return' when '3' then 'Dispatched' when '4' then 'Correcting this' when '-5' then 'Approved' when '6' then 'Handover' End as File_status,       
+  
+    d.Status_Flag,d.forwarded_DT,d.forwarded_From,d.forwarded_To,d.Action_Date,b.DocType_Name,e.Emp_Name as transfer_from,f.Emp_Name as transfer_to,  
+ (select name from Utility_MUser where Utility_MUser.LoginName=a.Created_By) as Creator,h.DocPrior_Code,(select top 1  DocPrior_Name from M_DocPrior where DocPrior_Code=a.Prior_Code ) as DocPrior_Name,d.Remark                                              
+                                                 
+    FROM  M_File as a inner join M_DocType as b  on b.DocType_Code= a.DocType_Code                                                                                     
+    --left join M_Section as c  on c.Sec_Code= a.File_Section                                                                                                            
+    inner join T_File as d  on d.File_Code= a.File_Code                                                                                                                              
+    left join M_Employee as e on e.Emp_Code=(select distinct EmpID from Utility_MUser where LoginName = d.forwarded_From )                                                                
+    left join M_Employee as f on f.Emp_Code=(select distinct EmpID from Utility_MUser where LoginName = d.forwarded_To )                               
+    --inner join M_Employee as g on g.Emp_Code=a.Created_By                            
+    left join M_DocPrior as h on h.DocPrior_Code=d.priority                                                                               
+    where d.Status_Flag in(-1) and forwarded_To <> '' and  Action_Date is null  and a.Active='1' and d.forwarded_To=@Forwarded_To  order by  d.Row_ID desc                                            
+ END                                                                                                                              
+                                                                                                                        
+ IF(@ParamType = 'OPEN')                                                                                                                                  
+ BEGIN                                                                                                                                  
+    SELECT distinct a.Created_By,a.File_Code,a.File_Desc,a.File_Lang,a.File_PreRef,a.File_LaterRef,a.File_Section,a.File_Title,a.File_Remark,a.File_Code,a.Created_By,a.Est_secName Sec_Name,a.Row_ID,a.File_Code,a.File_Remark,                               
+                                                                            
+    case a.Status_Flag when '0' then 'Open' when '1' then 'Closed' when '2' then 'In-Progress' when '-1' then 'Return' when '3' then 'Dispatched' when '4' then 'Correcting this' when '-5' then 'Approved' when '6' then 'Handover' End as File_status,       
+ 
+    a.Status_Flag,b.DocType_Name,h.DocPrior_Code,h.DocPrior_Name ,a.Created_DT,i.FileCat_Name,j.FileSubCat_Name,a.Other_Cat,'' Remark ,a.Active                                        
+    FROM  M_File as a inner join M_DocType as b  on b.DocType_Code= a.DocType_Code                                                                                                           
+    --left join M_Section as c  on c.Sec_Code= a.File_Section                                                                    
+    left join Utility_MUser as k on k.EmpID=a.Created_By                    
+ left join M_Employee as e on e.Emp_Code=k.EmpID                     
+ left join M_DocPrior as h on h.DocPrior_Code=a.Prior_Code                                                                 
+    left join M_FileCat as i on a.File_Cat=i.FileCat_Code                                                          
+    left join M_FileSubCat as j on a.File_SubCat=j.FileSubCat_Code                                                                                                              
+    --inner join T_File as d  on d.File_Code= a.File_Code                                                                                
+    where (a.Status_Flag in(0)) and a.Created_By <> '' and a.Active='1' and  a.Created_By=@Forwarded_To    --order by a.Created_DT desc                                                                                        
+ union all                                                                                                
+ SELECT distinct a.Created_By,a.File_Code,a.File_Desc,a.File_Lang,a.File_PreRef,a.File_LaterRef,a.File_Section,a.File_Title,a.File_Remark,a.File_Code,a.Created_By, a.Est_secName Sec_Name,a.Row_ID,a.File_Code,a.File_Remark,                                 
+                                                                               
+    case a.Status_Flag when '0' then 'Open' when '1' then 'Closed' when '2' then 'In-Progress' when '-1' then 'Return' when '3' then 'Dispatched' when '4' then 'Correcting this' when '-5' then 'Approved' when '6' then 'Handover' End as File_status,       
+ 
+    a.Status_Flag,b.DocType_Name,h.DocPrior_Code,h.DocPrior_Name ,a.Created_DT,i.FileCat_Name,j.FileSubCat_Name,a.Other_Cat,d.Remark ,a.Active                                                  
+    FROM  M_File as a inner join M_DocType as b  on b.DocType_Code= a.DocType_Code                                                                                                                                  
+    --left join M_Section as c  on c.Sec_Code= a.File_Section                                                                                                                        
+    left join Utility_MUser as k on k.EmpID=a.Created_By                    
+ left join M_Employee as e on e.Emp_Code=k.EmpID                                                                             
+    left join M_DocPrior as h on h.DocPrior_Code=a.File_PreRef                                                                                                              
+    left join M_FileCat as i on a.File_Cat=i.FileCat_Code                                                                                                       
+    left join M_FileSubCat as j on a.File_SubCat=j.FileSubCat_Code                                                                                                              
+    inner join T_File as d  on d.File_Code= a.File_Code                                                                                                                               
+    where (d.Status_Flag in(0))   and a.Active='1' and  d.forwarded_From=@Forwarded_To  and forwarded_To = '' and Action_Date  is null order by a.Created_DT desc                                                                                              
+                         
+ END                                                                                                                          
+                                                           
+ IF(@ParamType = 'REJ')                                         
+ BEGIN                                                                                                          
+  SELECT distinct a.File_Code,a.File_Desc,a.File_Lang,a.File_LaterRef,a.File_Section,a.File_Title,a.File_Remark,a.File_Code,a.Created_By,a.Est_secName Sec_Name,a.Row_ID,a.File_Code,a.File_Remark,                                            
+  case a.Status_Flag when '0' then 'Open' when '1' then 'Closed' when '2' then 'In-Progress' when '-1' then 'Return' when '3' then 'Dispatched' when '4' then 'Correcting this' when '5' then 'Rejected' when '-5' then 'Approved' when '6' then 'Handover' End
+ as File_status,                             
+  a.Created_By,a.Created_By,i.Emp_Name +'/'+ k.Dep_Name as Send_From, j.Emp_Name as Send_To,a.Created_DT,k.Dep_Name,l.Sec_Name,e.File_Code,d.Remark                                                                                                            
+  
+  FROM  M_File as a                                                                                                                         
+  LEFT join M_DocType as b  on b.DocType_Code= a.DocType_Code                                                                      
+  --LEFT join M_Section as c  on c.Sec_Code= a.File_Section                                                                                                          
+  LEFT join M_File as e  on e.File_Code= a.File_Code                                                                                          
+  left join Utility_MUser as m on m.EmpID=a.Created_By                    
+  left join M_Employee as i on i.Emp_Code=m.EmpID                                                                                                                 
+  inner join M_Department as k on k.Dep_Code=i.Dep_Code                                                                                                                              
+  inner join M_Section as l on l.Sec_Code=i.Sec_Code                                                                            
+  left join M_Employee as j on j.Emp_Code=a.Created_By                                                                                        
+  inner join T_File as d  on d.File_Code= a.File_Code                                                                                                                               
+  where a.Status_Flag in(5) and a.Created_By <> ''  and  d.forwarded_To=@Forwarded_To  order by a.Created_DT desc                                                                                                                           
+  END                                                                             
+                                                                                                                        
+ IF(@ParamType = 'CLO')                                                                                                                    
+ BEGIN                                                                                                                         
+  SELECT distinct a.File_Code,a.File_Desc,a.File_Lang,a.File_LaterRef,a.File_Section,a.File_Title,a.File_Remark,a.File_Code,a.Created_By, c.Sec_Name,a.Row_ID,a.File_Code,a.File_Remark,                                                                       
+                        
+  case a.Status_Flag when '0' then 'Open' when '1' then 'Closed' when '2' then 'In-Progress' when '-1' then 'Return' when '3' then 'Dispatched' when '4' then 'Correcting this' when '5' then 'Rejected' when '-5' then 'Approved' when '6' then 'Handover' End
+ as File_status,                              
+  a.Created_By,a.Created_By,i.Emp_Name +'/'+ k.Dep_Name as Send_From, j.Emp_Name as Send_To,a.Created_DT,k.Dep_Name,l.Sec_Name,e.File_Code,d.Remark                                                                                                            
+ 
+  FROM  M_File as a                                                                                                                 
+  LEFT join M_DocType as b  on b.DocType_Code= a.DocType_Code                                                         
+  LEFT join M_Section as c  on c.Sec_Code= a.File_Section                                 
+  LEFT join M_File as e  on e.File_Code= a.File_Code                     
+  left join M_Employee as i on i.Emp_Code=a.Created_By                                                                             
+  inner join M_Department as k on k.Dep_Code=i.Dep_Code                                                                                                                                
+  inner join M_Section as l on l.Sec_Code=i.Sec_Code                                                                                          
+  left join M_Employee as j on j.Emp_Code=a.Created_By                                                                                                                        
+  inner join T_File as d  on d.File_Code= a.File_Code                                 
+ where a.Status_Flag in(1) and a.Created_By <> ''  and  d.forwarded_To=@Forwarded_To  order by a.Created_DT desc                                                                                   
+ END                                                                                                                        
+                                                                                                    
+                                                          
+  IF(@ParamType = 'FM')                                                                                 
+  begin                                                                                   
+   SELECT distinct a.Row_ID, a.File_Code,a.File_Desc,a.File_Lang,a.File_PreRef,a.File_LaterRef,a.File_Section,a.File_Title,a.File_Remark,a.Est_secName Sec_Name,a.Created_DT,                                                                                  
+    
+   d.FileCat_Name,e.FileSubCat_Name,a.Prior_Code,g.DocPrior_Name                               
+   FROM  M_File as a inner join M_DocType as b  on b.DocType_Code= a.DocType_Code                                                                                                                            
+   --left join M_Section as c  on c.Sec_Code= a.File_Section                                                                                       
+   left join M_FileCat as d on d.FileCat_Code=a.File_Cat                                                                                      
+   left join M_FileSubCat as e on e.FileSubCat_Code=a.File_SubCat                            
+   left join T_File as f on f.File_Code=a.File_Code                                                              
+   left join M_DocPrior as g on g.DocPrior_Code=a.Prior_Code                                                            
+    where a.File_Code in (select distinct File_Code from T_File where forwarded_From=@Forwarded_From) order by  a.Created_DT desc                                                                    
+   end                                                                              
+                                                                                           
+ IF(@ParamType = 'CB')                                                                                                                                  
+ BEGIN                                                                                                   
+  SELECT distinct d.Row_ID,a.File_Code,a.File_Desc,a.File_Lang,a.File_LaterRef,a.File_Section,a.File_Title,a.File_Remark,a.File_Code,a.Created_By,a.Est_secName Sec_Name,d.Row_ID,d.File_Code,d.Remark,d.Priority,d.Sign_File,d.Action_Date,                   
+                                                                                                 
+  case d.Status_Flag when '0' then 'Open' when '1' then 'Closed' when '2' then 'In-Progress' when '-1' then 'Return' when '3' then 'Dispatched' when '4' then 'Correcting this' when '5' then 'Rejected' when '-5' then 'Approved' when '6' then 'Handover' End
+ as File_status,                           
+  d.Status_Flag,d.forwarded_DT,e.Emp_Name'forwarded_From', f.Emp_Name 'forwarded_To',d.Action_Date,b.DocType_Name,e.Emp_Name as transfer_from,                                      
+  case isnull(f.Emp_Name,'')   when '' then '<span style="color:red">Called Back</span>' else d.forwarded_To end as transfer_to,ut.Name as Creator,                                                                                                            
+              
+  h.DocPrior_Code,h.DocPrior_Name,d.CB_Flag,i.Purpose_desc,d.Remark,d.forwarded_To,d.forwarded_From,j.FileCat_Name,k.FileSubCat_Name,(select count(File_Code) from T_File where File_Code= d.File_Code) filecount                                              
+  FROM M_File as a inner join M_DocType as b on b.DocType_Code= a.DocType_Code                                                                                              
+  --left join M_Section as c  on c.Sec_Code= a.File_Section                                                                                                                                  
+  inner join T_File as d  on d.File_Code= a.File_Code                                          
+  inner join Utility_MUser as ut on ut.LoginName=d.forwarded_From                                                                       
+  left join M_Employee as e on e.Emp_Code=ut.EmpID                                                                                              
+  --inner join EmployerDepartment ed  on ed.Emp_Code=e.Emp_Code and   ed.id =ut.ED_RowID                                        
+  --inner join M_Employee as g on g.Emp_Code=a.Created_By                                                                                                                                  
+  left join M_DocPrior as h on h.DocPrior_Code=d.priority                                                                                                                           
+  left join M_Employee as f on f.Emp_Code= (select top 1 Utility_MUser.EmpID from Utility_MUser  where  LoginName = d.forwarded_To )                                                          
+  left join M_PurposeType as i on d.Purpose_type=i.Row_ID                                                            
+  left join M_FileCat as j on j.FileCat_Code=a.File_Cat                                                                                   
+  left join M_FileSubCat as k on k.FileSubCat_Code=a.File_SubCat                                                                
+  where d.forwarded_From= @Forwarded_To  and isnull(forwarded_To,'')  ='' and Action_Date is null and d.CB_Flag =-1   and a.Active='1' order by d.row_id Desc                                                            
+ END                                                                               
+                                                 
+ IF(@ParamType = 'Dft')  ---- draft noting                                                                                  
+ begin                                                                            
+  declare @fl  char(1)  = (select top 1 draft_flag from T_Noting  where File_Code =@File_Code and Created_By=@Forwarded_From        )                                                                                  
+  if(isnull(@fl,'')  = '')                                                                                  
+  begin                                                                                  
+   update T_Noting set Draft_Flag ='Y' where File_Code = @File_Code  and Emp_Code=@Forwarded_From                                                
+  end                                                      
+ select top 1 Comments,CONVERT(nvarchar(max), DecryptByPassPhrase('AUSecurePass@2024', Note_Desc))Note_Desc,* from  T_Noting where File_Code=@File_Code and draft_flag ='Y'  and Created_By=@Forwarded_From      order by  Row_ID      desc                   
+                                                          
+ end                                                      
+   
+ IF(@ParamType = 'Dft1')  ---- draft noting                                                                                  
+ begin                                                                            
+   select Comments,CONVERT(nvarchar(max), DecryptByPassPhrase('AUSecurePass@2024', Note_Desc))Note_Desc,* from  T_Noting     where File_Code=@File_Code and draft_flag ='N'   and Created_By=@Forwarded_From                                             
+   select forwarded_To,Status_Flag,* from T_File  where File_Code =@File_Code  and Action_Date is null  and (Status_Flag =-1  or Status_Flag =-5) and forwarded_To=@Forwarded_To                                                                      
+ end                                                                                  
+                          
+ if(@ParamType = 'Para')                      
+   begin                          
+   ;with  cte as ( select  '#Note '+convert(nvarchar(max), ROW_NUMBER() over(order by tnn.row_id))+'_Para:' + convert(nvarchar(max), ROW_NUMBER() over(order by tn.id)) as ParaColumn,Note_para  ,tnn.File_Code                          
+ --;with  cte as ( select  '#Note '+convert(nvarchar,tn.Note_row_id)+'_Para:' + convert(nvarchar(max), ROW_NUMBER() over(order by tn.id)) as ParaColumn,Note_para  ,tnn.File_Code                          
+   from T_Noting_detail tn join T_Noting tnn on tn.Note_row_id = tnn.Row_ID)                           
+    select * from cte c join NotingPara np                           
+    on convert(nvarchar,np.ParaId) =  convert(nvarchar,c.ParaColumn)  where    c.File_Code = @File_Code                        
+  --;with  cte as ( select  '#Note 1_Para:' + convert(nvarchar(max), ROW_NUMBER() over(order by tn.id)) as ParaColumn,Note_para  ,tnn.File_Code                          
+   --from T_Noting_detail tn join T_Noting tnn                          
+   --on tn.Note_row_id = tnn.Row_ID                          
+   --)                           
+   -- select * from cte c join                           
+   -- NotingPara np                           
+   -- on convert(nvarchar,np.ParaId) =  convert(nvarchar,c.ParaColumn)  where     np.filecode=@File_Code  --c.File_Code = @File_Code                          
+ end            
+      
+                  
+ IF(@ParamType = 'PEN')                                                                                                                 
+ begin            
+  SELECT distinct a.Row_ID, a.File_Code,a.File_Desc,a.File_Lang,a.File_PreRef,a.File_LaterRef,a.File_Section,a.File_Title,a.File_Remark,a.Est_secName Sec_Name,a.Created_DT,d.FileCat_Name,e.FileSubCat_Name,a.Prior_Code,g.DocPrior_Name                      
+                     
+  FROM  M_File as a inner join M_DocType as b  on b.DocType_Code= a.DocType_Code                                                                                                                                        
+  --left join M_Section as c  on c.Sec_Code= a.File_Section                                                                                                   
+  left join M_FileCat as d on d.FileCat_Code=a.File_Cat                                                                                                  
+  left join M_FileSubCat as e on e.FileSubCat_Code=a.File_SubCat                                        
+  left join T_File as f on f.File_Code=a.File_Code                
+  left join M_DocPrior as g on g.DocPrior_Code=a.Prior_Code                                                                        
+  where a.File_Code in (select distinct File_Code from T_File where forwarded_From=@Forwarded_From and Action_Date is null and Status_Flag <> '-5')       
+  and isnull(f.forwarded_To,'') <> '' order by  a.Created_DT desc            
+ END            
+            
+  IF(@ParamType = 'FOR')                                                                         
+  begin            
+    SELECT distinct a.Row_ID, a.File_Code,a.File_Desc,a.File_Lang,a.File_PreRef,a.File_LaterRef,a.File_Section,a.File_Title,a.File_Remark,a.Est_secName Sec_Name,a.Created_DT,d.FileCat_Name,e.FileSubCat_Name,a.Prior_Code,g.DocPrior_Name                    
+                       
+    FROM  M_File as a inner join M_DocType as b  on b.DocType_Code= a.DocType_Code                                                                                                                                        
+    -- left join M_Section as c  on c.Sec_Code= a.File_Section                                                                                                   
+    left join M_FileCat as d on d.FileCat_Code=a.File_Cat                                                                                                  
+    left join M_FileSubCat as e on e.FileSubCat_Code=a.File_SubCat                                        
+    left join T_File as f on f.File_Code=a.File_Code                                                                          
+    left join M_DocPrior as g on g.DocPrior_Code=a.Prior_Code                                                            
+    where a.File_Code in (select distinct File_Code from T_File where forwarded_From=@Forwarded_From) and  Action_Date is not null and f.Status_Flag in (2,-1) and isnull(forwarded_To,'') <> ''            
+ order by  a.Created_DT desc            
+  END            
+            
+END
