@@ -2823,6 +2823,8 @@ function loadFileHistory() {
             $('#historyLoader').hide();
             $('#historyTableContainer').show();
 
+            console.log(data);
+
             if (data.length > 0) {
                 // Populate table
                 var rows = '';
@@ -2853,6 +2855,8 @@ function loadFileHistory() {
             // Hide loader and show table on error
             $('#historyLoader').hide();
             $('#historyTableContainer').show();
+
+            console.log(data);
 
             Swal.fire({
                 icon: 'error',
