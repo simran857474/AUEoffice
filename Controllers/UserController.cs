@@ -2880,7 +2880,7 @@ namespace Eoffice.Controllers
                     }
 
                     bool success = false;
-                    string str2 = "select File_Code,forwarded_From,forwarded_To from T_File where file_code='" + fileCode + "' and Action_Date is null";
+                    string str2 = "select File_Code,forwarded_From,forwarded_To from T_File where file_code='" + DeterministicEncryptionHelper.Encrypt(fileCode) + "' and Action_Date is null";
                     DataTable dt3 = bal.EQ(str2);
 
                     if (dt3.Rows.Count > 0)

@@ -615,10 +615,23 @@
 
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
 
-            <a href="@Url.Action("Index", "User")" class="brand-link">
-                <img src="~/theme/dist/img/logo-inverse.png" alt="Logo" class="brand-image img-circle elevation-3">
-                <span class="brand-text font-weight-light"><strong>AU-Eoffice</strong></span>
-            </a>
+
+            @if (roleType == "Admin")
+            {
+                <a href="@Url.Action("Index", "Admin")" class="brand-link">
+                    <img src="~/theme/dist/img/logo-inverse.png" alt="Logo" class="brand-image img-circle elevation-3">
+                    <span class="brand-text font-weight-light"><strong>AU-Eoffice</strong></span>
+                </a>
+
+            }
+            else
+            {
+                <a href="@Url.Action("Index", "User")" class="brand-link">
+                    <img src="~/theme/dist/img/logo-inverse.png" alt="Logo" class="brand-image img-circle elevation-3">
+                    <span class="brand-text font-weight-light"><strong>AU-Eoffice</strong></span>
+                </a>
+            }
+
 
             <div class="sidebar">
                 <nav class="mt-2">
