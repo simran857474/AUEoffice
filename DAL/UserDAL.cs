@@ -1,4 +1,4 @@
-﻿using Eoffice.Models;
+using Eoffice.Models;
 using Microsoft.Ajax.Utilities;
 using System;
 using System.Collections.Generic;
@@ -18,6 +18,26 @@ namespace Eoffice.DAL
 {
     public class UserDAL
     {
+        public string CheckDuplicateMaster(string spName, Dictionary<string, object> parameters)
+        {
+            using (SqlCommand cmd = new SqlCommand(spName, new SqlConnection(connectionString)))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@ParamType", "MA");
+                if (parameters != null)
+                {
+                    foreach (var param in parameters)
+                    {
+                        cmd.Parameters.AddWithValue(param.Key, param.Value ?? DBNull.Value);
+                    }
+                }
+                SqlParameter msgParam = new SqlParameter("@msg", SqlDbType.VarChar, 100) { Direction = ParameterDirection.Output };
+                cmd.Parameters.Add(msgParam);
+                cmd.Connection.Open();
+                cmd.ExecuteNonQuery();
+                return msgParam.Value?.ToString();
+            }
+        }
         // Get connection string
         string connectionString = ConfigurationManager.ConnectionStrings["DBLayer"].ConnectionString;
         SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["DbLayer"].ConnectionString);
@@ -1085,7 +1105,7 @@ namespace Eoffice.DAL
 
 
         #endregion
-        //Getting the user’s current password with GetUserById()
+        //Getting the user�s current password with GetUserById()
 
         #region changepassword
 

@@ -237,7 +237,13 @@
                         });
                         break;
                     default:
-                        // Optional: handle other messages
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Validation Failed!',
+                            text: message,
+                            timer: 4000, 
+                            showConfirmButton: false
+                        });
                         break;
                 }
             }

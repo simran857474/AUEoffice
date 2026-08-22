@@ -1,4 +1,4 @@
-﻿using Eoffice.BAL;
+using Eoffice.BAL;
 using Eoffice.Models;
 using Newtonsoft.Json.Linq;
 using System;
@@ -91,6 +91,12 @@ namespace Eoffice.Controllers
         [HttpPost]
         public ActionResult Department(ModelDepartment i)
         {
+            string dupMsg = bal.CheckDuplicateMaster("USP_Department", new Dictionary<string, object> { { "@Dep_Name", i.Dep_Name } });
+            if (!string.IsNullOrEmpty(dupMsg))
+            {
+                TempData["insertmsg"] = dupMsg;
+                return RedirectToAction("Department");
+            }
             i.ParamType = "I";
             i.Active = "0";
             i.Machine_IP = Session["Ip_Address"].ToString();
@@ -114,6 +120,12 @@ namespace Eoffice.Controllers
         [HttpPost]
         public ActionResult EditDepartment(ModelDepartment up)
         {
+            string dupMsg = bal.CheckDuplicateMaster("USP_Department", new Dictionary<string, object> { { "@Dep_Name", up.Dep_Name } });
+            if (!string.IsNullOrEmpty(dupMsg))
+            {
+                TempData["insertmsg"] = dupMsg;
+                return RedirectToAction("Department");
+            }
             up.ParamType = "U";
             up.UpdatedBy = Session["UserName"].ToString();
             up.Machine_IP = Session["Ip_Address"].ToString();
@@ -188,6 +200,12 @@ namespace Eoffice.Controllers
         [HttpPost]
         public ActionResult Section(ModelSection i)
         {
+            string dupMsg = bal.CheckDuplicateMaster("USP_Section", new Dictionary<string, object> { { "@Sec_Name", i.Sec_Name }, { "@Dep_Code", i.Dep_Code } });
+            if (!string.IsNullOrEmpty(dupMsg))
+            {
+                TempData["insertmsg"] = dupMsg;
+                return RedirectToAction("Section");
+            }
             i.CreatedBy = Session["UserName"] == null ? string.Empty : Session["UserName"].ToString();
             i.Active = "0";
             i.Machine_IP = Session["Ip_Address"].ToString();
@@ -211,6 +229,12 @@ namespace Eoffice.Controllers
         [HttpPost]
         public ActionResult EditSection(ModelSection up)
         {
+            string dupMsg = bal.CheckDuplicateMaster("USP_Section", new Dictionary<string, object> { { "@Sec_Name", up.Sec_Name }, { "@Dep_Code", up.Dep_Code } });
+            if (!string.IsNullOrEmpty(dupMsg))
+            {
+                TempData["insertmsg"] = dupMsg;
+                return RedirectToAction("Section");
+            }
             up.UpdatedBy = Session["UserName"] == null ? string.Empty : Session["UserName"].ToString();
             up.Active = "0";
             up.Machine_IP = Session["Ip_Address"].ToString();
@@ -270,6 +294,12 @@ namespace Eoffice.Controllers
         [HttpPost]
         public ActionResult Designation(ModelDesignation des)
         {
+            string dupMsg = bal.CheckDuplicateMaster("USP_Designation", new Dictionary<string, object> { { "@Des_Name", des.DesName } });
+            if (!string.IsNullOrEmpty(dupMsg))
+            {
+                TempData["insertmsg"] = dupMsg;
+                return RedirectToAction("Designation");
+            }
             des.ParamType = "I";
             des.Active = "0";
             des.CreatedBy = Session["UserName"].ToString();
@@ -289,6 +319,12 @@ namespace Eoffice.Controllers
         }
         public ActionResult EditDesignation(ModelDesignation up)
         {
+            string dupMsg = bal.CheckDuplicateMaster("USP_Designation", new Dictionary<string, object> { { "@Des_Name", up.DesName } });
+            if (!string.IsNullOrEmpty(dupMsg))
+            {
+                TempData["insertmsg"] = dupMsg;
+                return RedirectToAction("Designation");
+            }
             up.ParamType = "U";
             up.Machine_IP = Session["Ip_Address"].ToString();
             up.UpdatedBy = Session["UserName"].ToString();
@@ -548,6 +584,12 @@ namespace Eoffice.Controllers
         [HttpPost]
         public ActionResult DocumentPriority(ModelDocPriority doc)
         {
+            string dupMsg = bal.CheckDuplicateMaster("USP_DocPriority", new Dictionary<string, object> { { "@Prior_Name", doc.Doc_PriorName } });
+            if (!string.IsNullOrEmpty(dupMsg))
+            {
+                TempData["insertmsg"] = dupMsg;
+                return RedirectToAction("DocumentPriority");
+            }
             doc.CreatedBy = Session["UserName"].ToString();
             doc.Machine_IP = Session["Ip_Address"].ToString();
             doc.ParamType = "I";
@@ -570,6 +612,12 @@ namespace Eoffice.Controllers
         [HttpPost]
         public ActionResult EditDocument(ModelDocPriority doc)
         {
+            string dupMsg = bal.CheckDuplicateMaster("USP_DocPriority", new Dictionary<string, object> { { "@Prior_Name", doc.Doc_PriorName } });
+            if (!string.IsNullOrEmpty(dupMsg))
+            {
+                TempData["insertmsg"] = dupMsg;
+                return RedirectToAction("DocumentPriority");
+            }
             doc.UpdatedBy = Session["UserName"].ToString();
             doc.Machine_IP = Session["Ip_Address"].ToString();
             doc.ParamType = "U";
@@ -624,6 +672,12 @@ namespace Eoffice.Controllers
         [HttpPost]
         public ActionResult DocumentType(ModelDocType doctype)
         {
+            string dupMsg = bal.CheckDuplicateMaster("USP_DocType", new Dictionary<string, object> { { "@DocType_Name", doctype.DocType_Name } });
+            if (!string.IsNullOrEmpty(dupMsg))
+            {
+                TempData["insertmsg"] = dupMsg;
+                return RedirectToAction("DocumentType");
+            }
             doctype.CreatedBy = Session["UserName"].ToString();
             doctype.TableID = "0";
             doctype.Machine_IP = Session["Ip_Address"].ToString();
@@ -647,6 +701,12 @@ namespace Eoffice.Controllers
         [HttpPost]
         public ActionResult EditDocumentType(ModelDocType Doctype)
         {
+            string dupMsg = bal.CheckDuplicateMaster("USP_DocType", new Dictionary<string, object> { { "@DocType_Name", Doctype.DocType_Name } });
+            if (!string.IsNullOrEmpty(dupMsg))
+            {
+                TempData["insertmsg"] = dupMsg;
+                return RedirectToAction("DocumentType");
+            }
             Doctype.UpdatedBy = Session["UserName"].ToString();
             Doctype.TableID = "0";
             Doctype.Machine_IP = Session["Ip_Address"].ToString();
@@ -703,6 +763,12 @@ namespace Eoffice.Controllers
         [HttpPost]
         public ActionResult FileCategory(ModelFileCategory i)
         {
+            string dupMsg = bal.CheckDuplicateMaster("USP_FileCat", new Dictionary<string, object> { { "@FileCat_Name", i.FileCat_Name } });
+            if (!string.IsNullOrEmpty(dupMsg))
+            {
+                TempData["insertmsg"] = dupMsg;
+                return RedirectToAction("FileCategory");
+            }
             i.CreatedBy = Session["UserName"].ToString();
             i.TableID = "0";
             i.Machine_IP = Session["Ip_Address"].ToString();
@@ -726,6 +792,12 @@ namespace Eoffice.Controllers
         [HttpPost]
         public ActionResult EditFileCategory(ModelFileCategory up)
         {
+            string dupMsg = bal.CheckDuplicateMaster("USP_FileCat", new Dictionary<string, object> { { "@FileCat_Name", up.FileCat_Name } });
+            if (!string.IsNullOrEmpty(dupMsg))
+            {
+                TempData["insertmsg"] = dupMsg;
+                return RedirectToAction("FileCategory");
+            }
             up.UpdatedBy = Session["UserName"].ToString();
             up.TableID = "0";
             up.Machine_IP = Session["Ip_Address"].ToString();
@@ -785,6 +857,12 @@ namespace Eoffice.Controllers
         [HttpPost]
         public ActionResult FileSubCategory(ModelFileSubCategory i)
         {
+            string dupMsg = bal.CheckDuplicateMaster("USP_FileSubCat", new Dictionary<string, object> { { "@FileSubCat_Name", i.FileSubCat_Name } });
+            if (!string.IsNullOrEmpty(dupMsg))
+            {
+                TempData["insertmsg"] = dupMsg;
+                return RedirectToAction("FileSubCategory");
+            }
             i.CreatedBy = Session["UserName"].ToString();
             i.TableID = "0";
             i.Machine_IP = Session["Ip_Address"].ToString();
@@ -806,6 +884,12 @@ namespace Eoffice.Controllers
         [HttpPost]
         public ActionResult EditFileSubCat(ModelFileSubCategory up)
         {
+            string dupMsg = bal.CheckDuplicateMaster("USP_FileSubCat", new Dictionary<string, object> { { "@FileSubCat_Name", up.FileSubCat_Name } });
+            if (!string.IsNullOrEmpty(dupMsg))
+            {
+                TempData["insertmsg"] = dupMsg;
+                return RedirectToAction("FileSubCategory");
+            }
             up.UpdatedBy = Session["UserName"].ToString();
             up.TableID = "0";
             up.Machine_IP = Session["Ip_Address"].ToString();
@@ -862,6 +946,14 @@ namespace Eoffice.Controllers
         [HttpPost]
         public ActionResult ConstituentCollege(ModelConstituentCollege i)
         {
+
+            string dupMsg = bal.CheckDuplicateMaster("USP_CollegeList", new Dictionary<string, object> { { "@College_Name", i.College_Name } });
+            if (!string.IsNullOrEmpty(dupMsg))
+            {
+                TempData["insertmsg"] = dupMsg;
+                return RedirectToAction("ConstituentCollege");
+            }
+
             i.CreatedBy = Session["UserName"].ToString();
             i.Machine_IP = Session["Ip_Address"].ToString();
             i.ParamType = "I";
@@ -886,6 +978,13 @@ namespace Eoffice.Controllers
         [HttpPost]
         public ActionResult EditConstituentCollege(ModelConstituentCollege up)
         {
+            string dupMsg = bal.CheckDuplicateMaster("USP_CollegeList", new Dictionary<string, object> { { "@College_Name", up.College_Name } });
+            if (!string.IsNullOrEmpty(dupMsg))
+            {
+                TempData["insertmsg"] = dupMsg;
+                return RedirectToAction("ConstituentCollege");
+            }
+
             up.CreatedBy = Session["UserName"].ToString();
             up.TableID = "0";
             up.Machine_IP = Session["Ip_Address"].ToString();

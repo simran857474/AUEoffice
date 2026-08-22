@@ -9,7 +9,7 @@
     var editSec = ViewBag.EditSection as Eoffice.Models.ModelSection;
     bool isEdit = editSec != null;
 }
-<div class="app-page-title app-page-title-simple">
+@*<div class="app-page-title app-page-title-simple">
     <div class="page-title-wrapper">
         <div class="page-title-heading">
             <div>
@@ -22,7 +22,7 @@
             </div>
         </div>
     </div>
-</div>
+</div>*@
 <section class="content">
     <div class="container-fluid">
 
@@ -275,7 +275,13 @@
                         });
                         break;
                     default:
-                        // Optional: handle other messages
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Validation Failed!',
+                            text: message,
+                            timer: 4000, 
+                            showConfirmButton: false
+                        });
                         break;
                 }
             }

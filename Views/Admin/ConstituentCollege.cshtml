@@ -172,6 +172,39 @@
                     confirmButtonText: 'OK'
                 });
             }
+
+            var insertMsg = '@TempData["insertmsg"]';
+            if (insertMsg) {
+                switch (insertMsg) {
+                    case "deleted":
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: 'Constituent College deleted successfully.',
+                            timer: 4000, 
+                            showConfirmButton: false
+                        });
+                        break;
+                    case "deletefail":
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed!',
+                            text: 'Failed to delete Constituent College.',
+                            timer: 4000, 
+                            showConfirmButton: false
+                        });
+                        break;
+                    default:
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Validation Failed!',
+                            text: insertMsg,
+                            timer: 4000, 
+                            showConfirmButton: false
+                        });
+                        break;
+                }
+            }
         });
             $("#constituentcollegeForm").validate({
                 errorClass: "text-danger",

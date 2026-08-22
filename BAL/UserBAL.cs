@@ -1,4 +1,4 @@
-﻿using Eoffice.DAL;
+using Eoffice.DAL;
 using Eoffice.Models;
 using Eoffice.Security;
 using Microsoft.Ajax.Utilities;
@@ -22,6 +22,10 @@ namespace Eoffice.BAL
 {
     public class UserBAL
     {
+        public string CheckDuplicateMaster(string spName, Dictionary<string, object> parameters)
+        {
+            return dal.CheckDuplicateMaster(spName, parameters);
+        }
         UserDAL dal = new UserDAL();
         public DataSet GetLogin(ModelClass user)
         {
@@ -46,6 +50,18 @@ namespace Eoffice.BAL
             bool result = dal.InsertDepartment(obj);
             return result;
         }
+        
+        // Check if Department already exists
+        //public string CheckDepartmentDuplicate(string depName)
+        //{
+        //    ModelDepartment obj = new ModelDepartment
+        //    {
+        //        ParamType = "MA",
+        //        Dep_Name = depName
+        //    };
+        //    return dal.CheckDepartmentDuplicate(obj);
+        //}
+        
         public List<ModelDepartment> GetDepartmentList()
         {
             List<ModelDepartment> deptList = new List<ModelDepartment>();
@@ -156,6 +172,18 @@ namespace Eoffice.BAL
             bool result = dal.InsertSection(obj);
             return result;
         }
+        
+        //// Check if Section already exists
+        //public string CheckSectionDuplicate(string secName, string depCode)
+        //{
+        //    ModelSection obj = new ModelSection
+        //    {
+        //        ParamType = "MA",
+        //        Sec_Name = secName,
+        //        Dep_Code = depCode
+        //    };
+        //    return dal.CheckSectionDuplicate(obj);
+        //}
 
 
         //public List<ModelSection> GetSectionList() 
@@ -234,6 +262,18 @@ namespace Eoffice.BAL
             bool result = dal.InsertDesignation(obj);
             return result;
         }
+        
+        //// Check if Designation already exists
+        //public string CheckDesignationDuplicate(string desName)
+        //{
+        //    ModelDesignation obj = new ModelDesignation
+        //    {
+        //        ParamType = "MA",
+        //        Des_Name = desName
+        //    };
+        //    return dal.CheckDesignationDuplicate(obj);
+        //}
+        
         public List<ModelDesignation> GetDesignationList()
         {
             List<ModelDesignation> DesList = new List<ModelDesignation>();
@@ -475,6 +515,18 @@ namespace Eoffice.BAL
             bool result = dal.InsertDocPrior(obj);
             return result;
         }
+        
+        //// Check if Document Priority already exists
+        //public string CheckDocPriorityDuplicate(string priorName)
+        //{
+        //    ModelDocPriority obj = new ModelDocPriority
+        //    {
+        //        ParamType = "MA",
+        //        Prior_Name = priorName
+        //    };
+        //    return dal.CheckDocPriorityDuplicate(obj);
+        //}
+        
         public List<ModelDocPriority> GetDocPriorList()
         {
             List<ModelDocPriority> DocpriorList = new List<ModelDocPriority>();
@@ -501,6 +553,18 @@ namespace Eoffice.BAL
             bool result=dal.InsertDocType(obj);
             return result;
         }
+        
+        //// Check if Document Type already exists
+        //public string CheckDocTypeDuplicate(string docTypeName)
+        //{
+        //    ModelDocType obj = new ModelDocType
+        //    {
+        //        ParamType = "MA",
+        //        DocType_Name = docTypeName
+        //    };
+        //    return dal.CheckDocTypeDuplicate(obj);
+        //}
+        
         public List<ModelDocType> GetDocTypeList()
         {
             List<ModelDocType> DoctypeList = new List<ModelDocType>();
